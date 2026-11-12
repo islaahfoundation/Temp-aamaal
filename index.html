@@ -10,12 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-<link rel="manifest" href="./manifest.json" />
-<meta name="theme-color" content="#114B2F" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-<meta name="apple-mobile-web-app-title" content="Aamaal" />
-<link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#114B2F" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Aamaal" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
 
   <script>
     tailwind.config = {
@@ -60,13 +60,12 @@
       }
     }
     if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('./sw.js', { scope: './' })
-      .catch((err) => console.warn('SW registration failed:', err));
-  });
-}
-
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('./sw.js', { scope: './' })
+          .catch((err) => console.warn('SW registration failed:', err));
+      });
+    }
   </script>
 
   <style>
@@ -107,22 +106,22 @@
 <body class="h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex justify-center items-center bg-[#0d1f16] text-[#0D4A2E]">
 
   <!-- =========================================================================
-       MOBILE APP SHELL: Zero-Scroll 100dvh Locked Viewport (No Status Bar)
+       MOBILE APP SHELL: Locked Outer Shell with Smoothly Scrollable Viewport
   ========================================================================== -->
   <div id="app-shell" class="relative w-full max-w-[430px] mx-auto h-[100dvh] max-h-[100dvh] bg-[#F5F2E8] md:rounded-[36px] md:h-[96dvh] md:max-h-[890px] md:shadow-[0_25px_70px_rgba(0,0,0,0.65)] md:border-[5px] md:border-[#24382c] overflow-hidden flex flex-col justify-between">
 
     <!-- =========================================================================
-         MAIN VIEWPORT AREA (Flex-1, Zero-Scroll on Home, Scrollable on Subtabs)
+         MAIN VIEWPORT AREA (Flex-1, Smoothly Scrollable on All Tabs)
     ========================================================================== -->
     <div id="main-viewport" class="relative flex-1 min-h-0 w-full overflow-hidden flex flex-col">
 
       <!-- =======================================================================
-           TAB 1: HOME SCREEN (Compact Zero-Scroll Flex Layout — Fits 100% on Screen)
+           TAB 1: HOME SCREEN (Elegantly Spaced & Smoothly Scrollable Layout)
       ======================================================================== -->
-      <section id="screen-home" class="relative w-full h-full flex flex-col justify-between pb-1.5 overflow-hidden">
+      <section id="screen-home" class="relative w-full h-full overflow-y-auto no-scrollbar flex flex-col space-y-5 pb-6">
 
         <!-- 1. HERO BANNER SECTION (With Image Holders A & B) -->
-        <div class="relative w-full shrink-0 pt-2.5 pb-1.5 px-4 overflow-hidden">
+        <div class="relative w-full shrink-0 pt-4 pb-3 px-4 overflow-hidden">
 
           <!-- [IMAGE HOLDER B]: Mosque Image in the Hero Banner (id="img-holder-hero-mosque") -->
           <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
@@ -130,11 +129,11 @@
               id="img-holder-hero-mosque"
               data-slot="hero-mosque"
               alt="Hero Sunrise Mosque Banner"
-              src=""
+              src="img/header"
               class="w-full h-full object-cover object-right-top transition-opacity duration-300"
             />
             <!-- Bottom gradient blend into #F5F2E8 -->
-            <div class="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#F5F2E8] via-[#F5F2E8]/80 to-transparent"></div>
+            <div class="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#F5F2E8] via-[#F5F2E8]/85 to-transparent"></div>
           </div>
 
           <!-- TOP HEADER BAR: Logo Holder (A) + Brand Title + Action Icons -->
@@ -146,7 +145,7 @@
                   id="img-holder-logo"
                   data-slot="logo"
                   alt="Aamaal Mosque Arch Logo"
-                  src=""
+                  src="img/logo"
                   class="w-full h-full object-contain"
                 />
               </div>
@@ -174,31 +173,31 @@
             </div>
           </header>
 
-          <!-- COMPACT GREETING & SPIRITUAL HEADLINE -->
-          <div class="relative z-10 mt-1.5 pl-1">
+          <!-- GREETING & SPIRITUAL HEADLINE (Added comfortable top spacing) -->
+          <div class="relative z-10 mt-4 pl-1">
             <div class="flex items-center space-x-2">
               <p id="greeting-line" class="text-[13px] font-medium text-[#0D4A2E]">Assalamu Alaikum</p>
-              <button id="btn-personalize-pill" class="hidden text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#0D4A2E]/10 text-[#0D4A2E] border border-[#0D4A2E]/15">
+              <!--<button id="btn-personalize-pill" class="hidden text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#0D4A2E]/10 text-[#0D4A2E] border border-[#0D4A2E]/15">
                 ✨ Personalized
-              </button>
+              </button>-->
             </div>
-            <h2 class="font-serif text-[23px] leading-[1.08] font-semibold text-[#0D4A2E] mt-0.5 max-w-[215px]">
+            <h2 class="font-serif text-[23px] leading-[1.08] font-semibold text-[#0D4A2E] mt-1 max-w-[215px]">
               Your spiritual journey
             </h2>
-            <p class="text-[11.5px] font-medium text-[#0D4A2E]/90 mt-0.5">
+            <p class="text-[11.5px] font-medium text-[#0D4A2E]/90 mt-1">
               Take a step closer to Allah
             </p>
 
             <!-- Gold Diamond Ornamental Divider -->
-            <div class="flex items-center mt-1 max-w-[155px]">
+            <div class="flex items-center mt-2.5 max-w-[155px]">
               <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C99E4C] to-[#C99E4C]"></div>
               <div class="mx-1.5 w-2 h-2 rotate-45 border-[1.5px] border-[#C99E4C] bg-[#F5F2E8]"></div>
               <div class="h-[1px] flex-1 bg-gradient-to-l from-transparent via-[#C99E4C] to-[#C99E4C]"></div>
             </div>
           </div>
 
-          <!-- COMPACT SEARCH BAR -->
-          <div class="relative z-10 mt-1.5">
+          <!-- SEARCH BAR (Separated from Hero Copy with refined breathing room) -->
+          <div class="relative z-10 mt-4">
             <div class="relative flex items-center w-full h-[36px] rounded-full bg-[#F5F2E8]/95 backdrop-blur-md border border-[#DCD8C6] shadow-sm px-3.5 focus-within:ring-2 focus-within:ring-[#0D4A2E]/30 transition">
               <svg class="w-4 h-4 text-[#0D4A2E] shrink-0 mr-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -227,7 +226,7 @@
               id="img-holder-progress-bg"
               data-slot="progress-bg"
               alt="Today's Progress Background"
-              src=""
+              src="img/progress-bg.png"
               class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
             />
 
@@ -313,9 +312,9 @@
           </div>
         </div>
 
-        <!-- 3. COMPACT QUICK ACTIONS (4-Column Grid) -->
+        <!-- 3. QUICK ACTIONS (4-Column Grid) -->
         <div class="px-4 shrink-0">
-          <div class="flex items-center justify-between mb-1 px-0.5">
+          <div class="flex items-center justify-between mb-2.5 px-0.5">
             <h3 class="font-serif text-[16px] font-semibold text-[#0D4A2E]">Quick Actions</h3>
             <button id="btn-quick-see-all" class="flex items-center space-x-0.5 text-[11.5px] font-medium text-[#123824]">
               <span>See all</span>
@@ -325,7 +324,7 @@
             </button>
           </div>
 
-          <div class="grid grid-cols-4 gap-2">
+          <div class="grid grid-cols-4 gap-2.5">
             <button data-quick="tasbih" class="quick-action-btn flex flex-col items-center justify-center h-[58px] rounded-[16px] bg-[#EAE8D7] border border-white/80 shadow-quick-btn active:scale-95 transition">
               <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 28 28" fill="currentColor">
                 <circle cx="14" cy="4.5" r="2"/><circle cx="19" cy="6.5" r="2"/><circle cx="21.5" cy="11" r="2"/><circle cx="20.5" cy="16.5" r="2"/><circle cx="16.5" cy="20" r="2"/><circle cx="11.5" cy="20" r="2"/><circle cx="7.5" cy="16.5" r="2"/><circle cx="6.5" cy="11" r="2"/><circle cx="9" cy="6.5" r="2"/>
@@ -367,7 +366,7 @@
               id="img-holder-featured-bg"
               data-slot="featured-bg"
               alt="Daily Featured Card Background"
-              src=""
+              src="img/featured-bg.png"
               class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
             />
 
@@ -377,7 +376,7 @@
                 id="img-holder-featured-photo"
                 data-slot="featured-photo"
                 alt="Open Quran on Wooden Stand"
-                src=""
+                src="img/featured-photo.png"
                 class="w-full h-full object-cover"
               />
             </div>
@@ -405,7 +404,7 @@
 
         <!-- 5. CONTINUE READING SECTION (With Image Holders E1 & E2) -->
         <div class="px-4 shrink-0">
-          <div class="flex items-center justify-between mb-1 px-0.5">
+          <div class="flex items-center justify-between mb-2.5 px-0.5">
             <div class="flex items-center space-x-1.5">
               <svg class="w-4 h-4 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
@@ -422,7 +421,7 @@
           </div>
 
           <!-- Valley of Makkah Card -->
-          <div id="card-continue-reading" class="relative cursor-pointer rounded-[16px] bg-[#F5F2E6] border border-white/90 shadow-soft-card p-2 flex items-center space-x-3 overflow-hidden active:scale-[0.99] transition">
+          <div id="card-continue-reading" class="relative cursor-pointer rounded-[16px] bg-[#F5F2E6] border border-white/90 shadow-soft-card p-2.5 flex items-center space-x-3 overflow-hidden active:scale-[0.99] transition">
             <!-- [IMAGE HOLDER E1]: Continue Reading Card Background (id="img-holder-reading-bg") -->
             <img
               id="img-holder-reading-bg"
@@ -464,9 +463,9 @@
           </div>
         </div>
 
-        <!-- 6. YOUR REMINDER BANNER (Compact Bottom Card) -->
+        <!-- 6. YOUR REMINDER BANNER (Bottom Card) -->
         <div class="px-4 shrink-0">
-          <div id="card-thursday-reminder" class="cursor-pointer relative rounded-[16px] bg-gradient-to-r from-[#DFDEC9] via-[#E5E4D2] to-[#C9D2BA] border border-white/80 shadow-soft-card px-3 py-2 flex items-center justify-between overflow-hidden active:scale-[0.99] transition">
+          <div id="card-thursday-reminder" class="cursor-pointer relative rounded-[16px] bg-gradient-to-r from-[#DFDEC9] via-[#E5E4D2] to-[#C9D2BA] border border-white/80 shadow-soft-card px-3.5 py-2.5 flex items-center justify-between overflow-hidden active:scale-[0.99] transition">
             <!-- Emerald Mosque Skyline Watermark -->
             <svg class="absolute right-0 bottom-0 h-full w-36 pointer-events-none" viewBox="0 0 200 72" fill="none">
               <g fill="#195B37" opacity="0.82">
@@ -613,7 +612,7 @@
     </div>
 
     <!-- =========================================================================
-         DOCKED BOTTOM FOOTER BAR (Always 100% Visible Without Scrolling)
+         DOCKED BOTTOM FOOTER BAR (Always Fixed at Bottom of Shell)
     ========================================================================== -->
     <nav class="relative z-30 h-[62px] shrink-0 bg-[#F5F2E8]/95 backdrop-blur-md rounded-t-[24px] shadow-nav-bar border-t border-white/90 px-6 flex items-center justify-between select-none">
       <!-- Home Tab -->
@@ -711,7 +710,7 @@
           <button id="btn-close-assets" class="w-8 h-8 rounded-full bg-[#EAE8D7] flex items-center justify-center text-[#0D4A2E]">✕</button>
         </div>
         <p class="text-[11.5px] text-[#4A5E51] mt-1.5">
-          Paste any image URL or upload a photo from your device for each dedicated HTML `<img>` holder:
+          Paste any image URL or upload a photo from your device for each dedicated HTML `&lt;img&gt;` holder:
         </p>
 
         <div id="asset-slots-list" class="mt-3 space-y-2.5">
