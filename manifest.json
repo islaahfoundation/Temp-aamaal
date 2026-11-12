@@ -1,9 +1,8 @@
 {
-  "id": "./?app=aamaal-circle",
-  "name": "Aamaal Circle — Live with Purpose",
+  "name": "Aamaal Circle",
   "short_name": "Aamaal",
   "description": "Your daily spiritual companion for Dhikr, Duas, and reflections.",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -11,16 +10,16 @@
   "theme_color": "#114B2F",
   "icons": [
     {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%23114B2F'/%3E%3Cpath d='M256 96c-12 28-48 52-48 92 0 26 16 46 48 46s48-20 48-46c0-40-36-64-48-92z' fill='%23E5C168'/%3E%3Cpath d='M136 376h240v28H136z' fill='%23E5C168'/%3E%3Cpath d='M168 256c0-48.6 39.4-88 88-88s88 39.4 88 88v104H168V256z' fill='%23F6F3E9'/%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
     },
     {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23114B2F'/%3E%3Cpath d='M256 116c-10 24-40 44-40 78 0 22 14 40 40 40s40-18 40-40c0-34-30-54-40-78z' fill='%23E5C168'/%3E%3Cpath d='M156 366h200v24H156z' fill='%23E5C168'/%3E%3Cpath d='M184 264c0-39.8 32.2-72 72-72s72 32.2 72 72v88H184v-88z' fill='%23F6F3E9'/%3E%3C/svg%3E",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ]
 }
