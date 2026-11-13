@@ -87,9 +87,6 @@
 </head>
 <body class="h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex justify-center items-center bg-[#0d1f16] text-[#0D4A2E]">
 
-  <!-- =========================================================================
-       MOBILE APP SHELL
-  ========================================================================== -->
   <div id="app-shell" class="relative w-full max-w-[430px] mx-auto h-[100dvh] max-h-[100dvh] bg-[#F5F2E8] md:rounded-[36px] md:h-[96dvh] md:max-h-[890px] md:shadow-[0_25px_70px_rgba(0,0,0,0.65)] md:border-[5px] md:border-[#24382c] overflow-hidden flex flex-col justify-between">
 
     <div id="main-viewport" class="relative flex-1 min-h-0 w-full overflow-hidden flex flex-col">
@@ -101,16 +98,13 @@
 
         <!-- 1. HERO BANNER SECTION -->
         <div class="relative w-full shrink-0 pt-6 pb-4 px-4 overflow-hidden">
-          <!-- B. Mosque Image -->
           <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-            <img id="img-holder-hero-mosque" alt="Hero Sunrise Mosque Banner" src="./img/header.png" class="w-full h-full object-cover object-right-top transition-opacity duration-300" />
+            <img id="img-holder-hero-mosque" alt="Hero Sunrise Mosque Banner" src="./img/hero-mosque.png" class="w-full h-full object-cover object-right-top transition-opacity duration-300" />
             <div class="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#F5F2E8] via-[#F5F2E8]/80 to-transparent"></div>
           </div>
 
-          <!-- TOP HEADER BAR -->
           <header class="relative z-10 flex items-center justify-between">
             <div class="flex items-center space-x-2.5">
-              <!-- A. Logo -->
               <div class="w-[54px] h-[46px] relative shrink-0 flex items-center justify-center overflow-hidden rounded-lg">
                 <img id="img-holder-logo" alt="Aamaal Mosque Arch Logo" src="./img/logo.png" class="w-full h-full object-contain" />
               </div>
@@ -120,7 +114,6 @@
               </div>
             </div>
 
-            <!-- Header Action Icons -->
             <div class="flex items-center space-x-2">
               <button id="btn-notifications" aria-label="Notifications" class="relative w-8 h-8 rounded-full bg-[#F5F2E8]/85 backdrop-blur-md border border-white/80 shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -129,8 +122,7 @@
                 </svg>
                 <span id="notif-dot" class="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-[#C99E4C] ring-1 ring-[#F5F2E8]"></span>
               </button>
-              <!-- Settings Button Maintained -->
-              <button id="btn-open-settings" aria-label="Open Settings" class="w-8 h-8 rounded-full bg-[#F5F2E8]/85 backdrop-blur-md border border-white/80 shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition">
+              <button id="btn-settings" aria-label="Settings" class="w-8 h-8 rounded-full bg-[#F5F2E8]/85 backdrop-blur-md border border-white/80 shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="3"></circle>
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -139,7 +131,6 @@
             </div>
           </header>
 
-          <!-- COMPACT GREETING -->
           <div class="relative z-10 mt-5 pl-1">
             <div class="flex items-center space-x-2">
               <p id="greeting-line" class="text-[13px] font-medium text-[#0D4A2E]">Assalamu Alaikum</p>
@@ -155,7 +146,6 @@
             </div>
           </div>
 
-          <!-- COMPACT SEARCH BAR -->
           <div class="relative z-10 mt-4">
             <div class="relative flex items-center w-full h-[36px] rounded-full bg-[#F5F2E8]/95 backdrop-blur-md border border-[#DCD8C6] shadow-sm px-3.5 focus-within:ring-2 focus-within:ring-[#0D4A2E]/30 transition">
               <svg class="w-4 h-4 text-[#0D4A2E] shrink-0 mr-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -165,12 +155,10 @@
           </div>
         </div>
 
-        <!-- 2. TODAY'S PROGRESS CARD (Tight spacing: -mt-2) -->
-        <div class="px-4 shrink-0 !-mt-0.5 relative z-10">
+        <!-- 2. TODAY'S PROGRESS CARD -->
+        <div class="px-4 shrink-0 !-mt-2 relative z-10">
           <div class="relative rounded-[18px] bg-[#0F4C2B] px-3.5 py-2.5 text-white shadow-progress-card overflow-hidden border border-white/15">
-            <!-- C. Background Progress -->
             <img id="img-holder-progress-bg" alt="Today's Progress Background" src="./img/progress-bg.png" class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" />
-            
             <div class="relative z-10 flex items-center">
               <div class="relative w-[76px] h-[76px] flex items-center justify-center shrink-0 mr-2.5">
                 <svg class="w-full h-full" viewBox="0 0 100 100">
@@ -184,9 +172,7 @@
                 </svg>
                 <div class="absolute inset-0 flex items-center justify-center"><span id="progress-percent-text" class="text-[19px] font-bold tracking-tight text-white">0%</span></div>
               </div>
-              
               <div class="w-[1px] h-16 bg-white/20 mr-3 shrink-0"></div>
-              
               <div class="flex-1 min-w-0">
                 <div class="flex items-start justify-between">
                   <div>
@@ -216,8 +202,8 @@
           </div>
         </div>
 
-        <!-- 3. COMPACT QUICK ACTIONS (Elegant spacing: mt-6) -->
-        <div class="px-4 shrink-0 mt-7">
+        <!-- 3. QUICK ACTIONS -->
+        <div class="px-4 shrink-0 mt-6">
           <div class="flex items-center justify-between mb-2.5 px-0.5">
             <h3 class="font-serif text-[16px] font-semibold text-[#0D4A2E]">Quick Actions</h3>
             <button id="btn-quick-see-all" class="flex items-center space-x-0.5 text-[11.5px] font-medium text-[#123824]">
@@ -245,16 +231,13 @@
           </div>
         </div>
 
-        <!-- 4. DAILY FEATURED DUA CARD (Elegant spacing: mt-6) -->
-        <div class="px-4 shrink-0 mt-7">
+        <!-- 4. DAILY FEATURED DUA CARD -->
+        <div class="px-4 shrink-0 mt-6">
           <div class="relative rounded-[18px] bg-[#F3EFE2] border border-white/90 shadow-soft-card overflow-hidden flex h-[112px]">
-            <!-- D1. Featured BG -->
             <img id="img-holder-featured-bg" alt="Daily Featured Card Background" src="./img/featured-bg.png" class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" />
-            <!-- D2. Featured Photo -->
             <div class="w-[40%] h-full relative overflow-hidden shrink-0 z-10">
               <img id="img-holder-featured-photo" alt="Open Quran on Wooden Stand" src="./img/featured-photo.png" class="w-full h-full object-cover" />
             </div>
-            
             <div class="w-[60%] py-2 px-3 flex flex-col justify-center relative z-10">
               <span class="inline-block self-start px-2 py-0.5 rounded-full bg-[#DCE3C8] text-[#0D4A2E] text-[9px] font-bold tracking-[0.06em] uppercase">DAILY FEATURED DUA</span>
               <h4 class="font-serif text-[16px] leading-[1.12] font-semibold text-[#0D4A2E] mt-1">Dua for ease in affairs</h4>
@@ -266,7 +249,7 @@
           </div>
         </div>
 
-        <!-- 5. CONTINUE READING SECTION (Elegant spacing: mt-6) -->
+        <!-- 5. CONTINUE READING SECTION -->
         <div class="px-4 shrink-0 mt-6">
           <div class="flex items-center justify-between mb-2.5 px-0.5">
             <div class="flex items-center space-x-1.5">
@@ -278,13 +261,10 @@
             </button>
           </div>
           <div id="card-continue-reading" class="relative cursor-pointer rounded-[16px] bg-[#F5F2E6] border border-white/90 shadow-soft-card p-2 flex items-center space-x-3 overflow-hidden active:scale-[0.99] transition">
-            <!-- E1. Reading BG -->
             <img id="img-holder-reading-bg" alt="Continue Reading Card Background" src="./img/reading-bg.png" class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" />
-            <!-- E2. Reading Photo -->
             <div class="relative z-10 w-[86px] h-[48px] rounded-[10px] overflow-hidden shrink-0 shadow-sm">
               <img id="img-holder-reading-photo" alt="The Valley of Makkah Sunrise" src="./img/reading-photo.png" class="w-full h-full object-cover" />
             </div>
-            
             <div class="relative z-10 flex-1 min-w-0">
               <h4 class="font-serif text-[14.5px] font-semibold text-[#0D4A2E] leading-tight truncate">The Valley of Makkah</h4>
               <p id="continue-story-subtitle" class="text-[11px] text-[#4A5D50] truncate mt-0.5">Lesson 2 of 6 • Character Over Power</p>
@@ -298,7 +278,7 @@
           </div>
         </div>
 
-        <!-- 6. YOUR REMINDER BANNER (Elegant spacing: mt-6) -->
+        <!-- 6. YOUR REMINDER BANNER -->
         <div class="px-4 shrink-0 mt-6">
           <div id="card-thursday-reminder" class="cursor-pointer relative rounded-[16px] bg-gradient-to-r from-[#DFDEC9] via-[#E5E4D2] to-[#C9D2BA] border border-white/80 shadow-soft-card px-3 py-2 flex items-center justify-between overflow-hidden active:scale-[0.99] transition">
             <svg class="absolute right-0 bottom-0 h-full w-36 pointer-events-none" viewBox="0 0 200 72" fill="none"><g fill="#195B37" opacity="0.82"><rect x="88" y="34" width="3.5" height="38"/><path d="M88 34 L89.75 26 L91.5 34 Z"/><rect x="128" y="22" width="4" height="50"/><path d="M128 22 L130 13 L132 22 Z"/><path d="M98 54 C98 35 122 35 122 54 Z"/><path d="M72 60 C72 48 86 48 86 60 Z"/><path d="M135 58 C135 46 150 46 150 58 Z"/><rect x="65" y="54" width="125" height="18"/></g></svg>
@@ -316,7 +296,6 @@
             </div>
           </div>
         </div>
-
       </section>
 
       <!-- =======================================================================
@@ -339,7 +318,6 @@
           <p id="tasbih-arabic" class="font-arabic text-[28px] leading-relaxed text-[#F0D58C]">سُبْحَانَ اللَّهِ</p>
           <h3 id="tasbih-translit" class="font-serif text-[18px] font-semibold mt-0.5">SubhanAllah</h3>
           <p id="tasbih-meaning" class="text-[12px] text-white/80">"Glory be to Allah"</p>
-
           <div class="mt-3 inline-flex items-center bg-black/25 rounded-full p-1 border border-white/15">
             <button data-target="33" class="tasbih-target-btn px-3 py-0.5 rounded-full text-[11.5px] font-semibold bg-[#DFB75A] text-[#07361D] transition">33</button>
             <button data-target="99" class="tasbih-target-btn px-3 py-0.5 rounded-full text-[11.5px] font-semibold text-white/80 transition">99</button>
@@ -357,7 +335,6 @@
             <span id="tasbih-current-count" class="font-serif text-[48px] font-bold text-[#0D4A2E] leading-none my-1">0</span>
             <span id="tasbih-target-label" class="text-[12px] font-medium text-[#3B5947]">Target: 33</span>
           </button>
-
           <p class="text-[12px] text-[#4E6456] mt-3">
             Total Dhikr Today: <strong id="tasbih-total-today" class="text-[#0D4A2E]">0</strong> • Haptic pulse enabled
           </p>
@@ -380,18 +357,16 @@
             <button data-filter="Saved" class="dua-filter-chip px-3 py-1 rounded-full text-[12px] font-medium bg-[#EAE8D7] text-[#0D4A2E] transition whitespace-nowrap">Saved</button>
           </div>
         </div>
-
         <div id="duas-list-container" class="mt-3 space-y-2.5"></div>
       </section>
 
       <!-- =======================================================================
-           TAB 4: MORE & PERSONALIZATION 
+           TAB 4: MORE & PERSONALIZATION
       ======================================================================== -->
       <section id="screen-more" class="hidden h-full overflow-y-auto no-scrollbar px-5 pt-4 pb-6">
         <span class="text-[10.5px] font-bold uppercase tracking-widest text-[#C99E4C]">Aamaal Circle</span>
         <h2 class="font-serif text-[24px] font-semibold text-[#0D4A2E]">Profile & Settings</h2>
 
-        <!-- User Name Input Card -->
         <div class="mt-3 rounded-[18px] bg-[#EAE8D7] p-3.5 border border-white/80 shadow-soft-card">
           <label class="block text-[11px] font-semibold uppercase tracking-wider text-[#0D4A2E]/80">Your Name / Kunya</label>
           <div class="mt-1.5 flex space-x-2">
@@ -400,21 +375,18 @@
           </div>
         </div>
 
-        <!-- Interactive Personalization Chips -->
         <div class="mt-3 rounded-[18px] bg-[#EAE8D7] p-3.5 border border-white/80 shadow-soft-card">
           <h3 class="font-serif text-[16px] font-semibold text-[#0D4A2E]">Personalization Focus</h3>
           <p class="text-[11.5px] text-[#4A5E51]">Select spiritual goals to prioritize:</p>
           <div id="profile-focus-chips" class="flex flex-wrap gap-1.5 mt-2"></div>
         </div>
 
-        <!-- Reset Controls -->
         <div class="mt-3 flex space-x-2">
           <button id="btn-reset-all" class="w-full py-2.5 rounded-xl bg-[#E5DEC9] text-[#6B2D26] text-[12.5px] font-medium active:scale-95 transition">
-            Reset All Progress Data
+            Reset All Progress
           </button>
         </div>
       </section>
-
     </div>
 
     <!-- =========================================================================
@@ -422,32 +394,45 @@
     ========================================================================== -->
     <nav class="relative z-30 h-[62px] shrink-0 bg-[#F5F2E8]/95 backdrop-blur-md rounded-t-[24px] shadow-nav-bar border-t border-white/90 px-6 flex items-center justify-between select-none">
       <button data-tab="home" class="nav-tab-btn relative flex flex-col items-center justify-center w-16 h-full text-[#0D4A2E] transition">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L3 10.5h2.5v9.5h5v-6h3v6h5v-9.5H21L12 3z"/></svg>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 3L3 10.5h2.5v9.5h5v-6h3v6h5v-9.5H21L12 3z"/>
+        </svg>
         <span class="text-[11.5px] font-semibold mt-0.5">Home</span>
         <span id="indicator-home" class="nav-indicator absolute bottom-1 w-10 h-[3px] rounded-full bg-[#0D4A2E]"></span>
       </button>
 
       <button data-tab="tasbih" class="nav-tab-btn relative flex flex-col items-center justify-center w-16 h-full text-[#4E5953] transition">
-        <svg class="w-5 h-5" viewBox="0 0 28 28" fill="currentColor"><circle cx="14" cy="4.5" r="1.8"/><circle cx="18.5" cy="5.8" r="1.8"/><circle cx="21.5" cy="9.2" r="1.8"/><circle cx="22.2" cy="13.8" r="1.8"/><circle cx="20.2" cy="18" r="1.8"/><circle cx="16.4" cy="20.5" r="1.8"/><circle cx="11.6" cy="20.5" r="1.8"/><circle cx="7.8" cy="18" r="1.8"/><circle cx="5.8" cy="13.8" r="1.8"/><circle cx="6.5" cy="9.2" r="1.8"/><circle cx="9.5" cy="5.8" r="1.8"/><path d="M14 22v3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <svg class="w-5 h-5" viewBox="0 0 28 28" fill="currentColor">
+          <circle cx="14" cy="4.5" r="1.8"/><circle cx="18.5" cy="5.8" r="1.8"/><circle cx="21.5" cy="9.2" r="1.8"/><circle cx="22.2" cy="13.8" r="1.8"/><circle cx="20.2" cy="18" r="1.8"/><circle cx="16.4" cy="20.5" r="1.8"/><circle cx="11.6" cy="20.5" r="1.8"/><circle cx="7.8" cy="18" r="1.8"/><circle cx="5.8" cy="13.8" r="1.8"/><circle cx="6.5" cy="9.2" r="1.8"/><circle cx="9.5" cy="5.8" r="1.8"/>
+          <path d="M14 22v3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
         <span class="text-[11.5px] font-medium mt-0.5">Tasbih</span>
         <span id="indicator-tasbih" class="nav-indicator hidden absolute bottom-1 w-10 h-[3px] rounded-full bg-[#0D4A2E]"></span>
       </button>
 
       <button data-tab="duas" class="nav-tab-btn relative flex flex-col items-center justify-center w-16 h-full text-[#4E5953] transition">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
         <span class="text-[11.5px] font-medium mt-0.5">Duas</span>
         <span id="indicator-duas" class="nav-indicator hidden absolute bottom-1 w-10 h-[3px] rounded-full bg-[#0D4A2E]"></span>
       </button>
 
       <button data-tab="more" class="nav-tab-btn relative flex flex-col items-center justify-center w-16 h-full text-[#4E5953] transition">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+        </svg>
         <span class="text-[11.5px] font-medium mt-0.5">More</span>
         <span id="indicator-more" class="nav-indicator hidden absolute bottom-1 w-10 h-[3px] rounded-full bg-[#0D4A2E]"></span>
       </button>
     </nav>
 
     <!-- =========================================================================
-         MODAL 1: DUA / STORY READER DRAWER
+         READER MODAL
     ========================================================================== -->
     <div id="reader-modal" class="hidden absolute inset-0 z-40 bg-black/50 backdrop-blur-sm flex items-end justify-center">
       <div class="w-full bg-[#F5F2E8] rounded-t-[28px] p-5 max-h-[84%] overflow-y-auto shadow-2xl border-t border-white">
@@ -487,29 +472,6 @@
     </div>
 
     <!-- =========================================================================
-         MODAL 2: SETTINGS (Replaced Image Uploader)
-    ========================================================================== -->
-    <div id="settings-modal" class="hidden absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center">
-      <div class="w-full bg-[#F5F2E8] rounded-t-[28px] p-5 max-h-[88%] overflow-y-auto shadow-2xl border-t border-white">
-        <div class="flex items-center justify-between pb-2 border-b border-[#DED9C4]">
-          <div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-[#C99E4C]">Application</span>
-            <h3 class="font-serif text-[20px] font-semibold text-[#0D4A2E]">Settings</h3>
-          </div>
-          <button id="btn-close-settings" class="w-8 h-8 rounded-full bg-[#EAE8D7] flex items-center justify-center text-[#0D4A2E]">✕</button>
-        </div>
-        <p class="text-[12px] text-[#4A5E51] mt-3">
-          Additional settings and preferences will be available here soon.
-        </p>
-        <div class="mt-6 flex space-x-2">
-          <button id="btn-done-settings" class="flex-1 py-2.5 rounded-full bg-[#0D4A2E] text-white font-semibold text-[12.5px]">
-            Done
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- =========================================================================
          TOAST NOTIFICATION PILL
     ========================================================================== -->
     <div id="toast-pill" class="pointer-events-none opacity-0 transition-all duration-300 absolute top-3 left-1/2 -translate-x-1/2 z-50 px-3.5 py-1.5 rounded-full bg-[#07361D] text-white text-[11.5px] font-medium shadow-xl border border-[#C99E4C]/40 flex items-center space-x-2 whitespace-nowrap">
@@ -519,14 +481,10 @@
 
   </div>
 
-  <!-- =========================================================================
-       VANILLA JAVASCRIPT: APP LOGIC
-  ========================================================================== -->
   <script>
     (function () {
       'use strict';
 
-      // --- HAPTIC FEEDBACK HELPER ---
       function triggerHaptic(pattern = 12) {
         try {
           if (navigator && typeof navigator.vibrate === 'function') {
@@ -535,7 +493,6 @@
         } catch (e) {}
       }
 
-      // --- TOAST HELPER ---
       let toastTimer = null;
       function showToast(message) {
         const pill = document.getElementById('toast-pill');
@@ -551,33 +508,23 @@
         }, 2100);
       }
 
-      // --- CATALOG OF DUAS & STORIES ---
       const DUAS_LIBRARY = [
         {
-          id: 'ease-in-affairs',
-          category: 'Ease',
-          badge: 'DAILY FEATURED DUA',
-          title: 'Dua for ease in affairs',
+          id: 'ease-in-affairs', category: 'Ease', badge: 'DAILY FEATURED DUA', title: 'Dua for ease in affairs',
           shortDesc: 'Recite when facing difficulties.',
           arabic: 'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا',
           translit: "Allahumma la sahla illa ma ja'altahu sahla, wa Anta taj'alul-hazna idha shi'ta sahla.",
           translation: '"O Allah, there is no ease except in that which You have made easy, and You make the difficulty, if You wish, easy." (Ibn Hibban)'
         },
         {
-          id: 'anxious-heart',
-          category: 'Peace',
-          badge: 'PROPHETIC REFUGE',
-          title: 'Dua for anxiety & sorrow',
+          id: 'anxious-heart', category: 'Peace', badge: 'PROPHETIC REFUGE', title: 'Dua for anxiety & sorrow',
           shortDesc: 'Calm a restless heart with reliance on Allah.',
           arabic: 'حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ',
           translit: "HasbunAllahu wa ni'mal wakeel.",
           translation: '"Sufficient for us is Allah, and [He is] the best Disposer of affairs." (Quran 3:173)'
         },
         {
-          id: 'thursday-salawat',
-          category: 'Gratitude',
-          badge: 'THURSDAY NIGHT SUNNAH',
-          title: 'Salawat Ibrahimiyyah (6x)',
+          id: 'thursday-salawat', category: 'Gratitude', badge: 'THURSDAY NIGHT SUNNAH', title: 'Salawat Ibrahimiyyah (6x)',
           shortDesc: 'Send abundant blessings upon the Prophet ﷺ.',
           arabic: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ',
           translit: "Allahumma salli 'ala Muhammadin wa 'ala aali Muhammad.",
@@ -605,8 +552,7 @@
         'Ease in Affairs', 'Daily Dhikr', 'Inner Peace', 'Quranic Stories', 'Thursday Salawat', 'Consistent Gratitude'
       ];
 
-      // --- STATE MANAGEMENT ---
-      const STORAGE_KEY = 'aamaal_circle_compact_v2';
+      const STORAGE_KEY = 'aamaal_circle_compact_v3';
       const defaultState = {
         userName: '',
         focusChips: ['Ease in Affairs', 'Daily Dhikr'],
@@ -627,8 +573,7 @@
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if (!raw) return { ...defaultState };
-          const parsed = JSON.parse(raw);
-          return { ...defaultState, ...parsed };
+          return { ...defaultState, ...JSON.parse(raw) };
         } catch (e) {
           return { ...defaultState };
         }
@@ -640,7 +585,6 @@
         } catch (e) {}
       }
 
-      // --- UPDATE DASHBOARD UI ---
       function updateDashboardUI() {
         const greetingEl = document.getElementById('greeting-line');
         const pillEl = document.getElementById('btn-personalize-pill');
@@ -655,15 +599,11 @@
         let goalsCompleted = 0;
         if (state.dhikrCount > 0) goalsCompleted++;
         if (state.sessionsCount > 0) goalsCompleted++;
-        if (state.remindersCount > 0 && (state.dhikrCount > 0 || state.sessionsCount > 0)) {
-          goalsCompleted++;
-        }
+        if (state.remindersCount > 0 && (state.dhikrCount > 0 || state.sessionsCount > 0)) goalsCompleted++;
 
         const percentage = Math.round((goalsCompleted / 3) * 100);
         const circumference = 251.2;
-        const visualOffset = percentage === 0
-          ? circumference * 0.22
-          : circumference - (percentage / 100) * circumference;
+        const visualOffset = percentage === 0 ? circumference * 0.22 : circumference - (percentage / 100) * circumference;
 
         document.getElementById('progress-ring-arc').style.strokeDashoffset = visualOffset;
         document.getElementById('progress-percent-text').textContent = `${percentage}%`;
@@ -692,7 +632,6 @@
         document.getElementById('tasbih-ring-arc').style.strokeDashoffset = 339.3 - tasbihRatio * 339.3;
       }
 
-      // --- NAVIGATION CONTROLLER ---
       function switchTab(tabName) {
         triggerHaptic(10);
         ['home', 'tasbih', 'duas', 'more'].forEach(t => {
@@ -713,7 +652,6 @@
         });
       }
 
-      // --- TASBIH PHRASES ---
       function renderTasbihPhrases() {
         const container = document.getElementById('tasbih-phrase-list');
         container.innerHTML = '';
@@ -737,7 +675,6 @@
         });
       }
 
-      // --- DUAS LIST ---
       function renderDuasList(searchQuery = '') {
         const container = document.getElementById('duas-list-container');
         container.innerHTML = '';
@@ -799,7 +736,6 @@
         });
       }
 
-      // --- READER MODAL ---
       let currentModalContext = null;
       function openReaderModal(item, type = 'dua') {
         triggerHaptic(15);
@@ -812,7 +748,6 @@
         document.getElementById('reader-modal').classList.remove('hidden');
       }
 
-      // --- PERSONALIZATION CHIPS ---
       function renderFocusChips() {
         const container = document.getElementById('profile-focus-chips');
         if (!container) return;
@@ -838,7 +773,6 @@
         });
       }
 
-      // --- INIT EVENTS ---
       function initEvents() {
         document.querySelectorAll('.nav-tab-btn').forEach(btn => {
           btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
@@ -915,7 +849,6 @@
           showToast('Bookmarks updated');
         });
 
-        // Search
         const searchInput = document.getElementById('home-search-input');
         const triggerSearch = () => {
           state.activeDuaFilter = 'all';
@@ -925,7 +858,6 @@
         document.getElementById('btn-search-go').addEventListener('click', triggerSearch);
         searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') triggerSearch(); });
 
-        // Tasbih Tap
         const tapBtn = document.getElementById('btn-tasbih-tap');
         tapBtn.addEventListener('click', () => {
           state.tasbihCurrent += 1;
@@ -977,23 +909,13 @@
           });
         });
 
-        // Settings Modal (Replaced Assets Modal)
-        const openSettingsModal = () => {
-          triggerHaptic(12);
-          document.getElementById('settings-modal').classList.remove('hidden');
-        };
-        document.getElementById('btn-open-settings').addEventListener('click', openSettingsModal);
-        
-        document.getElementById('btn-close-settings').addEventListener('click', () => {
-          document.getElementById('settings-modal').classList.add('hidden');
-        });
-        document.getElementById('btn-done-settings').addEventListener('click', () => {
-          document.getElementById('settings-modal').classList.add('hidden');
-        });
-
         document.getElementById('btn-notifications').addEventListener('click', () => {
           document.getElementById('notif-dot').classList.add('hidden');
           showToast('Reminder: 6 Salawat every Thursday night');
+        });
+
+        document.getElementById('btn-settings').addEventListener('click', () => {
+          switchTab('more');
         });
 
         const nameInput = document.getElementById('input-user-name');
@@ -1018,7 +940,6 @@
         });
       }
 
-      // --- BOOTSTRAP ---
       window.addEventListener('DOMContentLoaded', () => {
         renderTasbihPhrases();
         renderDuasList();
