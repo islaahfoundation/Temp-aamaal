@@ -22,28 +22,10 @@
       theme: {
         extend: {
           colors: {
-            cream: {
-              50: '#FCFBF7',
-              100: '#F5F2E8',
-              200: '#EFECE0',
-              300: '#E5E2D0',
-            },
-            emerald: {
-              850: '#0D4A2E',
-              900: '#07361D',
-              950: '#042212',
-            },
-            sage: {
-              100: '#EAE8D7',
-              200: '#DFDEC9',
-              300: '#C9CDAC',
-            },
-            gold: {
-              300: '#F0D58C',
-              400: '#DFB75A',
-              500: '#C99E4C',
-              600: '#A67C1E',
-            }
+            cream: { 50: '#FCFBF7', 100: '#F5F2E8', 200: '#EFECE0', 300: '#E5E2D0' },
+            emerald: { 850: '#0D4A2E', 900: '#07361D', 950: '#042212' },
+            sage: { 100: '#EAE8D7', 200: '#DFDEC9', 300: '#C9CDAC' },
+            gold: { 300: '#F0D58C', 400: '#DFB75A', 500: '#C99E4C', 600: '#A67C1E' }
           },
           fontFamily: {
             serif: ['"Playfair Display"', 'Georgia', 'serif'],
@@ -106,48 +88,31 @@
 <body class="h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex justify-center items-center bg-[#0d1f16] text-[#0D4A2E]">
 
   <!-- =========================================================================
-       MOBILE APP SHELL: Locked Outer Shell with Smoothly Scrollable Viewport
+       MOBILE APP SHELL
   ========================================================================== -->
   <div id="app-shell" class="relative w-full max-w-[430px] mx-auto h-[100dvh] max-h-[100dvh] bg-[#F5F2E8] md:rounded-[36px] md:h-[96dvh] md:max-h-[890px] md:shadow-[0_25px_70px_rgba(0,0,0,0.65)] md:border-[5px] md:border-[#24382c] overflow-hidden flex flex-col justify-between">
 
-    <!-- =========================================================================
-         MAIN VIEWPORT AREA (Flex-1, Smoothly Scrollable on All Tabs)
-    ========================================================================== -->
     <div id="main-viewport" class="relative flex-1 min-h-0 w-full overflow-hidden flex flex-col">
 
       <!-- =======================================================================
-           TAB 1: HOME SCREEN (Elegantly Spaced & Smoothly Scrollable Layout)
+           TAB 1: HOME SCREEN (Scrollable, Precise Custom Spacing)
       ======================================================================== -->
-      <section id="screen-home" class="relative w-full h-full overflow-y-auto no-scrollbar flex flex-col space-y-5 pb-6">
+      <section id="screen-home" class="relative w-full h-full overflow-y-auto no-scrollbar flex flex-col pb-6">
 
-        <!-- 1. HERO BANNER SECTION (With Image Holders A & B) -->
-        <div class="relative w-full shrink-0 pt-4 pb-3 px-4 overflow-hidden">
-
-          <!-- [IMAGE HOLDER B]: Mosque Image in the Hero Banner (id="img-holder-hero-mosque") -->
+        <!-- 1. HERO BANNER SECTION -->
+        <div class="relative w-full shrink-0 pt-6 pb-4 px-4 overflow-hidden">
+          <!-- B. Mosque Image -->
           <div class="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-            <img
-              id="img-holder-hero-mosque"
-              data-slot="hero-mosque"
-              alt="Hero Sunrise Mosque Banner"
-              src="./img/header.png"
-              class="w-full h-full object-cover object-right-top transition-opacity duration-300"
-            />
-            <!-- Bottom gradient blend into #F5F2E8 -->
-            <div class="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#F5F2E8] via-[#F5F2E8]/85 to-transparent"></div>
+            <img id="img-holder-hero-mosque" alt="Hero Sunrise Mosque Banner" src="./img/hero-mosque.png" class="w-full h-full object-cover object-right-top transition-opacity duration-300" />
+            <div class="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#F5F2E8] via-[#F5F2E8]/80 to-transparent"></div>
           </div>
 
-          <!-- TOP HEADER BAR: Logo Holder (A) + Brand Title + Action Icons -->
+          <!-- TOP HEADER BAR -->
           <header class="relative z-10 flex items-center justify-between">
             <div class="flex items-center space-x-2.5">
-              <!-- [IMAGE HOLDER A]: Aamaal Logo (id="img-holder-logo") -->
+              <!-- A. Logo -->
               <div class="w-[54px] h-[46px] relative shrink-0 flex items-center justify-center overflow-hidden rounded-lg">
-                <img
-                  id="img-holder-logo"
-                  data-slot="logo"
-                  alt="Aamaal Mosque Arch Logo"
-                  src="./img/logo.png"
-                  class="w-full h-full object-contain"
-                />
+                <img id="img-holder-logo" alt="Aamaal Mosque Arch Logo" src="./img/logo.png" class="w-full h-full object-contain" />
               </div>
               <div class="-mt-0.5">
                 <h1 class="font-serif text-[25px] leading-none font-semibold text-[#0D4A2E] tracking-tight">Aamaal</h1>
@@ -155,7 +120,7 @@
               </div>
             </div>
 
-            <!-- Right Circular Buttons: Notifications + Asset/Settings Manager -->
+            <!-- Header Action Icons -->
             <div class="flex items-center space-x-2">
               <button id="btn-notifications" aria-label="Notifications" class="relative w-8 h-8 rounded-full bg-[#F5F2E8]/85 backdrop-blur-md border border-white/80 shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -164,7 +129,8 @@
                 </svg>
                 <span id="notif-dot" class="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-[#C99E4C] ring-1 ring-[#F5F2E8]"></span>
               </button>
-              <button id="btn-open-assets" title="Customize Image Holders" aria-label="Customize Image Slots" class="w-8 h-8 rounded-full bg-[#F5F2E8]/85 backdrop-blur-md border border-white/80 shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition">
+              <!-- Settings Button Maintained -->
+              <button id="btn-open-settings" aria-label="Open Settings" class="w-8 h-8 rounded-full bg-[#F5F2E8]/85 backdrop-blur-md border border-white/80 shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="3"></circle>
                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -173,22 +139,15 @@
             </div>
           </header>
 
-          <!-- GREETING & SPIRITUAL HEADLINE (Added comfortable top spacing) -->
-          <div class="relative z-10 mt-4 pl-1">
+          <!-- COMPACT GREETING -->
+          <div class="relative z-10 mt-5 pl-1">
             <div class="flex items-center space-x-2">
               <p id="greeting-line" class="text-[13px] font-medium text-[#0D4A2E]">Assalamu Alaikum</p>
-              <!--<button id="btn-personalize-pill" class="hidden text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#0D4A2E]/10 text-[#0D4A2E] border border-[#0D4A2E]/15">
-                ✨ Personalized
-              </button>-->
+              <button id="btn-personalize-pill" class="hidden text-[10px] font-medium px-2 py-0.5 rounded-full bg-[#0D4A2E]/10 text-[#0D4A2E] border border-[#0D4A2E]/15">✨ Personalized</button>
             </div>
-            <h2 class="font-serif text-[23px] leading-[1.08] font-semibold text-[#0D4A2E] mt-1 max-w-[215px]">
-              Your spiritual journey
-            </h2>
-            <p class="text-[11.5px] font-medium text-[#0D4A2E]/90 mt-1">
-              Take a step closer to Allah
-            </p>
+            <h2 class="font-serif text-[23px] leading-[1.08] font-semibold text-[#0D4A2E] mt-0.5 max-w-[215px]">Your spiritual journey</h2>
+            <p class="text-[11.5px] font-medium text-[#0D4A2E]/90 mt-0.5">Take a step closer to Allah</p>
 
-            <!-- Gold Diamond Ornamental Divider -->
             <div class="flex items-center mt-2.5 max-w-[155px]">
               <div class="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#C99E4C] to-[#C99E4C]"></div>
               <div class="mx-1.5 w-2 h-2 rotate-45 border-[1.5px] border-[#C99E4C] bg-[#F5F2E8]"></div>
@@ -196,75 +155,38 @@
             </div>
           </div>
 
-          <!-- SEARCH BAR (Separated from Hero Copy with refined breathing room) -->
+          <!-- COMPACT SEARCH BAR -->
           <div class="relative z-10 mt-4">
             <div class="relative flex items-center w-full h-[36px] rounded-full bg-[#F5F2E8]/95 backdrop-blur-md border border-[#DCD8C6] shadow-sm px-3.5 focus-within:ring-2 focus-within:ring-[#0D4A2E]/30 transition">
-              <svg class="w-4 h-4 text-[#0D4A2E] shrink-0 mr-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input
-                id="home-search-input"
-                type="text"
-                placeholder="Search duas, reflections..."
-                class="w-full bg-transparent text-[12.5px] text-[#0D4A2E] placeholder-[#59695E] focus:outline-none"
-              />
-              <button id="btn-search-go" aria-label="Search" class="ml-1 text-[#1D3B2A] p-0.5 active:scale-90 transition">
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </button>
+              <svg class="w-4 h-4 text-[#0D4A2E] shrink-0 mr-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input id="home-search-input" type="text" placeholder="Search duas, reflections..." class="w-full bg-transparent text-[12.5px] text-[#0D4A2E] placeholder-[#59695E] focus:outline-none" />
+              <button id="btn-search-go" aria-label="Search" class="ml-1 text-[#1D3B2A] p-0.5 active:scale-90 transition"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
             </div>
           </div>
         </div>
 
-        <!-- 2. TODAY'S PROGRESS CARD (With Image Holder C: id="img-holder-progress-bg") -->
-        <div class="px-4 shrink-0 !-mt-0.5 relative z-10">
+        <!-- 2. TODAY'S PROGRESS CARD (Tight spacing: -mt-2) -->
+        <div class="px-4 shrink-0 !-mt-2 relative z-10">
           <div class="relative rounded-[18px] bg-[#0F4C2B] px-3.5 py-2.5 text-white shadow-progress-card overflow-hidden border border-white/15">
-            <!-- [IMAGE HOLDER C]: Background of Today's Progress (id="img-holder-progress-bg") -->
-            <img
-              id="img-holder-progress-bg"
-              data-slot="progress-bg"
-              alt="Today's Progress Background"
-              src="./img/progress-bg.png"
-              class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-            />
-
+            <!-- C. Background Progress -->
+            <img id="img-holder-progress-bg" alt="Today's Progress Background" src="./img/progress-bg.png" class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" />
+            
             <div class="relative z-10 flex items-center">
-              <!-- Circular Progress Ring -->
               <div class="relative w-[76px] h-[76px] flex items-center justify-center shrink-0 mr-2.5">
                 <svg class="w-full h-full" viewBox="0 0 100 100">
                   <defs>
                     <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stop-color="#D9E672" />
-                      <stop offset="50%" stop-color="#6FC259" />
-                      <stop offset="100%" stop-color="#358C44" />
+                      <stop offset="0%" stop-color="#D9E672" /><stop offset="50%" stop-color="#6FC259" /><stop offset="100%" stop-color="#358C44" />
                     </linearGradient>
                   </defs>
                   <circle cx="50" cy="50" r="40" stroke="rgba(255,255,255,0.18)" stroke-width="9" fill="rgba(5, 38, 20, 0.45)" />
-                  <circle
-                    id="progress-ring-arc"
-                    class="progress-ring-circle"
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    stroke="url(#ringGrad)"
-                    stroke-width="9"
-                    stroke-linecap="round"
-                    fill="transparent"
-                    stroke-dasharray="251.2"
-                    stroke-dashoffset="188.4"
-                  />
+                  <circle id="progress-ring-arc" class="progress-ring-circle" cx="50" cy="50" r="40" stroke="url(#ringGrad)" stroke-width="9" stroke-linecap="round" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="188.4" />
                 </svg>
-                <div class="absolute inset-0 flex items-center justify-center">
-                  <span id="progress-percent-text" class="text-[19px] font-bold tracking-tight text-white">0%</span>
-                </div>
+                <div class="absolute inset-0 flex items-center justify-center"><span id="progress-percent-text" class="text-[19px] font-bold tracking-tight text-white">0%</span></div>
               </div>
-
-              <!-- Vertical Divider -->
+              
               <div class="w-[1px] h-16 bg-white/20 mr-3 shrink-0"></div>
-
-              <!-- Right Content Area -->
+              
               <div class="flex-1 min-w-0">
                 <div class="flex items-start justify-between">
                   <div>
@@ -272,39 +194,21 @@
                     <p id="progress-goals-subtitle" class="text-[11px] text-white/85">0 of 3 goals completed</p>
                   </div>
                   <button id="btn-view-progress" class="flex items-center space-x-0.5 px-2 py-0.5 rounded-full bg-[#09351C]/75 border border-[#C99E4C]/40 text-[10px] font-medium text-white/95 active:scale-95 transition">
-                    <span>View details</span>
-                    <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
+                    <span>View details</span><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
                   </button>
                 </div>
-
-                <!-- 3 Metric Columns: Dhikr | Sessions | Reminders -->
                 <div class="grid grid-cols-3 gap-1 mt-1.5 pt-1 text-center">
                   <button id="metric-btn-dhikr" class="flex flex-col items-center active:scale-95 transition">
-                    <svg class="w-4 h-4 text-[#DFB75A]" viewBox="0 0 24 24" fill="currentColor">
-                      <circle cx="12" cy="4" r="1.7"/><circle cx="16.5" cy="5.5" r="1.7"/><circle cx="19" cy="9.5" r="1.7"/><circle cx="18.5" cy="14.5" r="1.7"/><circle cx="14.5" cy="18" r="1.7"/><circle cx="9.5" cy="18" r="1.7"/><circle cx="5.5" cy="14.5" r="1.7"/><circle cx="5" cy="9.5" r="1.7"/><circle cx="7.5" cy="5.5" r="1.7"/>
-                    </svg>
-                    <span class="text-[10px] text-white/85 mt-0.5">Dhikr</span>
-                    <span id="stat-dhikr-count" class="font-serif text-[14px] font-bold leading-none text-white mt-0.5">0</span>
+                    <svg class="w-4 h-4 text-[#DFB75A]" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="4" r="1.7"/><circle cx="16.5" cy="5.5" r="1.7"/><circle cx="19" cy="9.5" r="1.7"/><circle cx="18.5" cy="14.5" r="1.7"/><circle cx="14.5" cy="18" r="1.7"/><circle cx="9.5" cy="18" r="1.7"/><circle cx="5.5" cy="14.5" r="1.7"/><circle cx="5" cy="9.5" r="1.7"/><circle cx="7.5" cy="5.5" r="1.7"/></svg>
+                    <span class="text-[10px] text-white/85 mt-0.5">Dhikr</span><span id="stat-dhikr-count" class="font-serif text-[14px] font-bold leading-none text-white mt-0.5">0</span>
                   </button>
-
                   <button id="metric-btn-sessions" class="flex flex-col items-center border-x border-white/20 px-1 active:scale-95 transition">
-                    <svg class="w-4 h-4 text-[#DFB75A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                    </svg>
-                    <span class="text-[10px] text-white/85 mt-0.5">Sessions</span>
-                    <span id="stat-sessions-count" class="font-serif text-[14px] font-bold leading-none text-white mt-0.5">0</span>
+                    <svg class="w-4 h-4 text-[#DFB75A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    <span class="text-[10px] text-white/85 mt-0.5">Sessions</span><span id="stat-sessions-count" class="font-serif text-[14px] font-bold leading-none text-white mt-0.5">0</span>
                   </button>
-
                   <button id="metric-btn-reminders" class="flex flex-col items-center active:scale-95 transition">
-                    <svg class="w-4 h-4 text-[#DFB75A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                    </svg>
-                    <span class="text-[10px] text-white/85 mt-0.5">Reminders</span>
-                    <span id="stat-reminders-count" class="font-serif text-[14px] font-bold leading-none text-white mt-0.5">1</span>
+                    <svg class="w-4 h-4 text-[#DFB75A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span class="text-[10px] text-white/85 mt-0.5">Reminders</span><span id="stat-reminders-count" class="font-serif text-[14px] font-bold leading-none text-white mt-0.5">1</span>
                   </button>
                 </div>
               </div>
@@ -312,190 +216,103 @@
           </div>
         </div>
 
-        <!-- 3. QUICK ACTIONS (4-Column Grid) -->
-        <div class="px-4 shrink-0">
+        <!-- 3. COMPACT QUICK ACTIONS (Elegant spacing: mt-6) -->
+        <div class="px-4 shrink-0 mt-6">
           <div class="flex items-center justify-between mb-2.5 px-0.5">
             <h3 class="font-serif text-[16px] font-semibold text-[#0D4A2E]">Quick Actions</h3>
             <button id="btn-quick-see-all" class="flex items-center space-x-0.5 text-[11.5px] font-medium text-[#123824]">
-              <span>See all</span>
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              <span>See all</span><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
           </div>
-
-          <div class="grid grid-cols-4 gap-2.5">
+          <div class="grid grid-cols-4 gap-2">
             <button data-quick="tasbih" class="quick-action-btn flex flex-col items-center justify-center h-[58px] rounded-[16px] bg-[#EAE8D7] border border-white/80 shadow-quick-btn active:scale-95 transition">
-              <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 28 28" fill="currentColor">
-                <circle cx="14" cy="4.5" r="2"/><circle cx="19" cy="6.5" r="2"/><circle cx="21.5" cy="11" r="2"/><circle cx="20.5" cy="16.5" r="2"/><circle cx="16.5" cy="20" r="2"/><circle cx="11.5" cy="20" r="2"/><circle cx="7.5" cy="16.5" r="2"/><circle cx="6.5" cy="11" r="2"/><circle cx="9" cy="6.5" r="2"/>
-                <path d="M14 22v4" stroke="#0D4A2E" stroke-width="2" stroke-linecap="round"/>
-              </svg>
+              <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 28 28" fill="currentColor"><circle cx="14" cy="4.5" r="2"/><circle cx="19" cy="6.5" r="2"/><circle cx="21.5" cy="11" r="2"/><circle cx="20.5" cy="16.5" r="2"/><circle cx="16.5" cy="20" r="2"/><circle cx="11.5" cy="20" r="2"/><circle cx="7.5" cy="16.5" r="2"/><circle cx="6.5" cy="11" r="2"/><circle cx="9" cy="6.5" r="2"/><path d="M14 22v4" stroke="#0D4A2E" stroke-width="2" stroke-linecap="round"/></svg>
               <span class="text-[11.5px] font-medium text-[#0D4A2E] mt-1">Tasbih</span>
             </button>
-
             <button data-quick="duas" class="quick-action-btn flex flex-col items-center justify-center h-[58px] rounded-[16px] bg-[#EAE8D7] border border-white/80 shadow-quick-btn active:scale-95 transition">
-              <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M13 19V9.5a1.5 1.5 0 0 0-3 0V15"/><path d="M10 11.5V8a1.5 1.5 0 0 0-3 0v8.5c0 3 2.5 5.5 5.5 5.5h1"/><path d="M15 19V9.5a1.5 1.5 0 0 1 3 0V15"/><path d="M18 11.5V8a1.5 1.5 0 0 1 3 0v8.5c0 3-2.5 5.5-5.5 5.5h-1"/>
-              </svg>
+              <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 19V9.5a1.5 1.5 0 0 0-3 0V15"/><path d="M10 11.5V8a1.5 1.5 0 0 0-3 0v8.5c0 3 2.5 5.5 5.5 5.5h1"/><path d="M15 19V9.5a1.5 1.5 0 0 1 3 0V15"/><path d="M18 11.5V8a1.5 1.5 0 0 1 3 0v8.5c0 3-2.5 5.5-5.5 5.5h-1"/></svg>
               <span class="text-[11.5px] font-medium text-[#0D4A2E] mt-1">Duas</span>
             </button>
-
             <button data-quick="stories" class="quick-action-btn flex flex-col items-center justify-center h-[58px] rounded-[16px] bg-[#EAE8D7] border border-white/80 shadow-quick-btn active:scale-95 transition">
-              <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-              </svg>
+              <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
               <span class="text-[11.5px] font-medium text-[#0D4A2E] mt-1">Stories</span>
             </button>
-
             <button data-quick="saved" class="quick-action-btn relative flex flex-col items-center justify-center h-[58px] rounded-[16px] bg-[#EAE8D7] border border-white/80 shadow-quick-btn active:scale-95 transition">
-              <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-              </svg>
+              <svg class="w-5 h-5 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
               <span class="text-[11.5px] font-medium text-[#0D4A2E] mt-1">Saved</span>
               <span id="saved-badge" class="hidden absolute top-1.5 right-2 w-3.5 h-3.5 rounded-full bg-[#0D4A2E] text-white text-[9px] font-bold flex items-center justify-center">1</span>
             </button>
           </div>
         </div>
 
-        <!-- 4. DAILY FEATURED DUA CARD (With Image Holders D1 & D2) -->
-        <div class="px-4 shrink-0">
+        <!-- 4. DAILY FEATURED DUA CARD (Elegant spacing: mt-6) -->
+        <div class="px-4 shrink-0 mt-6">
           <div class="relative rounded-[18px] bg-[#F3EFE2] border border-white/90 shadow-soft-card overflow-hidden flex h-[112px]">
-            <!-- [IMAGE HOLDER D1]: Daily Featured Card Background (id="img-holder-featured-bg") -->
-            <img
-              id="img-holder-featured-bg"
-              data-slot="featured-bg"
-              alt="Daily Featured Card Background"
-              src="./img/featured-bg.png"
-              class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-            />
-
-            <!-- [IMAGE HOLDER D2]: Daily Featured Left Photo (id="img-holder-featured-photo") -->
+            <!-- D1. Featured BG -->
+            <img id="img-holder-featured-bg" alt="Daily Featured Card Background" src="./img/featured-bg.png" class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" />
+            <!-- D2. Featured Photo -->
             <div class="w-[40%] h-full relative overflow-hidden shrink-0 z-10">
-              <img
-                id="img-holder-featured-photo"
-                data-slot="featured-photo"
-                alt="Open Quran on Wooden Stand"
-                src="./img/featured-photo.png"
-                class="w-full h-full object-cover"
-              />
+              <img id="img-holder-featured-photo" alt="Open Quran on Wooden Stand" src="./img/featured-photo.png" class="w-full h-full object-cover" />
             </div>
-
-            <!-- Right Content Area -->
+            
             <div class="w-[60%] py-2 px-3 flex flex-col justify-center relative z-10">
-              <span class="inline-block self-start px-2 py-0.5 rounded-full bg-[#DCE3C8] text-[#0D4A2E] text-[9px] font-bold tracking-[0.06em] uppercase">
-                DAILY FEATURED DUA
-              </span>
-              <h4 class="font-serif text-[16px] leading-[1.12] font-semibold text-[#0D4A2E] mt-1">
-                Dua for ease in affairs
-              </h4>
-              <p class="text-[11px] text-[#223D2C] mt-0.5 leading-tight truncate">
-                Recite when facing difficulties.
-              </p>
+              <span class="inline-block self-start px-2 py-0.5 rounded-full bg-[#DCE3C8] text-[#0D4A2E] text-[9px] font-bold tracking-[0.06em] uppercase">DAILY FEATURED DUA</span>
+              <h4 class="font-serif text-[16px] leading-[1.12] font-semibold text-[#0D4A2E] mt-1">Dua for ease in affairs</h4>
+              <p class="text-[11px] text-[#223D2C] mt-0.5 leading-tight truncate">Recite when facing difficulties.</p>
               <button id="btn-read-featured-dua" class="mt-1.5 self-start inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#135332] hover:bg-[#0D4A2E] text-white text-[11.5px] font-medium shadow-sm active:scale-95 transition">
-                <span>Read dua</span>
-                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
+                <span>Read dua</span><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- 5. CONTINUE READING SECTION (With Image Holders E1 & E2) -->
-        <div class="px-4 shrink-0">
+        <!-- 5. CONTINUE READING SECTION (Elegant spacing: mt-6) -->
+        <div class="px-4 shrink-0 mt-6">
           <div class="flex items-center justify-between mb-2.5 px-0.5">
             <div class="flex items-center space-x-1.5">
-              <svg class="w-4 h-4 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-              </svg>
+              <svg class="w-4 h-4 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
               <h3 class="font-serif text-[15.5px] font-semibold text-[#0D4A2E]">Continue Reading</h3>
             </div>
             <button id="btn-stories-see-all" class="flex items-center space-x-0.5 text-[11.5px] font-medium text-[#123824]">
-              <span>See all</span>
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              <span>See all</span><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </button>
           </div>
-
-          <!-- Valley of Makkah Card -->
-          <div id="card-continue-reading" class="relative cursor-pointer rounded-[16px] bg-[#F5F2E6] border border-white/90 shadow-soft-card p-2.5 flex items-center space-x-3 overflow-hidden active:scale-[0.99] transition">
-            <!-- [IMAGE HOLDER E1]: Continue Reading Card Background (id="img-holder-reading-bg") -->
-            <img
-              id="img-holder-reading-bg"
-              data-slot="reading-bg"
-              alt="Continue Reading Card Background"
-              src=""
-              class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-            />
-
-            <!-- [IMAGE HOLDER E2]: Continue Reading Left Photo (id="img-holder-reading-photo") -->
+          <div id="card-continue-reading" class="relative cursor-pointer rounded-[16px] bg-[#F5F2E6] border border-white/90 shadow-soft-card p-2 flex items-center space-x-3 overflow-hidden active:scale-[0.99] transition">
+            <!-- E1. Reading BG -->
+            <img id="img-holder-reading-bg" alt="Continue Reading Card Background" src="./img/reading-bg.png" class="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" />
+            <!-- E2. Reading Photo -->
             <div class="relative z-10 w-[86px] h-[48px] rounded-[10px] overflow-hidden shrink-0 shadow-sm">
-              <img
-                id="img-holder-reading-photo"
-                data-slot="reading-photo"
-                alt="The Valley of Makkah Sunrise"
-                src=""
-                class="w-full h-full object-cover"
-              />
+              <img id="img-holder-reading-photo" alt="The Valley of Makkah Sunrise" src="./img/reading-photo.png" class="w-full h-full object-cover" />
             </div>
-
-            <!-- Story Meta & Progress Bar -->
+            
             <div class="relative z-10 flex-1 min-w-0">
-              <h4 class="font-serif text-[14.5px] font-semibold text-[#0D4A2E] leading-tight truncate">
-                The Valley of Makkah
-              </h4>
-              <p id="continue-story-subtitle" class="text-[11px] text-[#4A5D50] truncate mt-0.5">
-                Lesson 2 of 6 • Character Over Power
-              </p>
+              <h4 class="font-serif text-[14.5px] font-semibold text-[#0D4A2E] leading-tight truncate">The Valley of Makkah</h4>
+              <p id="continue-story-subtitle" class="text-[11px] text-[#4A5D50] truncate mt-0.5">Lesson 2 of 6 • Character Over Power</p>
               <div class="w-full h-[5px] rounded-full bg-[#DEDCCF] mt-1.5 overflow-hidden">
                 <div id="story-progress-bar" class="h-full rounded-full bg-[#1C643C] transition-all duration-500" style="width: 38%"></div>
               </div>
             </div>
-
             <div class="relative z-10 pr-1 text-[#0D4A2E]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
           </div>
         </div>
 
-        <!-- 6. YOUR REMINDER BANNER (Bottom Card) -->
-        <div class="px-4 shrink-0">
-          <div id="card-thursday-reminder" class="cursor-pointer relative rounded-[16px] bg-gradient-to-r from-[#DFDEC9] via-[#E5E4D2] to-[#C9D2BA] border border-white/80 shadow-soft-card px-3.5 py-2.5 flex items-center justify-between overflow-hidden active:scale-[0.99] transition">
-            <!-- Emerald Mosque Skyline Watermark -->
-            <svg class="absolute right-0 bottom-0 h-full w-36 pointer-events-none" viewBox="0 0 200 72" fill="none">
-              <g fill="#195B37" opacity="0.82">
-                <rect x="88" y="34" width="3.5" height="38"/><path d="M88 34 L89.75 26 L91.5 34 Z"/>
-                <rect x="128" y="22" width="4" height="50"/><path d="M128 22 L130 13 L132 22 Z"/>
-                <path d="M98 54 C98 35 122 35 122 54 Z"/>
-                <path d="M72 60 C72 48 86 48 86 60 Z"/><path d="M135 58 C135 46 150 46 150 58 Z"/>
-                <rect x="65" y="54" width="125" height="18"/>
-              </g>
-            </svg>
-
+        <!-- 6. YOUR REMINDER BANNER (Elegant spacing: mt-6) -->
+        <div class="px-4 shrink-0 mt-6">
+          <div id="card-thursday-reminder" class="cursor-pointer relative rounded-[16px] bg-gradient-to-r from-[#DFDEC9] via-[#E5E4D2] to-[#C9D2BA] border border-white/80 shadow-soft-card px-3 py-2 flex items-center justify-between overflow-hidden active:scale-[0.99] transition">
+            <svg class="absolute right-0 bottom-0 h-full w-36 pointer-events-none" viewBox="0 0 200 72" fill="none"><g fill="#195B37" opacity="0.82"><rect x="88" y="34" width="3.5" height="38"/><path d="M88 34 L89.75 26 L91.5 34 Z"/><rect x="128" y="22" width="4" height="50"/><path d="M128 22 L130 13 L132 22 Z"/><path d="M98 54 C98 35 122 35 122 54 Z"/><path d="M72 60 C72 48 86 48 86 60 Z"/><path d="M135 58 C135 46 150 46 150 58 Z"/><rect x="65" y="54" width="125" height="18"/></g></svg>
             <div class="relative z-10 flex items-center space-x-2.5 pr-6">
               <div class="w-7 h-7 rounded-full flex items-center justify-center text-[#0D4A2E] shrink-0">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 15 15"></polyline>
-                </svg>
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 15 15"></polyline></svg>
               </div>
               <div>
                 <p class="text-[10.5px] font-medium text-[#194B2F] leading-none">Your reminder</p>
-                <h4 class="font-serif text-[13px] font-bold text-[#0D4A2E] leading-tight mt-0.5">
-                  6 Salawat Recited Every Thursday Night
-                </h4>
+                <h4 class="font-serif text-[13px] font-bold text-[#0D4A2E] leading-tight mt-0.5">6 Salawat Recited Every Thursday Night</h4>
               </div>
             </div>
-
             <div class="relative z-10 text-[#0D4A2E]">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
           </div>
         </div>
@@ -568,22 +385,11 @@
       </section>
 
       <!-- =======================================================================
-           TAB 4: MORE, PERSONALIZATION & IMAGE HOLDER CUSTOMIZER
+           TAB 4: MORE & PERSONALIZATION 
       ======================================================================== -->
       <section id="screen-more" class="hidden h-full overflow-y-auto no-scrollbar px-5 pt-4 pb-6">
         <span class="text-[10.5px] font-bold uppercase tracking-widest text-[#C99E4C]">Aamaal Circle</span>
-        <h2 class="font-serif text-[24px] font-semibold text-[#0D4A2E]">Profile & Image Holders</h2>
-
-        <!-- Quick Button to Open the 7 Image Holders Manager -->
-        <div class="mt-3 rounded-[18px] bg-gradient-to-r from-[#135332] to-[#0D4A2E] p-3.5 text-white shadow-md flex items-center justify-between">
-          <div>
-            <h3 class="font-serif text-[16px] font-semibold">Custom Image Holders (A–E)</h3>
-            <p class="text-[11.5px] text-white/80">Swap Logo, Mosque, Progress, Featured & Reading images</p>
-          </div>
-          <button id="btn-more-open-assets" class="px-3 py-1.5 rounded-full bg-[#DFB75A] text-[#07361D] text-[12px] font-bold shrink-0 active:scale-95 transition">
-            Edit Images
-          </button>
-        </div>
+        <h2 class="font-serif text-[24px] font-semibold text-[#0D4A2E]">Profile & Settings</h2>
 
         <!-- User Name Input Card -->
         <div class="mt-3 rounded-[18px] bg-[#EAE8D7] p-3.5 border border-white/80 shadow-soft-card">
@@ -604,7 +410,7 @@
         <!-- Reset Controls -->
         <div class="mt-3 flex space-x-2">
           <button id="btn-reset-all" class="w-full py-2.5 rounded-xl bg-[#E5DEC9] text-[#6B2D26] text-[12.5px] font-medium active:scale-95 transition">
-            Reset All Progress & Custom Images
+            Reset All Progress Data
           </button>
         </div>
       </section>
@@ -612,46 +418,29 @@
     </div>
 
     <!-- =========================================================================
-         DOCKED BOTTOM FOOTER BAR (Always Fixed at Bottom of Shell)
+         DOCKED BOTTOM FOOTER BAR
     ========================================================================== -->
     <nav class="relative z-30 h-[62px] shrink-0 bg-[#F5F2E8]/95 backdrop-blur-md rounded-t-[24px] shadow-nav-bar border-t border-white/90 px-6 flex items-center justify-between select-none">
-      <!-- Home Tab -->
       <button data-tab="home" class="nav-tab-btn relative flex flex-col items-center justify-center w-16 h-full text-[#0D4A2E] transition">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 3L3 10.5h2.5v9.5h5v-6h3v6h5v-9.5H21L12 3z"/>
-        </svg>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3L3 10.5h2.5v9.5h5v-6h3v6h5v-9.5H21L12 3z"/></svg>
         <span class="text-[11.5px] font-semibold mt-0.5">Home</span>
         <span id="indicator-home" class="nav-indicator absolute bottom-1 w-10 h-[3px] rounded-full bg-[#0D4A2E]"></span>
       </button>
 
-      <!-- Tasbih Tab -->
       <button data-tab="tasbih" class="nav-tab-btn relative flex flex-col items-center justify-center w-16 h-full text-[#4E5953] transition">
-        <svg class="w-5 h-5" viewBox="0 0 28 28" fill="currentColor">
-          <circle cx="14" cy="4.5" r="1.8"/><circle cx="18.5" cy="5.8" r="1.8"/><circle cx="21.5" cy="9.2" r="1.8"/><circle cx="22.2" cy="13.8" r="1.8"/><circle cx="20.2" cy="18" r="1.8"/><circle cx="16.4" cy="20.5" r="1.8"/><circle cx="11.6" cy="20.5" r="1.8"/><circle cx="7.8" cy="18" r="1.8"/><circle cx="5.8" cy="13.8" r="1.8"/><circle cx="6.5" cy="9.2" r="1.8"/><circle cx="9.5" cy="5.8" r="1.8"/>
-          <path d="M14 22v3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
+        <svg class="w-5 h-5" viewBox="0 0 28 28" fill="currentColor"><circle cx="14" cy="4.5" r="1.8"/><circle cx="18.5" cy="5.8" r="1.8"/><circle cx="21.5" cy="9.2" r="1.8"/><circle cx="22.2" cy="13.8" r="1.8"/><circle cx="20.2" cy="18" r="1.8"/><circle cx="16.4" cy="20.5" r="1.8"/><circle cx="11.6" cy="20.5" r="1.8"/><circle cx="7.8" cy="18" r="1.8"/><circle cx="5.8" cy="13.8" r="1.8"/><circle cx="6.5" cy="9.2" r="1.8"/><circle cx="9.5" cy="5.8" r="1.8"/><path d="M14 22v3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span class="text-[11.5px] font-medium mt-0.5">Tasbih</span>
         <span id="indicator-tasbih" class="nav-indicator hidden absolute bottom-1 w-10 h-[3px] rounded-full bg-[#0D4A2E]"></span>
       </button>
 
-      <!-- Duas Tab -->
       <button data-tab="duas" class="nav-tab-btn relative flex flex-col items-center justify-center w-16 h-full text-[#4E5953] transition">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-        </svg>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
         <span class="text-[11.5px] font-medium mt-0.5">Duas</span>
         <span id="indicator-duas" class="nav-indicator hidden absolute bottom-1 w-10 h-[3px] rounded-full bg-[#0D4A2E]"></span>
       </button>
 
-      <!-- More Tab -->
       <button data-tab="more" class="nav-tab-btn relative flex flex-col items-center justify-center w-16 h-full text-[#4E5953] transition">
-        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
-          <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-          <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
-          <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
-        </svg>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect></svg>
         <span class="text-[11.5px] font-medium mt-0.5">More</span>
         <span id="indicator-more" class="nav-indicator hidden absolute bottom-1 w-10 h-[3px] rounded-full bg-[#0D4A2E]"></span>
       </button>
@@ -698,30 +487,22 @@
     </div>
 
     <!-- =========================================================================
-         MODAL 2: IMAGE HOLDER CUSTOMIZER (Manage Slots A, B, C, D1, D2, E1, E2)
+         MODAL 2: SETTINGS (Replaced Image Uploader)
     ========================================================================== -->
-    <div id="assets-modal" class="hidden absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center">
+    <div id="settings-modal" class="hidden absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end justify-center">
       <div class="w-full bg-[#F5F2E8] rounded-t-[28px] p-5 max-h-[88%] overflow-y-auto shadow-2xl border-t border-white">
         <div class="flex items-center justify-between pb-2 border-b border-[#DED9C4]">
           <div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-[#C99E4C]">Image Holders (A–E)</span>
-            <h3 class="font-serif text-[20px] font-semibold text-[#0D4A2E]">Customize App Images</h3>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-[#C99E4C]">Application</span>
+            <h3 class="font-serif text-[20px] font-semibold text-[#0D4A2E]">Settings</h3>
           </div>
-          <button id="btn-close-assets" class="w-8 h-8 rounded-full bg-[#EAE8D7] flex items-center justify-center text-[#0D4A2E]">✕</button>
+          <button id="btn-close-settings" class="w-8 h-8 rounded-full bg-[#EAE8D7] flex items-center justify-center text-[#0D4A2E]">✕</button>
         </div>
-        <p class="text-[11.5px] text-[#4A5E51] mt-1.5">
-          Paste any image URL or upload a photo from your device for each dedicated HTML `&lt;img&gt;` holder:
+        <p class="text-[12px] text-[#4A5E51] mt-3">
+          Additional settings and preferences will be available here soon.
         </p>
-
-        <div id="asset-slots-list" class="mt-3 space-y-2.5">
-          <!-- Dynamically populated controls for all 7 image holders -->
-        </div>
-
-        <div class="mt-4 flex space-x-2">
-          <button id="btn-restore-default-assets" class="flex-1 py-2.5 rounded-full bg-[#EAE8D7] text-[#0D4A2E] font-semibold text-[12.5px] border border-[#C9C5B1]">
-            Restore Default Artwork
-          </button>
-          <button id="btn-done-assets" class="flex-1 py-2.5 rounded-full bg-[#0D4A2E] text-white font-semibold text-[12.5px]">
+        <div class="mt-6 flex space-x-2">
+          <button id="btn-done-settings" class="flex-1 py-2.5 rounded-full bg-[#0D4A2E] text-white font-semibold text-[12.5px]">
             Done
           </button>
         </div>
@@ -739,212 +520,11 @@
   </div>
 
   <!-- =========================================================================
-       VANILLA JAVASCRIPT: DEFAULT HIGH-RES SVG DATA URIs + APP LOGIC
+       VANILLA JAVASCRIPT: APP LOGIC
   ========================================================================== -->
   <script>
     (function () {
       'use strict';
-
-      function svgToDataUri(svgString) {
-        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svgString.trim());
-      }
-
-      // =======================================================================
-      // DEFAULT EMBEDDED ARTWORK FOR ALL 7 IMAGE HOLDERS (A, B, C, D1, D2, E1, E2)
-      // =======================================================================
-      const DEFAULT_IMAGE_SLOTS = {
-        // A. Logo (Mosque Arch Emblem + Golden Swooshes)
-        'logo': {
-          label: 'A. Logo (id="img-holder-logo")',
-          elId: 'img-holder-logo',
-          src: svgToDataUri(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 92" fill="none">
-              <path d="M18 74 V42 C18 21 55 7 55 7 C55 7 92 21 92 42 V74" stroke="#0B4627" stroke-width="4" stroke-linecap="round"/>
-              <path d="M24 72 V43 C24 26 55 14 55 14 C55 14 86 26 86 43 V72" stroke="#0B4627" stroke-width="1.5" opacity="0.85"/>
-              <line x1="12" y1="74" x2="25" y2="74" stroke="#0B4627" stroke-width="3" stroke-linecap="round"/>
-              <line x1="85" y1="74" x2="98" y2="74" stroke="#0B4627" stroke-width="3" stroke-linecap="round"/>
-              <path d="M39 70 C39 51 71 51 71 70 Z" fill="#0B4627"/>
-              <line x1="55" y1="53" x2="55" y2="33" stroke="#0B4627" stroke-width="2.5" stroke-linecap="round"/>
-              <circle cx="55" cy="43" r="2.4" fill="#0B4627"/>
-              <path d="M27 72 C27 63 37 63 37 72 Z" fill="#0B4627"/>
-              <path d="M73 72 C73 63 83 63 83 72 Z" fill="#0B4627"/>
-              <path d="M6 84 C34 67 68 67 98 76 C68 72 35 73 6 84 Z" fill="#D5A848"/>
-              <path d="M22 79 C48 70 77 72 103 80 C76 76 48 75 22 79 Z" fill="#0B4627"/>
-            </svg>
-          `)
-        },
-
-        // B. Mosque Image in the Hero Banner
-        'hero-mosque': {
-          label: 'B. Hero Banner Mosque (id="img-holder-hero-mosque")',
-          elId: 'img-holder-hero-mosque',
-          src: svgToDataUri(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 430 230" fill="none">
-              <defs>
-                <linearGradient id="sky" x1="0" y1="0" x2="430" y2="230" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#F5F2E8"/>
-                  <stop offset="50%" stop-color="#EAE6D3"/>
-                  <stop offset="100%" stop-color="#DCE4DC"/>
-                </linearGradient>
-                <radialGradient id="sun" cx="0.65" cy="0.58" r="0.45">
-                  <stop offset="0%" stop-color="#FFE59E" stop-opacity="0.95"/>
-                  <stop offset="55%" stop-color="#F3D088" stop-opacity="0.45"/>
-                  <stop offset="100%" stop-color="#F5F2E8" stop-opacity="0"/>
-                </radialGradient>
-                <linearGradient id="dome" x1="330" y1="65" x2="380" y2="120" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#FFFDF5"/>
-                  <stop offset="50%" stop-color="#A7BCB4"/>
-                  <stop offset="100%" stop-color="#537267"/>
-                </linearGradient>
-              </defs>
-              <rect width="430" height="230" fill="url(#sky)"/>
-              <circle cx="280" cy="135" r="140" fill="url(#sun)"/>
-              <g stroke="#395747" stroke-width="1.3" stroke-linecap="round" opacity="0.7">
-                <path d="M270 52c2.5-2.5 5-2.5 7 0 2-2.5 4.5-2.5 7 0"/>
-                <path d="M288 42c2-2 4-2 5.5 0 1.5-2 3.5-2 5.5 0"/>
-                <path d="M303 50c2-2 4.5-2 6 0 1.8-2 4-2 6 0"/>
-              </g>
-              <!-- Minarets & Domes -->
-              <rect x="258" y="118" width="6" height="55" fill="#D5D2C3"/>
-              <path d="M258 118 L261 105 L264 118 Z" fill="#859990"/>
-              <rect x="318" y="68" width="10" height="95" fill="#F2EFE4" stroke="#B7C0B8" stroke-width="0.6"/>
-              <path d="M318 68 C318 58 328 58 328 68 Z" fill="url(#dome)"/>
-              <rect x="390" y="50" width="12" height="115" fill="#F2EFE4" stroke="#9FB0A7" stroke-width="0.7"/>
-              <path d="M390 50 C390 38 402 38 402 50 Z" fill="url(#dome)"/>
-              <path d="M326 112 C324 76 382 76 380 112 Z" fill="url(#dome)"/>
-              <line x1="353" y1="84" x2="353" y2="72" stroke="#B68F2E" stroke-width="1.6"/>
-              <path d="M288 126 C287 104 320 104 319 126 Z" fill="url(#dome)"/>
-              <rect x="248" y="126" width="165" height="58" fill="#ECEAE0" stroke="#C3CBC4" stroke-width="0.7"/>
-              <!-- Archways -->
-              <path d="M298 178 V142 C298 130 308 124 308 124 C308 124 318 130 318 142 V178 Z" fill="#52695F"/>
-              <path d="M336 178 V148 C336 140 342 137 342 137 C342 137 348 140 348 148 V178 Z" fill="#7B8F86"/>
-              <path d="M358 178 V148 C358 140 364 137 364 137 C364 137 370 140 370 148 V178 Z" fill="#7B8F86"/>
-              <!-- Lush Foliage -->
-              <circle cx="220" cy="182" r="22" fill="#7D8F56" opacity="0.85"/>
-              <circle cx="260" cy="180" r="25" fill="#4D6E42"/>
-              <circle cx="305" cy="184" r="28" fill="#365A32"/>
-              <circle cx="350" cy="180" r="32" fill="#294B27"/>
-              <circle cx="395" cy="172" r="36" fill="#1F3E20"/>
-            </svg>
-          `)
-        },
-
-        // C. Background of Today's Progress
-        'progress-bg': {
-          label: 'C. Today’s Progress BG (id="img-holder-progress-bg")',
-          elId: 'img-holder-progress-bg',
-          src: svgToDataUri(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 130" fill="none">
-              <defs>
-                <linearGradient id="emeraldBg" x1="0" y1="0" x2="400" y2="130" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#1B5E3A"/>
-                  <stop offset="55%" stop-color="#0F4C2B"/>
-                  <stop offset="100%" stop-color="#08351D"/>
-                </linearGradient>
-              </defs>
-              <rect width="400" height="130" fill="url(#emeraldBg)"/>
-              <!-- Gold Arabesque Curve & Mandala -->
-              <g opacity="0.28" stroke="#DFB75A" fill="none">
-                <path d="M250 -10 C275 30 270 50 315 58 C345 62 375 45 405 70" stroke-width="1.5"/>
-                <circle cx="365" cy="68" r="52" stroke-width="0.8" stroke-dasharray="3 3"/>
-                <circle cx="365" cy="68" r="36" stroke-width="0.8"/>
-              </g>
-              <!-- Bottom-Left Botanical Leaves -->
-              <path d="M10 130 C8 108 18 94 32 86 C25 104 18 118 10 130 Z" fill="#76A034" opacity="0.85"/>
-              <path d="M6 130 C0 112 4 96 12 82 C16 98 14 114 6 130 Z" fill="#9BC046" opacity="0.9"/>
-              <path d="M14 128 C26 116 42 110 56 114 C40 124 26 128 14 128 Z" fill="#88B23B" opacity="0.85"/>
-            </svg>
-          `)
-        },
-
-        // D1. Daily Featured Card Background
-        'featured-bg': {
-          label: 'D1. Daily Featured BG (id="img-holder-featured-bg")',
-          elId: 'img-holder-featured-bg',
-          src: svgToDataUri(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 130" fill="none">
-              <rect width="400" height="130" fill="#F3EFE2"/>
-              <g transform="translate(310, -15)" stroke="#D8B973" stroke-width="1" opacity="0.45" fill="none">
-                <circle cx="65" cy="45" r="46"/>
-                <circle cx="65" cy="45" r="34" stroke-dasharray="3 3"/>
-                <circle cx="65" cy="45" r="22"/>
-                <path d="M65 -1 C73 23 87 37 111 45 C87 53 73 67 65 91 C57 67 43 53 19 45 C43 37 57 23 65 -1 Z"/>
-              </g>
-            </svg>
-          `)
-        },
-
-        // D2. Daily Featured Left Photo (Open Quran on Wooden Stand)
-        'featured-photo': {
-          label: 'D2. Daily Featured Left Photo (id="img-holder-featured-photo")',
-          elId: 'img-holder-featured-photo',
-          src: svgToDataUri(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 140" fill="none">
-              <defs>
-                <linearGradient id="room" x1="0" y1="0" x2="180" y2="140" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#DFAF72"/>
-                  <stop offset="60%" stop-color="#AC7339"/>
-                  <stop offset="100%" stop-color="#4A321F"/>
-                </linearGradient>
-                <linearGradient id="wood" x1="30" y1="65" x2="145" y2="130" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#9C5A25"/>
-                  <stop offset="100%" stop-color="#4A2409"/>
-                </linearGradient>
-              </defs>
-              <rect width="180" height="140" fill="url(#room)"/>
-              <circle cx="105" cy="40" r="65" fill="#FFF6DA" fill-opacity="0.5"/>
-              <rect y="102" width="180" height="38" fill="#1D2A32"/>
-              <ellipse cx="88" cy="122" rx="48" ry="9" stroke="#C99E4C" stroke-width="1.2" opacity="0.65"/>
-              <!-- Wooden Stand (Rehal) -->
-              <polygon points="36,125 54,130 132,72 116,66" fill="url(#wood)"/>
-              <polygon points="138,125 120,130 28,74 44,67" fill="url(#wood)"/>
-              <!-- Open Quran Pages -->
-              <path d="M26 64 C48 65 68 72 88 80 L96 58 C76 49 58 44 38 43 Z" fill="#FCF9EE" stroke="#C5B28A"/>
-              <path d="M88 80 C108 70 128 65 150 65 L136 44 C118 45 102 50 88 58 Z" fill="#F7F1DF" stroke="#C5B28A"/>
-              <path d="M40 49 L82 62 L78 73 L35 59 Z" stroke="#1E6B43" stroke-width="1.3" fill="#E8F0E6" fill-opacity="0.5"/>
-              <path d="M94 62 L132 49 L139 59 L96 73 Z" stroke="#1E6B43" stroke-width="1.3" fill="#E8F0E6" fill-opacity="0.5"/>
-              <!-- Soft Right Curve -->
-              <path d="M168 0 C152 45 155 95 178 140 L180 140 L180 0 Z" fill="#F3EFE2"/>
-            </svg>
-          `)
-        },
-
-        // E1. Continue Reading Card Background
-        'reading-bg': {
-          label: 'E1. Continue Reading BG (id="img-holder-reading-bg")',
-          elId: 'img-holder-reading-bg',
-          src: svgToDataUri(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 70" fill="none">
-              <rect width="400" height="70" fill="#F5F2E6"/>
-              <circle cx="380" cy="35" r="45" stroke="#DFDAC6" stroke-width="1" fill="none"/>
-            </svg>
-          `)
-        },
-
-        // E2. Continue Reading Left Photo (Desert Sunrise Mountains)
-        'reading-photo': {
-          label: 'E2. Continue Reading Left Photo (id="img-holder-reading-photo")',
-          elId: 'img-holder-reading-photo',
-          src: svgToDataUri(`
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" fill="none">
-              <defs>
-                <linearGradient id="mSky" x1="0" y1="0" x2="0" y2="70" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stop-color="#D4B586"/>
-                  <stop offset="65%" stop-color="#F7DDA4"/>
-                  <stop offset="100%" stop-color="#FFEBB8"/>
-                </linearGradient>
-              </defs>
-              <rect width="160" height="100" fill="url(#mSky)"/>
-              <circle cx="52" cy="48" r="16" fill="#FFFDF2"/>
-              <circle cx="52" cy="48" r="28" fill="#FFE79E" fill-opacity="0.45"/>
-              <path d="M-10 68 L28 38 L62 58 L108 26 L165 65 Z" fill="#9E7B66"/>
-              <path d="M60 62 L108 26 L142 54 L120 65 Z" fill="#7D5C49"/>
-              <path d="M0 64 Q45 55 88 66 T160 60 L160 100 L0 100 Z" fill="#C99658"/>
-              <path d="M0 75 Q60 66 115 78 T160 74 L160 100 L0 100 Z" fill="#966A38"/>
-            </svg>
-          `)
-        }
-      };
 
       // --- HAPTIC FEEDBACK HELPER ---
       function triggerHaptic(pattern = 12) {
@@ -1038,8 +618,7 @@
         activePhraseId: 'subhanallah',
         savedDuaIds: ['ease-in-affairs'],
         storyLesson: 2,
-        activeDuaFilter: 'all',
-        customImages: {}
+        activeDuaFilter: 'all'
       };
 
       let state = loadState();
@@ -1047,11 +626,11 @@
       function loadState() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          if (!raw) return { ...defaultState, customImages: {} };
+          if (!raw) return { ...defaultState };
           const parsed = JSON.parse(raw);
-          return { ...defaultState, ...parsed, customImages: parsed.customImages || {} };
+          return { ...defaultState, ...parsed };
         } catch (e) {
-          return { ...defaultState, customImages: {} };
+          return { ...defaultState };
         }
       }
 
@@ -1059,84 +638,6 @@
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         } catch (e) {}
-      }
-
-      // --- APPLY ALL 7 IMAGE HOLDERS (Custom or Default) ---
-      function applyImageHolders() {
-        Object.keys(DEFAULT_IMAGE_SLOTS).forEach(slotKey => {
-          const slotCfg = DEFAULT_IMAGE_SLOTS[slotKey];
-          const imgEl = document.getElementById(slotCfg.elId);
-          if (imgEl) {
-            const customSrc = state.customImages && state.customImages[slotKey];
-            imgEl.src = customSrc || slotCfg.src;
-          }
-        });
-      }
-
-      // --- RENDER IMAGE HOLDER ASSET CUSTOMIZER MODAL ---
-      function renderAssetSlotsModal() {
-        const list = document.getElementById('asset-slots-list');
-        if (!list) return;
-        list.innerHTML = '';
-
-        Object.keys(DEFAULT_IMAGE_SLOTS).forEach(slotKey => {
-          const cfg = DEFAULT_IMAGE_SLOTS[slotKey];
-          const currentCustom = (state.customImages && state.customImages[slotKey]) || '';
-
-          const row = document.createElement('div');
-          row.className = 'rounded-xl bg-[#EAE8D7] p-2.5 border border-white/80 flex flex-col space-y-1.5';
-          row.innerHTML = `
-            <div class="flex items-center justify-between">
-              <span class="text-[11.5px] font-semibold text-[#0D4A2E]">${cfg.label}</span>
-              <label class="cursor-pointer px-2.5 py-0.5 rounded-full bg-[#0D4A2E] text-white text-[10.5px] font-medium active:scale-95 transition">
-                Upload File
-                <input type="file" accept="image/*" data-upload-slot="${slotKey}" class="hidden" />
-              </label>
-            </div>
-            <div class="flex space-x-1.5">
-              <input
-                type="text"
-                data-url-slot="${slotKey}"
-                value="${currentCustom.startsWith('data:') ? '' : currentCustom}"
-                placeholder="Or paste image URL (https://...)"
-                class="flex-1 rounded-lg bg-[#F5F2E8] px-2.5 py-1 text-[11.5px] text-[#0D4A2E] border border-[#D3CFB8] focus:outline-none"
-              />
-              <button data-apply-url="${slotKey}" class="px-2.5 py-1 rounded-lg bg-[#135332] text-white text-[11px] font-medium">Set</button>
-            </div>
-          `;
-          list.appendChild(row);
-        });
-
-        // Bind URL apply buttons
-        list.querySelectorAll('[data-apply-url]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const key = btn.getAttribute('data-apply-url');
-            const input = list.querySelector(`[data-url-slot="${key}"]`);
-            if (input && input.value.trim() !== '') {
-              state.customImages[key] = input.value.trim();
-              saveState();
-              applyImageHolders();
-              showToast(`Updated ${key} image holder`);
-            }
-          });
-        });
-
-        // Bind Local File Uploads
-        list.querySelectorAll('[data-upload-slot]').forEach(fileInput => {
-          fileInput.addEventListener('change', e => {
-            const file = e.target.files && e.target.files[0];
-            const key = fileInput.getAttribute('data-upload-slot');
-            if (!file || !key) return;
-            const reader = new FileReader();
-            reader.onload = ev => {
-              state.customImages[key] = ev.target.result;
-              saveState();
-              applyImageHolders();
-              showToast(`Uploaded ${key} image`);
-            };
-            reader.readAsDataURL(file);
-          });
-        });
       }
 
       // --- UPDATE DASHBOARD UI ---
@@ -1476,26 +977,18 @@
           });
         });
 
-        // Open Image Holders Asset Modal (via Top-Right Gear or More Tab)
-        const openAssetsModal = () => {
+        // Settings Modal (Replaced Assets Modal)
+        const openSettingsModal = () => {
           triggerHaptic(12);
-          renderAssetSlotsModal();
-          document.getElementById('assets-modal').classList.remove('hidden');
+          document.getElementById('settings-modal').classList.remove('hidden');
         };
-        document.getElementById('btn-open-assets').addEventListener('click', openAssetsModal);
-        document.getElementById('btn-more-open-assets').addEventListener('click', openAssetsModal);
-        document.getElementById('btn-close-assets').addEventListener('click', () => {
-          document.getElementById('assets-modal').classList.add('hidden');
+        document.getElementById('btn-open-settings').addEventListener('click', openSettingsModal);
+        
+        document.getElementById('btn-close-settings').addEventListener('click', () => {
+          document.getElementById('settings-modal').classList.add('hidden');
         });
-        document.getElementById('btn-done-assets').addEventListener('click', () => {
-          document.getElementById('assets-modal').classList.add('hidden');
-        });
-        document.getElementById('btn-restore-default-assets').addEventListener('click', () => {
-          state.customImages = {};
-          saveState();
-          applyImageHolders();
-          renderAssetSlotsModal();
-          showToast('Restored default artwork');
+        document.getElementById('btn-done-settings').addEventListener('click', () => {
+          document.getElementById('settings-modal').classList.add('hidden');
         });
 
         document.getElementById('btn-notifications').addEventListener('click', () => {
@@ -1514,21 +1007,19 @@
 
         document.getElementById('btn-reset-all').addEventListener('click', () => {
           localStorage.removeItem(STORAGE_KEY);
-          state = { ...defaultState, customImages: {} };
+          state = { ...defaultState };
           nameInput.value = '';
-          applyImageHolders();
           renderFocusChips();
           renderTasbihPhrases();
           renderDuasList();
           updateDashboardUI();
           switchTab('home');
-          showToast('All data & images reset');
+          showToast('All data reset');
         });
       }
 
       // --- BOOTSTRAP ---
       window.addEventListener('DOMContentLoaded', () => {
-        applyImageHolders();
         renderTasbihPhrases();
         renderDuasList();
         renderFocusChips();
