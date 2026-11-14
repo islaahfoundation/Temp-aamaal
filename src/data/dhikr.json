@@ -1,0 +1,26 @@
+[
+  {
+    "id": "subhanallah",
+    "label": "SubhanAllah",
+    "arabic": "سُبْحَانَ اللَّهِ",
+    "meaning": "\"Glory be to Allah\""
+  },
+  {
+    "id": "alhamdulillah",
+    "label": "Alhamdulillah",
+    "arabic": "الْحَمْدُ لِلَّهِ",
+    "meaning": "\"All praise is due to Allah\""
+  },
+  {
+    "id": "allahuakbar",
+    "label": "Allahu Akbar",
+    "arabic": "اللَّهُ أَكْبَرُ",
+    "meaning": "\"Allah is the Greatest\""
+  },
+  {
+    "id": "salawat",
+    "label": "Salawat",
+    "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ",
+    "meaning": "\"Blessings upon Prophet Muhammad ﷺ\""
+  }
+]
