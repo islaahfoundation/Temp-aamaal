@@ -1,5 +1,86 @@
+/* ========================================
+   AAMAAL — DESIGN TOKENS & VARIABLES
+   src/styles/variables.css
+======================================== */
+
 :root {
-  --bg-dark-outer: #0d1f16;
-  --cream-100: #F5F2E8;
-  --emerald-850: #0D4A2E;
+  /* Brand & Emerald colours */
+  --color-primary: #0D4A2E;
+  --color-primary-mid: #135332;
+  --color-primary-dark: #07361D;
+  --color-primary-deep: #042212;
+  --color-primary-light: #DCE3C8;
+
+  /* Cream & Sage Backgrounds */
+  --color-outer-bg: #0d1f16;
+  --color-background: #F5F2E8;
+  --color-cream-50: #FCFBF7;
+  --color-cream-100: #F5F2E8;
+  --color-cream-200: #EFECE0;
+  --color-cream-300: #E5E2D0;
+
+  --color-surface: #F3EFE2;
+  --color-surface-alt: #F5F2E6;
+  --color-surface-soft: #EAE8D7;
+  --color-sage-100: #EAE8D7;
+  --color-sage-200: #DFDEC9;
+  --color-sage-300: #C9CDAC;
+
+  /* Text */
+  --color-text: #0D4A2E;
+  --color-text-dark: #1A3826;
+  --color-text-secondary: #4A5D50;
+  --color-text-muted: #59695E;
+  --color-text-inactive: #4E5953;
+
+  /* Accent & Status colours */
+  --color-gold-300: #F0D58C;
+  --color-gold-400: #DFB75A;
+  --color-gold: #C99E4C;
+  --color-gold-600: #A67C1E;
+  --color-danger: #6B2D26;
+  --color-danger-bg: #E5DEC9;
+  --color-success: #358C44;
+
+  /* Borders and shadows */
+  --color-border: #DCD8C6;
+  --color-border-soft: #E2DEC9;
+  --color-border-muted: #D5D2BE;
+  --color-border-white: rgba(255, 255, 255, 0.85);
+
+  --shadow-soft-card: 0 4px 14px -3px rgba(13, 74, 46, 0.08), 0 2px 4px -1px rgba(13, 74, 46, 0.04);
+  --shadow-progress-card: 0 10px 22px -5px rgba(7, 54, 29, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  --shadow-quick-btn: 0 3px 10px rgba(13, 74, 46, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  --shadow-nav-bar: 0 -6px 20px rgba(13, 74, 46, 0.08);
+  --shadow-tasbih-orb: 0 14px 32px rgba(13, 74, 46, 0.18), inset 0 4px 12px rgba(255, 255, 255, 0.9);
+  --shadow-shell: 0 25px 70px rgba(0, 0, 0, 0.65);
+
+  /* Typography */
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-heading: "Playfair Display", Georgia, serif;
+  --font-arabic: "Amiri", serif;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Shape */
+  --radius-xs: 10px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-shell: 36px;
+  --radius-full: 9999px;
+
+  /* Layout */
+  --page-max-width: 430px;
+  --shell-max-height: 890px;
+  --nav-height: 62px;
 }
