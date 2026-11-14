@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Aamaal — Live with Purpose</title>
+  <!-- Tailwind CSS CDN (or via Vite PostCSS) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Playfair Display, Inter & Amiri -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#114B2F" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Aamaal" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: { 50: '#FCFBF7', 100: '#F5F2E8', 200: '#EFECE0', 300: '#E5E2D0' },
+            emerald: { 850: '#0D4A2E', 900: '#07361D', 950: '#042212' },
+            sage: { 100: '#EAE8D7', 200: '#DFDEC9', 300: '#C9CDAC' },
+            gold: { 300: '#F0D58C', 400: '#DFB75A', 500: '#C99E4C', 600: '#A67C1E' }
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Inter"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            arabic: ['"Amiri"', 'serif']
+          },
+          boxShadow: {
+            'soft-card': '0 4px 14px -3px rgba(13, 74, 46, 0.08), 0 2px 4px -1px rgba(13, 74, 46, 0.04)',
+            'progress-card': '0 10px 22px -5px rgba(7, 54, 29, 0.32), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
+            'quick-btn': '0 3px 10px rgba(13, 74, 46, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.75)',
+            'nav-bar': '0 -6px 20px rgba(13, 74, 46, 0.08)'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="h-[100dvh] max-h-[100dvh] w-full overflow-hidden flex justify-center items-center bg-[#0d1f16] text-[#0D4A2E]">
+  <div id="root" class="w-full h-full flex justify-center items-center"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
