@@ -1,0 +1,17 @@
+{
+  "duaFilters": [
+    { "id": "all", "label": "All Duas" },
+    { "id": "Ease", "label": "Seeking Ease" },
+    { "id": "Peace", "label": "Anxious / Peace" },
+    { "id": "Gratitude", "label": "Grateful" },
+    { "id": "Saved", "label": "Saved" }
+  ],
+  "focusIntentions": [
+    "Ease in Affairs",
+    "Daily Dhikr",
+    "Inner Peace",
+    "Quranic Stories",
+    "Thursday Salawat",
+    "Consistent Gratitude"
+  ]
+}
