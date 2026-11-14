@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+*.local
+
+# Capacitor & Android generated files
+.capacitor/
+android/app/build/
+android/.gradle/
+android/local.properties
+
+# Logs & OS files
+*.log
+npm-debug.log*
+.DS_Store
+.env
+.env.*
