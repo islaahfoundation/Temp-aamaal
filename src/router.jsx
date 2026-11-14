@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 
 // Main App Tab Pages
 import HomePage from './pages/home/HomePage';
@@ -48,6 +49,17 @@ const PATH_TO_STEP_MAP = {
   'account-recovery': 'account-recovery',
 };
 
+// Listens for useNavigate() calls inside onboarding pages and forwards them to handleOnboardingNavigate
+function RouterLocationBridge({ onRouteChange }) {
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname && location.pathname !== '/__init__') {
+      onRouteChange(location.pathname);
+    }
+  }, [location.pathname]);
+  return null;
+}
+
 export default function AppRouter({
   activeTab,
   state,
@@ -61,13 +73,18 @@ export default function AppRouter({
   onResetAll,
   onShowToast,
 }) {
-  // Tracks whether the user is currently in the onboarding flow
   const [onboardingStep, setOnboardingStep] = useState(() => {
     const isOnboarded = localStorage.getItem('aamaal_onboarded') === 'true';
     return isOnboarded ? null : 'splash';
   });
 
-  // Allows onboarding pages to navigate to the next step or finish into the main app
+  // Sync when App.jsx resets or switches activeTab to 'onboarding'
+  useEffect(() => {
+    if (activeTab === 'onboarding' && !onboardingStep) {
+      setOnboardingStep('splash');
+    }
+  }, [activeTab, onboardingStep]);
+
   const handleOnboardingNavigate = (target) => {
     if (
       target === '/home' ||
@@ -88,8 +105,10 @@ export default function AppRouter({
     setOnboardingStep(mappedStep);
   };
 
-  // Allow jumping to onboarding explicitly if activeTab is set to an onboarding step
-  const currentStep = PATH_TO_STEP_MAP[activeTab] || onboardingStep;
+  const currentStep =
+    activeTab === 'onboarding'
+      ? onboardingStep || 'splash'
+      : PATH_TO_STEP_MAP[activeTab] || onboardingStep;
 
   // 1. Render Onboarding Screens if active
   if (currentStep) {
@@ -101,42 +120,51 @@ export default function AppRouter({
       onCompleteOnboarding: () => handleOnboardingNavigate('home'),
     };
 
-    switch (currentStep) {
-      case 'splash':
-        return (
-          <Splash
-            {...sharedProps}
-            onComplete={() => {
-              const isReturnee = localStorage.getItem('aamaal_onboarded') === 'true';
-              handleOnboardingNavigate(isReturnee ? 'authentication' : 'welcome');
-            }}
-          />
-        );
-      case 'welcome':
-        return <Welcome {...sharedProps} />;
-      case 'purpose':
-        return <Purpose {...sharedProps} />;
-      case 'tasbih-intro':
-        return <TasbihIntro {...sharedProps} />;
-      case 'duas-intro':
-        return <DuaIntro {...sharedProps} />;
-      case 'stories-intro':
-        return <StoriesIntro {...sharedProps} />;
-      case 'language':
-        return <LanguageSelection {...sharedProps} />;
-      case 'preferences':
-        return <Preferences {...sharedProps} />;
-      case 'notifications-intro':
-        return <NotificationIntro {...sharedProps} />;
-      case 'notification-permission':
-        return <NotificationPermission {...sharedProps} />;
-      case 'authentication':
-        return <Authentication {...sharedProps} />;
-      case 'account-recovery':
-        return <AccountRecovery {...sharedProps} />;
-      default:
-        break;
-    }
+    const renderStepScreen = () => {
+      switch (currentStep) {
+        case 'splash':
+          return (
+            <Splash
+              {...sharedProps}
+              onComplete={() => {
+                const isReturnee = localStorage.getItem('aamaal_onboarded') === 'true';
+                handleOnboardingNavigate(isReturnee ? 'authentication' : 'welcome');
+              }}
+            />
+          );
+        case 'welcome':
+          return <Welcome {...sharedProps} />;
+        case 'purpose':
+          return <Purpose {...sharedProps} />;
+        case 'tasbih-intro':
+          return <TasbihIntro {...sharedProps} />;
+        case 'duas-intro':
+          return <DuaIntro {...sharedProps} />;
+        case 'stories-intro':
+          return <StoriesIntro {...sharedProps} />;
+        case 'language':
+          return <LanguageSelection {...sharedProps} />;
+        case 'preferences':
+          return <Preferences {...sharedProps} />;
+        case 'notifications-intro':
+          return <NotificationIntro {...sharedProps} />;
+        case 'notification-permission':
+          return <NotificationPermission {...sharedProps} />;
+        case 'authentication':
+          return <Authentication {...sharedProps} />;
+        case 'account-recovery':
+          return <AccountRecovery {...sharedProps} />;
+        default:
+          return <Welcome {...sharedProps} />;
+      }
+    };
+
+    return (
+      <MemoryRouter initialEntries={['/__init__']}>
+        <RouterLocationBridge onRouteChange={handleOnboardingNavigate} />
+        {renderStepScreen()}
+      </MemoryRouter>
+    );
   }
 
   // 2. Render Main App Tabs

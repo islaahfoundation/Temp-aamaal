@@ -7,7 +7,9 @@ import { ReaderModal, ToastPill } from './components/ConfirmationDialog';
 
 export default function App() {
   const { state, updateState, resetAll } = useAamaalState();
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState(() =>
+    localStorage.getItem('aamaal_onboarded') === 'true' ? 'home' : 'onboarding'
+  );
   const [searchQuery, setSearchQuery] = useState('');
   const [modalContext, setModalContext] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
@@ -49,11 +51,20 @@ export default function App() {
             updateState({ remindersCount: nextVal });
             showToast(nextVal ? 'Thursday Reminder Active' : 'Reminder Paused');
           }}
-          onResetAll={() => { resetAll(); setActiveTab('home'); showToast('All data reset'); }}
+          onResetAll={() => {
+            localStorage.removeItem('aamaal_onboarded');
+            resetAll();
+            setActiveTab('onboarding');
+            showToast('All data reset');
+          }}
           onShowToast={showToast}
         />
       </div>
-      <BottomNavigation activeTab={activeTab} onChangeTab={handleNavigateTab} />
+
+      {activeTab !== 'onboarding' && (
+        <BottomNavigation activeTab={activeTab} onChangeTab={handleNavigateTab} />
+      )}
+
       <ReaderModal
         context={modalContext}
         onClose={() => setModalContext(null)}
