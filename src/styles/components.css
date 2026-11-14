@@ -1,0 +1,14 @@
+.app-shell-frame {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  margin-left: auto;
+  margin-right: auto;
+  height: 100dvh;
+  max-height: 100dvh;
+  background-color: var(--cream-100);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
