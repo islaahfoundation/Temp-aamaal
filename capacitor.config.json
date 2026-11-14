@@ -1,0 +1,9 @@
+{
+  "appId": "com.aamaal.app",
+  "appName": "Aamaal",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  }
+}
