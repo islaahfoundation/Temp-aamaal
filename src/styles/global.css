@@ -1,0 +1,26 @@
+@import './variables.css';
+@import './animations.css';
+@import './components.css';
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  background-color: var(--bg-dark-outer);
+  font-family: 'Inter', sans-serif;
+  overscroll-behavior: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
