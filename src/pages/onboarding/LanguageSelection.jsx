@@ -7,7 +7,14 @@ const LANGUAGES = [
     name: 'English',
     native: 'English',
     sample: '"O Allah, make every difficulty easy for us."',
-    desc: 'Arabic text with English transliteration & translation',
+    desc: 'Arabic text with English translation & reflection',
+  },
+  {
+    code: 'ur-roman',
+    name: 'Roman Urdu',
+    native: 'Roman Urdu',
+    sample: '"Aye Allah! Hamare liye har mushkil ko aasan farma de."',
+    desc: 'Arabic text with easy-to-read Roman Urdu translation',
   },
   {
     code: 'ur',
@@ -21,14 +28,13 @@ const LANGUAGES = [
     name: 'Hindi',
     native: 'हिन्दी',
     sample: '"ऐ अल्लाह! हमारे लिए हर मुश्किल को आसान बना दे।"',
-    desc: 'अरबी दुआओं के साथ सरल हिंदी अनुवाद और लिप्यंतरण',
+    desc: 'अरबी दुआओं के साथ सरल हिंदी अनुवाद',
   },
 ];
 
 export default function LanguageSelection() {
   const navigate = useNavigate();
   const [selectedLang, setSelectedLang] = useState('en');
-  const [showTransliteration, setShowTransliteration] = useState(true);
 
   useEffect(() => {
     const saved = localStorage.getItem('aamaal_language');
@@ -48,7 +54,6 @@ export default function LanguageSelection() {
       if (navigator.vibrate) navigator.vibrate(15);
     } catch (_) {}
     localStorage.setItem('aamaal_language', selectedLang);
-    localStorage.setItem('aamaal_transliteration', String(showTransliteration));
     navigate('/onboarding/preferences');
   };
 
@@ -85,7 +90,7 @@ export default function LanguageSelection() {
         </div>
 
         {/* Language Cards */}
-        <div className="space-y-2.5 mt-5">
+        <div className="space-y-2.5 mt-4">
           {LANGUAGES.map((lang) => {
             const isSelected = selectedLang === lang.code;
             return (
@@ -93,7 +98,7 @@ export default function LanguageSelection() {
                 key={lang.code}
                 type="button"
                 onClick={() => handleSelect(lang.code)}
-                className={`w-full text-left rounded-[18px] p-3.5 border transition ${
+                className={`w-full text-left rounded-[18px] p-3 border transition ${
                   isSelected
                     ? 'bg-[#0F4C2B] text-white border-[#C99E4C]/60 shadow-progress-card'
                     : 'bg-[#F3EFE2] text-primary border-white/90 shadow-soft-card'
@@ -102,7 +107,7 @@ export default function LanguageSelection() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2.5">
                     <span
-                      className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-bold ${
                         isSelected
                           ? 'bg-[#DFB75A] text-[#07361D]'
                           : 'bg-[#EAE8D7] text-primary'
@@ -111,7 +116,7 @@ export default function LanguageSelection() {
                       {lang.native}
                     </span>
                     <h3
-                      className={`font-serif text-[16.5px] font-semibold ${
+                      className={`font-serif text-[16px] font-semibold ${
                         isSelected ? 'text-white' : 'text-primary'
                       }`}
                     >
@@ -131,14 +136,14 @@ export default function LanguageSelection() {
                 </div>
 
                 <p
-                  className={`text-[11.5px] mt-2 ${
+                  className={`text-[11px] mt-1.5 ${
                     isSelected ? 'text-white/85' : 'text-secondary'
                   }`}
                 >
                   {lang.desc}
                 </p>
                 <div
-                  className={`mt-2 px-3 py-1.5 rounded-xl text-[12px] ${
+                  className={`mt-1.5 px-3 py-1.5 rounded-xl text-[11.5px] ${
                     isSelected
                       ? 'bg-black/20 text-[#F0D58C]'
                       : 'bg-[#EAE8D7] text-primary'
@@ -149,29 +154,6 @@ export default function LanguageSelection() {
               </button>
             );
           })}
-        </div>
-
-        {/* Transliteration Toggle */}
-        <div className="card-soft mt-4 flex items-center justify-between p-3.5">
-          <div>
-            <h4 className="font-serif text-[14px] font-semibold text-primary">
-              Show Roman Transliteration
-            </h4>
-            <p className="text-[11px] text-secondary">
-              Helpful for pronouncing Arabic duas accurately
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowTransliteration(!showTransliteration)}
-            className={`px-3.5 py-1.5 rounded-full text-[11.5px] font-semibold transition ${
-              showTransliteration
-                ? 'bg-[#0D4A2E] text-white'
-                : 'bg-[#DFDEC9] text-secondary'
-            }`}
-          >
-            {showTransliteration ? 'Enabled ✓' : 'Off'}
-          </button>
         </div>
       </div>
 

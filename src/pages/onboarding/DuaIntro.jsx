@@ -6,24 +6,24 @@ const PREVIEW_DUAS = [
     id: 'knowledge',
     title: 'Dua for Guidance & Knowledge',
     arabic: 'رَبِّ زِدْنِي عِلْمًا',
-    translit: "Rabbi zidni 'ilma",
     translation: '"My Lord, increase me in knowledge." (Quran 20:114)',
+    romanUrdu: '"Aye mere Rab! Mere ilm mein izafa farma."',
     tag: 'QURANIC DUA',
   },
   {
     id: 'forgiveness',
     title: 'Dua for Forgiveness',
     arabic: 'رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ',
-    translit: "Rabbighfir li wa tub 'alayya",
     translation: '"My Lord, forgive me and accept my repentance."',
+    romanUrdu: '"Aye mere Rab! Mujhe bakhsh de aur meri tauba qubool farma."',
     tag: 'DAILY SUNNAH',
   },
   {
     id: 'ease',
     title: 'Dua for Ease in Affairs',
     arabic: 'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا',
-    translit: "Allahumma la sahla illa ma ja'altahu sahla",
     translation: '"O Allah, there is no ease except in that which You have made easy."',
+    romanUrdu: '"Aye Allah! Koi cheez aasan nahi magar jise Tu aasan bana de."',
     tag: 'SEEKING EASE',
   },
 ];
@@ -102,11 +102,11 @@ export default function DuaIntro() {
             <p className="font-arabic text-[26px] text-[#F0D58C] my-1.5">
               {activeDua.arabic}
             </p>
-            <p className="text-[12px] italic text-white/90">
-              {activeDua.translit}
-            </p>
-            <p className="text-[11.5px] text-white/80 mt-1">
+            <p className="text-[12px] text-white/95 font-medium mt-1">
               {activeDua.translation}
+            </p>
+            <p className="text-[11px] text-white/75 mt-0.5">
+              {activeDua.romanUrdu}
             </p>
           </div>
 

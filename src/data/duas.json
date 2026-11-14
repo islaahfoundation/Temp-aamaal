@@ -6,8 +6,9 @@
     "title": "Dua for ease in affairs",
     "shortDesc": "Recite when facing difficulties.",
     "arabic": "اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا",
-    "translit": "Allahumma la sahla illa ma ja'altahu sahla, wa Anta taj'alul-hazna idha shi'ta sahla.",
-    "translation": "\"O Allah, there is no ease except in that which You have made easy, and You make the difficulty, if You wish, easy.\" (Ibn Hibban)"
+    "translation": "\"O Allah, there is no ease except in that which You have made easy, and You make the difficulty, if You wish, easy.\" (Ibn Hibban)",
+    "romanUrdu": "\"Aye Allah! Koi cheez aasan nahi magar jise Tu aasan bana de, aur Tu hi mushkil ko jab chahe aasan farma deta hai.\"",
+    "reflection": "Recite this Prophetic supplication whenever a task or life test feels overwhelming."
   },
   {
     "id": "anxious-heart",
@@ -16,17 +17,19 @@
     "title": "Dua for anxiety & sorrow",
     "shortDesc": "Calm a restless heart with reliance on Allah.",
     "arabic": "حَسْبُنَا اللَّهُ وَنِعْمَ الْوَكِيلُ",
-    "translit": "HasbunAllahu wa ni'mal wakeel.",
-    "translation": "\"Sufficient for us is Allah, and [He is] the best Disposer of affairs.\" (Quran 3:173)"
+    "translation": "\"Sufficient for us is Allah, and [He is] the best Disposer of affairs.\" (Quran 3:173)",
+    "romanUrdu": "\"Hamare liye Allah hi kaafi hai aur Woh behtareen kaarsaaz hai.\"",
+    "reflection": "Spoken by Prophet Ibrahim (AS) and Prophet Muhammad ﷺ in moments of deep trial."
   },
   {
     "id": "thursday-salawat",
     "category": "Gratitude",
     "badge": "THURSDAY NIGHT SUNNAH",
-    "title": "Salawat Ibrahimiyyah (6x)",
+    "title": "Durood Shareef (6x)",
     "shortDesc": "Send abundant blessings upon the Prophet ﷺ.",
     "arabic": "اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ",
-    "translit": "Allahumma salli 'ala Muhammadin wa 'ala aali Muhammad.",
-    "translation": "\"O Allah, send Your grace, honour and mercy upon Muhammad and upon the family of Muhammad.\""
+    "translation": "\"O Allah, send Your grace, honour and mercy upon Muhammad and upon the family of Muhammad.\"",
+    "romanUrdu": "\"Aye Allah! Rehmat aur barakat naazil farma Muhammad ﷺ par aur Aap ﷺ ki Aal par.\"",
+    "reflection": "Sending blessings upon the Prophet ﷺ brings peace of heart and closeness on the Day of Judgment."
   }
 ]

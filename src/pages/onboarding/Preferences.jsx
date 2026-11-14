@@ -14,7 +14,7 @@ const EXPERIENCE_LEVELS = [
   {
     id: 'Simple & Guided',
     title: 'Simple & Guided',
-    desc: 'Step-by-step gentle daily goals with transliteration & reminders.',
+    desc: 'Step-by-step gentle daily goals with clear translations & reminders.',
   },
   {
     id: 'Focused',
