@@ -1,6 +1,202 @@
-.no-scrollbar::-webkit-scrollbar {
+/*.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+*/
+
+/* ========================================
+   AAMAAL — GLOBAL BASE & UTILITIES
+   src/styles/global.css
+======================================== */
+
+@import "./variables.css";
+@import "./components.css";
+@import "./animations.css";
+
+/* 1. Reset */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  min-width: 320px;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background-color: var(--color-outer-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 2. App Shell & Viewport */
+
+#root,
+#app-shell {
+  position: relative;
+  width: 100%;
+  max-width: var(--page-max-width);
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0 auto;
+  background-color: var(--color-background);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+#main-viewport {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen-section {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  #root,
+  #app-shell {
+    height: 96dvh;
+    max-height: var(--shell-max-height);
+    border-radius: var(--radius-shell);
+    border: 5px solid #24382c;
+    box-shadow: var(--shadow-shell);
+  }
+}
+
+/* 3. Typography */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: 25px;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+h2 {
+  font-size: 24px;
+}
+
+h3 {
+  font-size: 16px;
+}
+
+h4 {
+  font-size: 15px;
+}
+
+p {
+  color: var(--color-text-secondary);
+}
+
+.font-serif {
+  font-family: var(--font-heading);
+}
+
+.font-sans {
+  font-family: var(--font-body);
+}
+
+.font-arabic {
+  font-family: var(--font-arabic);
+  line-height: 1.8;
+  direction: rtl;
+}
+
+small {
+  font-size: 11px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* 4. Utility Classes */
+
+.text-primary { color: var(--color-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-muted { color: var(--color-text-muted); }
+.text-gold { color: var(--color-gold); }
+.text-gold-light { color: var(--color-gold-300); }
+.text-white { color: #ffffff; }
+.text-center { text-align: center; }
+
+.hidden { display: none !important; }
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.w-full { width: 100%; }
+
+.mt-1 { margin-top: var(--space-1); }
+.mt-2 { margin-top: var(--space-2); }
+.mt-3 { margin-top: var(--space-3); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-5 { margin-top: var(--space-5); }
+.mt-6 { margin-top: var(--space-6); }
+
+.mb-1 { margin-bottom: var(--space-1); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-3 { margin-bottom: var(--space-3); }
+.mb-4 { margin-bottom: var(--space-4); }
+
+/* 5. Scrollbar */
+
+.no-scrollbar::-webkit-scrollbar,
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
