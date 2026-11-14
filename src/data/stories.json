@@ -2,50 +2,14 @@
   {
     "id": "valley-of-makkah",
     "title": "The Valley of Makkah",
-    "coverImage": "/images/reading-photo.png",
+    "coverImage": "./img/reading-photo.png",
     "lessons": [
-      {
-        "lesson": 1,
-        "subtitle": "Lesson 1 of 6 • The Sacred Sanctuary",
-        "arabic": "إِنَّ أَوَّلَ بَيْتٍ وُضِعَ لِلنَّاسِ لَلَّذِي بِبَكَّةَ مُبَارَكًا",
-        "translit": "Prophet Ibrahim (AS) left Hajar and Ismail with unwavering trust (Tawakkul) in Allah.",
-        "translation": "\"Indeed, the first House [of worship] established for mankind was that at Makkah.\" (Quran 3:96)"
-      },
-      {
-        "lesson": 2,
-        "subtitle": "Lesson 2 of 6 • Character Over Power",
-        "arabic": "وَإِنَّكَ لَعَلَىٰ خُلُقٍ عَظِيمٍ",
-        "translit": "Before prophethood was announced in the Valley of Makkah, the Prophet ﷺ was known as Al-Sadiq Al-Amin (The Truthful, The Trustworthy).",
-        "translation": "\"And indeed, you are of a great moral character.\" (Surah Al-Qalam 68:4)"
-      },
-      {
-        "lesson": 3,
-        "subtitle": "Lesson 3 of 6 • Patience Under Trial",
-        "arabic": "فَاصْبِرْ صَبْرًا جَمِيلًا",
-        "translit": "When faced with hardship in the hills of Makkah, the believers responded with Sabrun Jamil.",
-        "translation": "\"So be patient with gracious patience.\" (Surah Al-Ma'arij 70:5)"
-      },
-      {
-        "lesson": 4,
-        "subtitle": "Lesson 4 of 6 • Night of Serenity",
-        "arabic": "سَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ",
-        "translit": "In the stillness of Mount Hira, revelation descended to transform hearts.",
-        "translation": "\"Peace it is until the emergence of dawn.\" (Surah Al-Qadr 97:5)"
-      },
-      {
-        "lesson": 5,
-        "subtitle": "Lesson 5 of 6 • Brotherhood & Mercy",
-        "arabic": "إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ",
-        "translit": "Spiritual growth flourishes when shared in a supportive circle of believers.",
-        "translation": "\"The believers are but brothers.\" (Surah Al-Hujurat 49:10)"
-      },
-      {
-        "lesson": 6,
-        "subtitle": "Lesson 6 of 6 • Forgiveness at Victory",
-        "arabic": "لَا تَثْرِيبَ عَلَيْكُمُ الْيَوْمَ",
-        "translit": "When returning to the Valley of Makkah, mercy triumphed over vengeance.",
-        "translation": "\"No blame will there be upon you today.\" (Surah Yusuf 12:92)"
-      }
+      { "lesson": 1, "subtitle": "Lesson 1 of 6 • The Sacred Sanctuary", "arabic": "إِنَّ أَوَّلَ بَيْتٍ وُضِعَ لِلنَّاسِ لَلَّذِي بِبَكَّةَ مُبَارَكًا", "translit": "Prophet Ibrahim (AS) left Hajar and Ismail with unwavering trust (Tawakkul) in Allah.", "translation": "\"Indeed, the first House [of worship] established for mankind was that at Makkah.\" (Quran 3:96)" },
+      { "lesson": 2, "subtitle": "Lesson 2 of 6 • Character Over Power", "arabic": "وَإِنَّكَ لَعَلَىٰ خُلُقٍ عَظِيمٍ", "translit": "Before prophethood was announced in the Valley of Makkah, the Prophet ﷺ was known as Al-Sadiq Al-Amin (The Truthful, The Trustworthy).", "translation": "\"And indeed, you are of a great moral character.\" (Surah Al-Qalam 68:4)" },
+      { "lesson": 3, "subtitle": "Lesson 3 of 6 • Patience Under Trial", "arabic": "فَاصْبِرْ صَبْرًا جَمِيلًا", "translit": "When faced with hardship in the hills of Makkah, the believers responded with Sabrun Jamil.", "translation": "\"So be patient with gracious patience.\" (Surah Al-Ma'arij 70:5)" },
+      { "lesson": 4, "subtitle": "Lesson 4 of 6 • Night of Serenity", "arabic": "سَلَامٌ هِيَ حَتَّىٰ مَطْلَعِ الْفَجْرِ", "translit": "In the stillness of Mount Hira, revelation descended to transform hearts.", "translation": "\"Peace it is until the emergence of dawn.\" (Surah Al-Qadr 97:5)" },
+      { "lesson": 5, "subtitle": "Lesson 5 of 6 • Brotherhood & Mercy", "arabic": "إِنَّمَا الْمُؤْمِنُونَ إِخْوَةٌ", "translit": "Spiritual growth flourishes when shared in a supportive circle of believers.", "translation": "\"The believers are but brothers.\" (Surah Al-Hujurat 49:10)" },
+      { "lesson": 6, "subtitle": "Lesson 6 of 6 • Forgiveness at Victory", "arabic": "لَا تَثْرِيبَ عَلَيْكُمُ الْيَوْمَ", "translit": "When returning to the Valley of Makkah, mercy triumphed over vengeance.", "translation": "\"No blame will there be upon you today.\" (Surah Yusuf 12:92)" }
     ]
   }
 ]

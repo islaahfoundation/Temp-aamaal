@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import {
-  loadAamaalState,
-  saveAamaalState,
-  clearAamaalState
-} from '../services/aamaalService';
+import { loadAamaalState, saveAamaalState, clearAamaalState } from '../services/aamaalService';
 
 export function useAamaalState() {
   const [state, setState] = useState(() => loadAamaalState());
@@ -13,15 +9,11 @@ export function useAamaalState() {
   }, [state]);
 
   const updateState = useCallback((updater) => {
-    setState((prev) => {
-      const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
-      return next;
-    });
+    setState((prev) => (typeof updater === 'function' ? updater(prev) : { ...prev, ...updater }));
   }, []);
 
   const resetAll = useCallback(() => {
-    const fresh = clearAamaalState();
-    setState(fresh);
+    setState(clearAamaalState());
   }, []);
 
   return { state, updateState, resetAll };

@@ -27,9 +27,7 @@ export function loadAamaalState() {
 export function saveAamaalState(state) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (e) {
-    console.error('Failed to save Aamaal state:', e);
-  }
+  } catch (e) {}
 }
 
 export function clearAamaalState() {
@@ -46,13 +44,8 @@ export function calculateGoalsProgress(state) {
   if (state.remindersCount > 0 && (state.dhikrCount > 0 || state.sessionsCount > 0)) {
     goalsCompleted++;
   }
-
   const percentage = Math.round((goalsCompleted / 3) * 100);
   const circumference = 251.2;
-  const visualOffset =
-    percentage === 0
-      ? circumference * 0.22
-      : circumference - (percentage / 100) * circumference;
-
+  const visualOffset = percentage === 0 ? circumference * 0.22 : circumference - (percentage / 100) * circumference;
   return { goalsCompleted, percentage, visualOffset };
 }

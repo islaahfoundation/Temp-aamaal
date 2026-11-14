@@ -3,7 +3,5 @@ export function triggerHaptic(pattern = 12) {
     if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
       navigator.vibrate(pattern);
     }
-  } catch (e) {
-    // Ignore unsupported vibration environments
-  }
+  } catch (e) {}
 }
