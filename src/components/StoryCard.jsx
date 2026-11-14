@@ -6,7 +6,7 @@ export default function StoryCard({ storyTitle, currentLessonObj, totalLessons =
   return (
     <div onClick={onOpenStory} className="relative cursor-pointer rounded-[16px] bg-[#F5F2E6] border border-white/90 shadow-soft-card p-2 flex items-center space-x-3 overflow-hidden active:scale-[0.99] transition">
       <div className="relative z-10 w-[86px] h-[48px] rounded-[10px] overflow-hidden shrink-0 shadow-sm bg-[#DFDEC9]">
-        <img alt={storyTitle} src="./img/reading-photo.png" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="w-full h-full object-cover" />
+        <img alt={storyTitle} src="./img/reading-photo.jpg" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="w-full h-full object-cover" />
       </div>
       <div className="relative z-10 flex-1 min-w-0">
         <h4 className="font-serif text-[14.5px] font-semibold text-[#0D4A2E] leading-tight truncate">{storyTitle}</h4>
