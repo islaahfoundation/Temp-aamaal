@@ -458,6 +458,17 @@ export default function AppRouter({
           </section>
         );
       }
+      if (moreSubPage === 'account') {
+        return (
+        <AccountDashboard
+        state={state}
+        updateState={updateState}
+        onNavigateTab={onNavigateTab}
+        onShowToast={onShowToast}
+        onBack={() => setMoreSubPage(null)}
+        />
+      );
+    }
 
       return (
         <MoreMenuDirectory
