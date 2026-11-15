@@ -5,7 +5,8 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import HomePage from './pages/home/HomePage';
 import AamaalDashboard from './pages/aamaal/AamaalDashboard';
 import TasbihPage from './pages/tasbih/TasbihPage';
-import DuasPage from './pages/duas/DuasPage';
+import DuasHome from './pages/duas/DuasHome';
+import FeelingsHome from './pages/feelings/FeelingsHome';
 import SettingsPage from './pages/settings/SettingsPage';
 import AccountDashboard from './pages/account/AccountDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -96,6 +97,18 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       action: () => onNavigateTab('tasbih'),
     },
     {
+      id: 'feelings',
+      title: 'Heart & Soul Check-In',
+      subtitle: 'Select how you feel for Prophetic Duas & gentle remedies',
+      badge: 'Comfort',
+      icon: (
+        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      ),
+      action: () => onOpenSubPage('feelings'),
+    },
+    {
       id: 'aamaal',
       title: 'Aamaal Circle & Reports',
       subtitle: '313 Durood, Surah Mulk, 100 Istighfar & monthly reports',
@@ -107,6 +120,19 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
         </svg>
       ),
       action: () => onNavigateTab('aamaal'),
+    },
+    {
+      id: 'duas',
+      title: 'Duas & Adhkar Library',
+      subtitle: 'Authentic Quranic & Prophetic supplications with audio',
+      badge: `${(state?.savedDuaIds || []).length} Saved`,
+      icon: (
+        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+        </svg>
+      ),
+      action: () => onNavigateTab('duas'),
     },
     {
       id: 'account',
@@ -142,8 +168,8 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       badge: `Lesson ${state?.storyLesson || 1}/6`,
       icon: (
         <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
         </svg>
       ),
       action: () => onOpenSubPage('stories'),
@@ -211,7 +237,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
         More Features &amp; Pages
       </h2>
       <p className="text-[12px] text-secondary mt-0.5 mb-3.5">
-        Access Digital Tasbih, Account &amp; Family Profiles, Admin Tools, Stories, Learning, Masjids, and Settings.
+        Access Digital Tasbih, Heart Check-In, Account &amp; Family Profiles, Admin Tools, Stories, and Settings.
       </p>
 
       <div className="space-y-2.5">
@@ -281,7 +307,7 @@ export default function AppRouter({
 
   const [moreSubPage, setMoreSubPage] = useState(null);
 
-  // When user clicks a main bottom nav tab (home, aamaal, duas, more), exit onboarding & reset sub-pages
+  // When user clicks a main bottom nav tab, exit onboarding & reset sub-pages
   useEffect(() => {
     setMoreSubPage(null);
     if (
@@ -289,7 +315,10 @@ export default function AppRouter({
       activeTab === 'aamaal' ||
       activeTab === 'duas' ||
       activeTab === 'more' ||
-      activeTab === 'tasbih'
+      activeTab === 'tasbih' ||
+      activeTab === 'feelings' ||
+      activeTab === 'account' ||
+      activeTab === 'admin'
     ) {
       setOnboardingStep(null);
     } else if (activeTab === 'onboarding') {
@@ -307,6 +336,7 @@ export default function AppRouter({
         target === 'aamaal' ||
         target === 'tasbih' ||
         target === 'duas' ||
+        target === 'feelings' ||
         target === 'more'
       ) {
         localStorage.setItem('aamaal_onboarded', 'true');
@@ -323,7 +353,6 @@ export default function AppRouter({
     [onNavigateTab]
   );
 
-  // Prioritize onboardingStep so clicking "Get Started" / "Next" always advances
   const currentStep = onboardingStep;
 
   // 1. Render Onboarding Screens if active
@@ -383,7 +412,7 @@ export default function AppRouter({
     );
   }
 
-  // 2. Render Main App Tabs (Home, Aamaal, Duas, More + Tasbih)
+  // 2. Render Main App Tabs & Modules
   switch (activeTab) {
     case 'aamaal':
       return (
@@ -405,12 +434,46 @@ export default function AppRouter({
 
     case 'duas':
       return (
-        <DuasPage
+        <DuasHome
           state={state}
           searchQuery={searchQuery}
           onSelectFilter={(f) => updateState({ activeDuaFilter: f })}
           onToggleBookmark={onToggleBookmark}
           onOpenModal={onOpenModal}
+          updateState={updateState}
+          onShowToast={onShowToast}
+        />
+      );
+
+    case 'feelings':
+      return (
+        <FeelingsHome
+          state={state}
+          updateState={updateState}
+          onNavigateTab={onNavigateTab}
+          onShowToast={onShowToast}
+          onBack={() => onNavigateTab && onNavigateTab('home')}
+        />
+      );
+
+    case 'account':
+      return (
+        <AccountDashboard
+          state={state}
+          updateState={updateState}
+          onNavigateTab={onNavigateTab}
+          onShowToast={onShowToast}
+          onBack={() => onNavigateTab && onNavigateTab('more')}
+        />
+      );
+
+    case 'admin':
+      return (
+        <AdminDashboard
+          state={state}
+          updateState={updateState}
+          onShowToast={onShowToast}
+          onBack={() => onNavigateTab && onNavigateTab('more')}
         />
       );
 
@@ -425,6 +488,18 @@ export default function AppRouter({
       );
 
     case 'more': {
+      if (moreSubPage === 'feelings') {
+        return (
+          <FeelingsHome
+            state={state}
+            updateState={updateState}
+            onNavigateTab={onNavigateTab}
+            onShowToast={onShowToast}
+            onBack={() => setMoreSubPage(null)}
+          />
+        );
+      }
+
       if (moreSubPage === 'account') {
         return (
           <AccountDashboard
