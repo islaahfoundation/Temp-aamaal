@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 
-// Main App Tab Pages
+// Main App Tab & Feature Pages
 import HomePage from './pages/home/HomePage';
 import AamaalDashboard from './pages/aamaal/AamaalDashboard';
 import TasbihPage from './pages/tasbih/TasbihPage';
 import DuasPage from './pages/duas/DuasPage';
 import SettingsPage from './pages/settings/SettingsPage';
 import AccountDashboard from './pages/account/AccountDashboard';
+import AdminDashboard from './pages/admin/AdminDashboard';
 
 // Onboarding Pages
 import Splash from './pages/onboarding/Splash';
@@ -123,6 +124,18 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       action: () => onOpenSubPage('account'),
     },
     {
+      id: 'admin',
+      title: 'Circle Admin Panel',
+      subtitle: 'Person-wise daily count inspector, WhatsApp & CSV tools',
+      badge: 'Admin',
+      icon: (
+        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+        </svg>
+      ),
+      action: () => onOpenSubPage('admin'),
+    },
+    {
       id: 'stories',
       title: 'Stories & Reflections',
       subtitle: 'The Valley of Makkah & Prophetic Seerah lessons',
@@ -187,18 +200,6 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       ),
       action: () => onOpenSubPage('settings'),
     },
-    {
-      id: 'admin',
-      title: 'Circle Admin Panel',
-      subtitle: 'Person-wise daily count inspector, WhatsApp & CSV tools',
-      badge: 'Admin',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-      ),
-      action: () => onOpenSubPage('admin'),
-    },
   ];
 
   return (
@@ -210,7 +211,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
         More Features &amp; Pages
       </h2>
       <p className="text-[12px] text-secondary mt-0.5 mb-3.5">
-        Access Digital Tasbih, Account &amp; Family Profiles, Stories, Learning, Masjids, and Settings.
+        Access Digital Tasbih, Account &amp; Family Profiles, Admin Tools, Stories, Learning, Masjids, and Settings.
       </p>
 
       <div className="space-y-2.5">
@@ -322,7 +323,7 @@ export default function AppRouter({
     [onNavigateTab]
   );
 
-  // Prioritize onboardingStep so clicking "Get Started" / "Next" always advances!
+  // Prioritize onboardingStep so clicking "Get Started" / "Next" always advances
   const currentStep = onboardingStep;
 
   // 1. Render Onboarding Screens if active
@@ -430,6 +431,17 @@ export default function AppRouter({
             state={state}
             updateState={updateState}
             onNavigateTab={onNavigateTab}
+            onShowToast={onShowToast}
+            onBack={() => setMoreSubPage(null)}
+          />
+        );
+      }
+
+      if (moreSubPage === 'admin') {
+        return (
+          <AdminDashboard
+            state={state}
+            updateState={updateState}
             onShowToast={onShowToast}
             onBack={() => setMoreSubPage(null)}
           />
