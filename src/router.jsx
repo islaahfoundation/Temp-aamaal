@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 
 // Main App Tab Pages
@@ -7,6 +7,7 @@ import AamaalDashboard from './pages/aamaal/AamaalDashboard';
 import TasbihPage from './pages/tasbih/TasbihPage';
 import DuasPage from './pages/duas/DuasPage';
 import SettingsPage from './pages/settings/SettingsPage';
+import AccountDashboard from './pages/account/AccountDashboard';
 
 // Onboarding Pages
 import Splash from './pages/onboarding/Splash';
@@ -50,19 +51,27 @@ const PATH_TO_STEP_MAP = {
   'account-recovery': 'account-recovery',
 };
 
-// Listens for useNavigate() calls inside onboarding pages and forwards them to handleOnboardingNavigate
+// Listens for useNavigate() calls inside onboarding pages and forwards them only when pathname actually changes
 function RouterLocationBridge({ onRouteChange }) {
   const location = useLocation();
+  const lastPathRef = useRef('/__init__');
+
   useEffect(() => {
-    if (location.pathname && location.pathname !== '/__init__') {
+    if (
+      location.pathname &&
+      location.pathname !== '/__init__' &&
+      location.pathname !== lastPathRef.current
+    ) {
+      lastPathRef.current = location.pathname;
       onRouteChange(location.pathname);
     }
   }, [location.pathname, onRouteChange]);
+
   return null;
 }
 
-// Hub Directory for the "More" Tab (Lists all pages instead of just Settings)
-function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onShowToast }) {
+// Hub Directory for the "More" Tab
+function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour }) {
   const MORE_PAGES = [
     {
       id: 'tasbih',
@@ -97,6 +106,21 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onShowToast })
         </svg>
       ),
       action: () => onNavigateTab('aamaal'),
+    },
+    {
+      id: 'account',
+      title: 'Account & Family Profiles',
+      subtitle: 'Manage family members, cloud backup & leaderboard privacy',
+      badge: state?.userName ? state.userName : 'Profile',
+      icon: (
+        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      ),
+      action: () => onOpenSubPage('account'),
     },
     {
       id: 'stories',
@@ -151,21 +175,6 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onShowToast })
       action: () => onOpenSubPage('notifications'),
     },
     {
-      id: 'account',
-      title: 'Account & Family Profiles',
-      subtitle: 'Manage family members, cloud backup & leaderboard privacy',
-      badge: state?.userName ? state.userName : 'Profile',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-      ),
-      action: () => onOpenSubPage('account'),
-    },
-    {
       id: 'settings',
       title: 'App Settings & Preferences',
       subtitle: 'Name, spiritual focus goals, language & reset options',
@@ -201,7 +210,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onShowToast })
         More Features &amp; Pages
       </h2>
       <p className="text-[12px] text-secondary mt-0.5 mb-3.5">
-        Access Digital Tasbih, Stories, Learning, Masjids, Family Profiles, and Settings.
+        Access Digital Tasbih, Account &amp; Family Profiles, Stories, Learning, Masjids, and Settings.
       </p>
 
       <div className="space-y-2.5">
@@ -241,10 +250,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onShowToast })
       <div className="mt-4 pt-3 border-t border-[#DCD8C6] text-center">
         <button
           type="button"
-          onClick={() => {
-            if (onShowToast) onShowToast('Opening Onboarding Tour...');
-            onNavigateTab('welcome');
-          }}
+          onClick={onStartTour}
           className="text-[12px] font-semibold text-primary underline"
         >
           Replay Welcome &amp; Onboarding Tour
@@ -272,46 +278,52 @@ export default function AppRouter({
     return isOnboarded ? null : 'splash';
   });
 
-  // Tracks which sub-page inside "More" is open (null = show directory list)
   const [moreSubPage, setMoreSubPage] = useState(null);
 
-  // Reset moreSubPage whenever user taps a bottom nav tab
+  // When user clicks a main bottom nav tab (home, aamaal, duas, more), exit onboarding & reset sub-pages
   useEffect(() => {
     setMoreSubPage(null);
+    if (
+      activeTab === 'home' ||
+      activeTab === 'aamaal' ||
+      activeTab === 'duas' ||
+      activeTab === 'more' ||
+      activeTab === 'tasbih'
+    ) {
+      setOnboardingStep(null);
+    } else if (activeTab === 'onboarding') {
+      setOnboardingStep((prev) => prev || 'splash');
+    } else if (PATH_TO_STEP_MAP[activeTab]) {
+      setOnboardingStep(PATH_TO_STEP_MAP[activeTab]);
+    }
   }, [activeTab]);
 
-  // Sync when App.jsx resets or switches activeTab to 'onboarding'
-  useEffect(() => {
-    if (activeTab === 'onboarding' && !onboardingStep) {
-      setOnboardingStep('splash');
-    }
-  }, [activeTab, onboardingStep]);
-
-  const handleOnboardingNavigate = (target) => {
-    if (
-      target === '/home' ||
-      target === 'home' ||
-      target === 'aamaal' ||
-      target === 'tasbih' ||
-      target === 'duas' ||
-      target === 'more'
-    ) {
-      localStorage.setItem('aamaal_onboarded', 'true');
-      setOnboardingStep(null);
-      if (onNavigateTab) {
-        onNavigateTab(target === '/home' ? 'home' : target);
+  const handleOnboardingNavigate = useCallback(
+    (target) => {
+      if (
+        target === '/home' ||
+        target === 'home' ||
+        target === 'aamaal' ||
+        target === 'tasbih' ||
+        target === 'duas' ||
+        target === 'more'
+      ) {
+        localStorage.setItem('aamaal_onboarded', 'true');
+        setOnboardingStep(null);
+        if (onNavigateTab) {
+          onNavigateTab(target === '/home' ? 'home' : target);
+        }
+        return;
       }
-      return;
-    }
 
-    const mappedStep = PATH_TO_STEP_MAP[target] || target;
-    setOnboardingStep(mappedStep);
-  };
+      const mappedStep = PATH_TO_STEP_MAP[target] || target;
+      setOnboardingStep(mappedStep);
+    },
+    [onNavigateTab]
+  );
 
-  const currentStep =
-    activeTab === 'onboarding'
-      ? onboardingStep || 'splash'
-      : PATH_TO_STEP_MAP[activeTab] || onboardingStep;
+  // Prioritize onboardingStep so clicking "Get Started" / "Next" always advances!
+  const currentStep = onboardingStep;
 
   // 1. Render Onboarding Screens if active
   if (currentStep) {
@@ -412,6 +424,18 @@ export default function AppRouter({
       );
 
     case 'more': {
+      if (moreSubPage === 'account') {
+        return (
+          <AccountDashboard
+            state={state}
+            updateState={updateState}
+            onNavigateTab={onNavigateTab}
+            onShowToast={onShowToast}
+            onBack={() => setMoreSubPage(null)}
+          />
+        );
+      }
+
       if (moreSubPage === 'settings') {
         return (
           <div className="h-full flex flex-col">
@@ -458,24 +482,17 @@ export default function AppRouter({
           </section>
         );
       }
-      if (moreSubPage === 'account') {
-        return (
-        <AccountDashboard
-        state={state}
-        updateState={updateState}
-        onNavigateTab={onNavigateTab}
-        onShowToast={onShowToast}
-        onBack={() => setMoreSubPage(null)}
-        />
-      );
-    }
 
       return (
         <MoreMenuDirectory
           state={state}
           onNavigateTab={onNavigateTab}
           onOpenSubPage={(pageId) => setMoreSubPage(pageId)}
-          onShowToast={onShowToast}
+          onStartTour={() => {
+            if (onShowToast) onShowToast('Opening Onboarding Tour...');
+            setOnboardingStep('welcome');
+            if (onNavigateTab) onNavigateTab('onboarding');
+          }}
         />
       );
     }
