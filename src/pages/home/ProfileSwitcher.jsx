@@ -8,6 +8,8 @@ export default function ProfileSwitcher({
   activeProfile,
   onSelectProfile,
   onOpenAccountPage,
+  onToggleReminders,
+  onOpenSettings,
 }) {
   const [openMenu, setOpenMenu] = useState(false);
 
@@ -18,87 +20,177 @@ export default function ProfileSwitcher({
       country: 'India',
     };
 
-  const getTimeGreeting = () => {
-    const hr = new Date().getHours();
-    if (hr < 12) return 'Blessed Morning • Sabah al-Khair';
-    if (hr < 17) return 'Peaceful Afternoon • Masa al-Khair';
-    return 'Tranquil Evening • Masa al-Noor';
-  };
-
   return (
-    <div className="relative flex items-center justify-between mb-3">
-      <div>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-gold block">
-          {getTimeGreeting()}
-        </span>
-        <h1 className="font-serif text-[23px] font-semibold text-primary leading-tight">
-          Assalamu Alaikum, {current.name.split(/\s+/)[0]}
-        </h1>
-      </div>
-
-      {/* Active Profile Pill */}
-      <div className="relative">
+    <div className="relative pt-1 pb-2">
+      {/* Top Bar: Aamaal Arch Logo + Notification & Settings Icons */}
+      <div className="flex items-center justify-between mb-3">
         <button
           type="button"
-          onClick={() => {
-            try {
-              if (navigator.vibrate) navigator.vibrate(8);
-            } catch (_) {}
-            setOpenMenu(!openMenu);
-          }}
-          className="px-3 py-1.5 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center space-x-2 text-[12px] font-bold text-primary"
+          onClick={() => setOpenMenu(!openMenu)}
+          className="flex items-center space-x-2.5 text-left group"
+          title="Tap to switch family profile"
         >
-          <CountryFlag country={current.country || 'India'} size={16} />
-          <span className="max-w-[95px] truncate">{current.name}</span>
-          <span className="text-[9px] text-secondary">▼</span>
+          {/* Mosque Arch Logo */}
+          <svg className="w-11 h-11 shrink-0" viewBox="0 0 64 60" fill="none">
+            <path
+              d="M10 50V28C10 15 32 6 32 6C32 6 54 15 54 28V50"
+              stroke="#0D4A2E"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+            <path
+              d="M32 14C25 14 21 20 21 26V48H43V26C43 20 39 14 32 14Z"
+              fill="#0D4A2E"
+            />
+            <circle cx="32" cy="10" r="2" fill="#C99E4C" />
+            <path
+              d="M16 32V48M48 32V48"
+              stroke="#0D4A2E"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M4 54C18 47 42 47 60 52"
+              stroke="#C99E4C"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </svg>
+
+          <div>
+            <div className="font-serif text-[27px] font-bold text-[#0D4A2E] leading-none tracking-tight">
+              Aamaal
+            </div>
+            <div className="text-[10px] font-medium tracking-[0.08em] text-[#1A3826] mt-0.5">
+              Live with Purpose
+            </div>
+          </div>
         </button>
 
-        {openMenu && (
-          <div className="absolute right-0 top-full mt-1.5 w-56 rounded-[18px] bg-[#F5F2E8] border border-[#D5D2BE] shadow-xl p-1.5 z-40 fade-in">
-            <div className="px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wider text-secondary">
-              Switch Active Profile
-            </div>
+        {/* Top-Right Circular Action Buttons (Bell + Settings Gear) */}
+        <div className="flex items-center space-x-2">
+          <button
+            type="button"
+            onClick={onToggleReminders}
+            aria-label="Reminders"
+            className="w-9 h-9 rounded-full bg-[#F5F2E8]/90 border border-white shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition"
+          >
+            <svg
+              className="w-[18px] h-[18px]"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </button>
 
-            {profiles.map((prof) => {
-              const isSelected = prof.id === current.id;
-              return (
-                <button
-                  key={prof.id}
-                  type="button"
-                  onClick={() => {
-                    if (onSelectProfile) onSelectProfile(prof.id);
-                    setOpenMenu(false);
-                  }}
-                  className={`w-full px-3 py-2 rounded-xl text-left text-[12px] flex items-center justify-between transition ${
-                    isSelected
-                      ? 'bg-[#0D4A2E] text-white font-bold'
-                      : 'text-primary hover:bg-[#EAE8D7]'
-                  }`}
-                >
-                  <div className="flex items-center space-x-2 min-w-0">
-                    <CountryFlag country={prof.country || 'India'} size={15} />
-                    <span className="truncate">{prof.name}</span>
-                  </div>
-                  {isSelected && <span className="text-[#F0D58C]">✓</span>}
-                </button>
-              );
-            })}
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            aria-label="Settings"
+            className="w-9 h-9 rounded-full bg-[#F5F2E8]/90 border border-white shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition"
+          >
+            <svg
+              className="w-[18px] h-[18px]"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+        </div>
+      </div>
 
-            {onOpenAccountPage && (
+      {/* Hero Greeting & Spiritual Journey Headline */}
+      <div className="relative z-10 pr-24">
+        <button
+          type="button"
+          onClick={() => setOpenMenu(!openMenu)}
+          className="inline-flex items-center space-x-1.5 text-[14px] font-medium text-[#0D4A2E] mb-0.5"
+        >
+          <span>
+            Assalamu Alaikum
+            {current.name && current.name !== 'Circle Member'
+              ? `, ${current.name.split(/\s+/)[0]}`
+              : ''}
+          </span>
+          {profiles.length > 1 && (
+            <span className="text-[10px] text-[#C99E4C]">▼</span>
+          )}
+        </button>
+
+        <h1 className="font-serif text-[29px] font-bold text-[#0D4A2E] leading-[1.12] tracking-tight">
+          Your spiritual
+          <br />
+          journey
+        </h1>
+
+        <p className="text-[13px] font-medium text-[#1A3826] mt-1.5">
+          Take a step closer to Allah
+        </p>
+
+        {/* Gold Ornamental Diamond Divider */}
+        <div className="flex items-center space-x-2 mt-2 w-44">
+          <div className="h-[1.5px] flex-1 bg-gradient-to-r from-transparent via-[#C99E4C] to-[#C99E4C]" />
+          <span className="text-[#C99E4C] text-[11px] leading-none">◇</span>
+          <div className="h-[1.5px] flex-1 bg-gradient-to-l from-transparent via-[#C99E4C] to-[#C99E4C]" />
+        </div>
+      </div>
+
+      {/* Profile Switcher Dropdown (Opens if user taps logo or greeting) */}
+      {openMenu && (
+        <div className="absolute left-0 top-14 w-60 rounded-[18px] bg-[#F5F2E8] border border-[#D5D2BE] shadow-xl p-1.5 z-40 fade-in">
+          <div className="px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wider text-secondary">
+            Active Circle Profile
+          </div>
+          {profiles.map((prof) => {
+            const isSelected = prof.id === current.id;
+            return (
               <button
+                key={prof.id}
                 type="button"
                 onClick={() => {
+                  if (onSelectProfile) onSelectProfile(prof.id);
                   setOpenMenu(false);
-                  onOpenAccountPage();
                 }}
-                className="w-full mt-1 pt-1.5 border-t border-[#DCD8C6] text-center text-[11px] font-bold text-[#135332] py-1.5"
+                className={`w-full px-3 py-2 rounded-xl text-left text-[12px] flex items-center justify-between transition ${
+                  isSelected
+                    ? 'bg-[#0D4A2E] text-white font-bold'
+                    : 'text-primary hover:bg-[#EAE8D7]'
+                }`}
               >
-                + Manage Family Profiles ›
+                <div className="flex items-center space-x-2 min-w-0">
+                  <CountryFlag country={prof.country || 'India'} size={15} />
+                  <span className="truncate">{prof.name}</span>
+                </div>
+                {isSelected && <span className="text-[#F0D58C]">✓</span>}
               </button>
-            )}
-          </div>
-        )}
-      </div>
+            );
+          })}
+          {onOpenAccountPage && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpenMenu(false);
+                onOpenAccountPage();
+              }}
+              className="w-full mt-1 pt-1.5 border-t border-[#DCD8C6] text-center text-[11px] font-bold text-[#135332] py-1"
+            >
+              + Manage Family Profiles ›
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
