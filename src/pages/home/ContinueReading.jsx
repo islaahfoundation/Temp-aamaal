@@ -2,125 +2,134 @@
 
 import React, { useState } from 'react';
 
-const SEERAH_LESSONS = [
+const LESSONS = [
   {
-    lesson: 1,
-    title: 'The Valley of Makkah & Legacy of Ibrahim (AS)',
-    summary:
-      'How the barren valley of Bakkah became the sanctuary of Tawheed and the answered prayer of Prophet Ibrahim (AS) and Ismail (AS).',
-    takeaway: 'Sincere supplications made for future generations echo across centuries.',
+    num: 1,
+    subtitle: 'The Sanctuary of Ibrahim (AS)',
+    content:
+      'How the barren valley of Bakkah became the sanctuary of Tawheed and the answered prayer of Prophet Ibrahim (AS).',
   },
   {
-    lesson: 2,
-    title: 'The Year of the Elephant & Divine Protection',
-    summary:
-      'Before the birth of the Prophet ﷺ, Allah protected the Sacred House and prepared the hearts of Quraish for the final message.',
-    takeaway: 'Trust that Allah guards what is sacred even when worldly forces seem overwhelming.',
+    num: 2,
+    subtitle: 'Character Over Power',
+    content:
+      'Before prophethood, Muhammad ﷺ was known across Makkah as Al-Sadiq Al-Amin (The Truthful, The Trustworthy), proving that noble character is the foundation of lasting change.',
   },
   {
-    lesson: 3,
-    title: 'Al-Sadiq Al-Amin: Character Before Prophethood',
-    summary:
-      'For forty years among his people, Muhammad ﷺ was known for unwavering honesty, trustworthiness, and care for the vulnerable.',
-    takeaway: 'True spirituality always shines first through integrity and kindness in daily dealings.',
+    num: 3,
+    subtitle: 'The Cave of Hira & First Light',
+    content:
+      'In quiet reflection above the mountains of Makkah, the first words of revelation—"Iqra!"—illuminated the world.',
   },
   {
-    lesson: 4,
-    title: 'The Cave of Hira & First Light of Revelation',
-    summary:
-      'In quiet seclusion and contemplation, Jibril (AS) brought the command "Iqra!"—transforming human history forever.',
-    takeaway: 'Carve out quiet daily moments of remembrance away from noise and distraction.',
+    num: 4,
+    subtitle: 'Steadfastness Through Hardship',
+    content:
+      'Anchored by daily Quranic recitation and remembrance, the early believers stood firm with patience and grace.',
   },
   {
-    lesson: 5,
-    title: 'Patience in Makkah & Steadfastness of the Believers',
-    summary:
-      'Through hardship and boycott, the early companions anchored their hearts in Quranic recitation and night prayer.',
-    takeaway: 'Consistent small daily Aamaal build unshakeable inner resilience.',
+    num: 5,
+    subtitle: 'The Night Journey & Comfort',
+    content:
+      'After the Year of Sorrow, Allah honored His Messenger ﷺ with Al-Isra wal-Mi’raj and the gift of the five daily prayers.',
   },
   {
-    lesson: 6,
-    title: 'TheHijrah to Madinah & Brotherhood of Faith',
-    summary:
-      'A new community built upon the Masjid, mutual compassion between the Muhajirun and Ansar, and constant remembrance of Allah.',
-    takeaway: 'When a circle gathers for Allah’s remembrance, barakah descends upon everyone in it.',
+    num: 6,
+    subtitle: 'Hijrah & The Circle of Brotherhood',
+    content:
+      'A new community united in Madinah through shared faith, mutual care, and constant remembrance of Allah.',
   },
 ];
 
 export default function ContinueReading({
-  currentLesson = 1,
+  currentLesson = 2,
   onAdvanceLesson,
 }) {
-  const [expanded, setExpanded] = useState(false);
+  const [openLesson, setOpenLesson] = useState(false);
 
-  const safeLessonNum = ((Number(currentLesson || 1) - 1) % SEERAH_LESSONS.length) + 1;
-  const lessonObj =
-    SEERAH_LESSONS.find((l) => l.lesson === safeLessonNum) || SEERAH_LESSONS[0];
-  const pct = Math.round((safeLessonNum / SEERAH_LESSONS.length) * 100);
+  const safeNum = ((Number(currentLesson || 2) - 1) % LESSONS.length) + 1;
+  const currentObj = LESSONS.find((l) => l.num === safeNum) || LESSONS[1];
+  const pct = Math.round((safeNum / LESSONS.length) * 100);
 
   return (
-    <div className="card rounded-[22px] p-4 mb-3.5 space-y-2.5">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-gold block">
-            Continue Reading • Lesson {safeLessonNum} of {SEERAH_LESSONS.length}
-          </span>
-          <h3 className="font-serif text-[16.5px] font-semibold text-primary mt-0.5 leading-snug">
-            📖 {lessonObj.title}
-          </h3>
-        </div>
-        <span className="px-2 py-0.5 rounded-full bg-[#DCE3C8] text-[#0D4A2E] text-[10px] font-bold shrink-0">
-          {pct}%
-        </span>
-      </div>
-
-      <p className="text-[12px] text-secondary leading-relaxed">
-        {lessonObj.summary}
-      </p>
-
-      {expanded && (
-        <div className="rounded-xl bg-[#EAE8D7] p-3 border border-[#D5D2BE] space-y-2 fade-in">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#135332] block">
-            ✨ Heart Takeaway
-          </span>
-          <p className="text-[12px] text-primary font-medium leading-relaxed">
-            {lessonObj.takeaway}
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              try {
-                if (navigator.vibrate) navigator.vibrate(12);
-              } catch (_) {}
-              if (onAdvanceLesson) {
-                const nextNum =
-                  safeLessonNum >= SEERAH_LESSONS.length ? 1 : safeLessonNum + 1;
-                onAdvanceLesson(nextNum);
-              }
-            }}
-            className="btn-primary w-full py-2 text-[12px] font-semibold mt-1"
+    <div className="my-3">
+      {/* Header Row */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center space-x-2">
+          <svg
+            className="w-5 h-5 text-[#0D4A2E]"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
           >
-            ✓ Complete Lesson {safeLessonNum} &amp; Unlock Next
-          </button>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between pt-1">
-        <div className="w-32 h-1.5 rounded-full bg-[#DEDCCF] overflow-hidden">
-          <div
-            className="h-full rounded-full bg-[#135332]"
-            style={{ width: `${pct}%` }}
-          />
+            <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z" />
+            <path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+          </svg>
+          <h3 className="font-serif text-[18px] font-semibold text-[#0D4A2E]">
+            Continue Reading
+          </h3>
         </div>
 
         <button
           type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="text-[11.5px] font-bold text-[#0D4A2E] underline"
+          onClick={() => setOpenLesson(!openLesson)}
+          className="text-[12.5px] font-medium text-[#1A3826] flex items-center space-x-1"
         >
-          {expanded ? 'Hide Lesson' : 'Read Lesson ›'}
+          <span>See all</span>
+          <span>›</span>
         </button>
       </div>
+
+      {/* Horizontal Card with Sunrise Desert Image */}
+      <div
+        onClick={() => setOpenLesson(!openLesson)}
+        className="rounded-[20px] bg-[#F5F2E8] border border-white shadow-soft-card p-2.5 flex items-center space-x-3 cursor-pointer active:scale-[0.99] transition"
+      >
+        <div className="w-24 h-14 rounded-[14px] overflow-hidden shrink-0 bg-[#C99E4C]/30">
+          <img
+            src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=400&q=80"
+            alt="The Valley of Makkah"
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <h4 className="font-serif text-[16px] font-semibold text-[#0D4A2E] truncate">
+            The Valley of Makkah
+          </h4>
+          <p className="text-[11.5px] text-[#4E5953] truncate mt-0.5">
+            Lesson {safeNum} of 6 • {currentObj.subtitle}
+          </p>
+          <div className="w-full h-1.5 rounded-full bg-[#DEDCCF] overflow-hidden mt-1.5">
+            <div
+              className="h-full rounded-full bg-[#135332] transition-all duration-300"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </div>
+
+        <span className="text-[#1A3826] text-[18px] pr-1">›</span>
+      </div>
+
+      {/* Expandable Lesson Drawer */}
+      {openLesson && (
+        <div className="mt-2 rounded-[18px] bg-[#EAE8D7] p-3.5 border border-[#D5D2BE] space-y-2 fade-in">
+          <p className="text-[12px] text-[#1A3826] leading-relaxed">
+            {currentObj.content}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              const next = safeNum >= LESSONS.length ? 1 : safeNum + 1;
+              if (onAdvanceLesson) onAdvanceLesson(next);
+            }}
+            className="btn-primary w-full py-2 text-[12px] font-semibold"
+          >
+            ✓ Complete Lesson {safeNum} &amp; Continue
+          </button>
+        </div>
+      )}
     </div>
   );
 }
