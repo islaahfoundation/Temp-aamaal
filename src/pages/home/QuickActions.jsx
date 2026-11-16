@@ -5,61 +5,120 @@ import React from 'react';
 export default function QuickActions({
   onNavigateTab,
   onOpenAllShortcuts,
+  onOpenStories,
+  onOpenSavedDuas,
 }) {
-  const PRIMARY_ACTIONS = [
-    {
-      id: 'aamaal',
-      title: 'Daily Aamaal',
-      subtitle: '313 Durood & Mulk',
-      icon: '📿',
-      badge: 'Track',
-      onClick: () => onNavigateTab && onNavigateTab('aamaal'),
-    },
+  const ACTIONS = [
     {
       id: 'tasbih',
-      title: 'Digital Tasbih',
-      subtitle: '33, 99 & 313 Counter',
-      icon: '✨',
-      badge: 'Beads',
+      label: 'Tasbih',
       onClick: () => onNavigateTab && onNavigateTab('tasbih'),
-    },
-    {
-      id: 'feelings',
-      title: 'Heart Check-In',
-      subtitle: 'Duas for your mood',
-      icon: '🌿',
-      badge: 'Remedy',
-      onClick: () => onNavigateTab && onNavigateTab('feelings'),
+      icon: (
+        <svg className="w-6 h-6 text-[#0D4A2E]" viewBox="0 0 28 28" fill="currentColor">
+          <circle cx="14" cy="4.5" r="1.8" />
+          <circle cx="18.8" cy="6.2" r="1.8" />
+          <circle cx="21.2" cy="10.5" r="1.8" />
+          <circle cx="20.2" cy="15.5" r="1.8" />
+          <circle cx="16.5" cy="18.8" r="1.8" />
+          <circle cx="11.5" cy="18.8" r="1.8" />
+          <circle cx="7.8" cy="15.5" r="1.8" />
+          <circle cx="6.8" cy="10.5" r="1.8" />
+          <circle cx="9.2" cy="6.2" r="1.8" />
+          <path
+            d="M14 20.5v4.5"
+            stroke="#C99E4C"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+          />
+        </svg>
+      ),
     },
     {
       id: 'duas',
-      title: 'Duas & Adhkar',
-      subtitle: 'Arabic & 4 languages',
-      icon: '🤲',
-      badge: 'Read',
+      label: 'Duas',
       onClick: () => onNavigateTab && onNavigateTab('duas'),
+      icon: (
+        <svg
+          className="w-6 h-6 text-[#0D4A2E]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M7 11v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5a4 4 0 0 1 4-4h1zm10 0v8a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-5a4 4 0 0 0-4-4h-1z" />
+          <path d="M7 13c2-2 3-5 3-8a1 1 0 0 1 2 0v6m5 2c-2-2-3-5-3-8a1 1 0 0 0-2 0v6" />
+        </svg>
+      ),
+    },
+    {
+      id: 'stories',
+      label: 'Stories',
+      onClick: () =>
+        onOpenStories
+          ? onOpenStories()
+          : onNavigateTab && onNavigateTab('more'),
+      icon: (
+        <svg
+          className="w-6 h-6 text-[#0D4A2E]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z" />
+          <path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'saved',
+      label: 'Saved',
+      onClick: () =>
+        onOpenSavedDuas
+          ? onOpenSavedDuas()
+          : onNavigateTab && onNavigateTab('duas'),
+      icon: (
+        <svg
+          className="w-6 h-6 text-[#0D4A2E]"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+        </svg>
+      ),
     },
   ];
 
   return (
-    <div className="mb-3.5">
-      <div className="flex items-center justify-between mb-2 px-0.5">
-        <h3 className="font-serif text-[16px] font-semibold text-primary">
+    <div className="my-3">
+      {/* Section Header */}
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="font-serif text-[19px] font-semibold text-[#0D4A2E]">
           Quick Actions
         </h3>
         {onOpenAllShortcuts && (
           <button
             type="button"
             onClick={onOpenAllShortcuts}
-            className="text-[11.5px] font-semibold text-[#135332] underline"
+            className="text-[12.5px] font-medium text-[#1A3826] flex items-center space-x-1"
           >
-            All Shortcuts ›
+            <span>See all</span>
+            <span>›</span>
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-2.5">
-        {PRIMARY_ACTIONS.map((item) => (
+      {/* 4-Column Quick Action Tiles */}
+      <div className="grid grid-cols-4 gap-2.5">
+        {ACTIONS.map((item) => (
           <button
             key={item.id}
             type="button"
@@ -69,21 +128,12 @@ export default function QuickActions({
               } catch (_) {}
               item.onClick();
             }}
-            className="text-left rounded-[18px] bg-[#F3EFE2] border border-white/90 shadow-soft-card p-3 flex items-start space-x-2.5 active:scale-[0.99] transition"
+            className="rounded-[18px] bg-[#E8E6D5] border border-white/90 shadow-soft-card py-3 px-2 flex flex-col items-center justify-center space-y-1.5 active:scale-95 transition"
           >
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#165534] to-[#08351D] text-[#F0D58C] flex items-center justify-center text-[17px] shrink-0 shadow-sm">
-              {item.icon}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center justify-between">
-                <h4 className="font-serif text-[14px] font-semibold text-primary truncate">
-                  {item.title}
-                </h4>
-              </div>
-              <p className="text-[10.5px] text-secondary truncate mt-0.5">
-                {item.subtitle}
-              </p>
-            </div>
+            {item.icon}
+            <span className="text-[12px] font-medium text-[#1A3826]">
+              {item.label}
+            </span>
           </button>
         ))}
       </div>
