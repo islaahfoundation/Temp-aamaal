@@ -1,122 +1,59 @@
 //Renders the interactive Daily Reminders & Sunnah Alerts card on the Home screen (Morning & Evening Adhkar, Night Surah Mulk, and Thursday/Friday Salawat), allowing the user to toggle individual reminders on or off.
 
-import React, { useState } from 'react';
-
-const DEFAULT_REMINDER_SLOTS = [
-  {
-    id: 'morning_durood',
-    title: 'Morning 313 Durood & Adhkar',
-    time: '07:30 AM',
-    enabled: true,
-  },
-  {
-    id: 'night_mulk',
-    title: 'Surah Mulk Before Sleep',
-    time: '09:45 PM',
-    enabled: true,
-  },
-  {
-    id: 'thursday_salawat',
-    title: 'Thursday Evening Salawat Circle',
-    time: 'Thu • 06:30 PM',
-    enabled: true,
-  },
-];
+import React from 'react';
 
 export default function ReminderDetails({
   remindersActive = true,
   onToggleGlobalReminders,
-  onShowToast,
 }) {
-  const [slots, setSlots] = useState(DEFAULT_REMINDER_SLOTS);
-  const [expanded, setExpanded] = useState(false);
-
-  const activeCount = remindersActive
-    ? slots.filter((s) => s.enabled).length
-    : 0;
-
-  const toggleSlot = (id) => {
-    try {
-      if (navigator.vibrate) navigator.vibrate(10);
-    } catch (_) {}
-    setSlots((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s))
-    );
-    if (onShowToast) onShowToast('Reminder schedule updated');
-  };
-
   return (
-    <div className="card rounded-[20px] p-4 space-y-2.5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2.5">
-          <div className="w-9 h-9 rounded-xl bg-[#EAE8D7] text-primary flex items-center justify-center text-[17px]">
-            🔔
-          </div>
-          <div>
-            <h3 className="font-serif text-[15.5px] font-semibold text-primary">
-              Gentle Sunnah Reminders
-            </h3>
-            <p className="text-[11px] text-secondary">
-              {activeCount > 0
-                ? `${activeCount} daily reminder schedules active`
-                : 'Reminders currently paused'}
-            </p>
-          </div>
+    <div
+      onClick={onToggleGlobalReminders}
+      className="rounded-[20px] bg-gradient-to-r from-[#E2E5C8] via-[#DCE2C0] to-[#C8D6B0] border border-white/90 shadow-soft-card px-3.5 py-3 my-2.5 flex items-center justify-between relative overflow-hidden cursor-pointer active:scale-[0.99] transition"
+    >
+      {/* Left: Clock Icon + Text */}
+      <div className="flex items-center space-x-3 relative z-10 pr-12">
+        <div className="w-8 h-8 rounded-full border-2 border-[#0D4A2E] flex items-center justify-center text-[#0D4A2E] shrink-0">
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <polyline points="12 7 12 12 15 14" />
+          </svg>
         </div>
 
-        <div className="flex items-center space-x-1.5">
-          {onToggleGlobalReminders && (
-            <button
-              type="button"
-              onClick={onToggleGlobalReminders}
-              className={`px-2.5 py-1 rounded-full text-[10.5px] font-bold border transition ${
-                remindersActive
-                  ? 'bg-[#DCE3C8] text-[#0D4A2E] border-[#0D4A2E]/30'
-                  : 'bg-[#E5DEC9] text-[#6B2D26] border-[#6B2D26]/30'
-              }`}
-            >
-              {remindersActive ? 'Active' : 'Paused'}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setExpanded(!expanded)}
-            className="px-2.5 py-1 rounded-full bg-[#EAE8D7] text-primary text-[10.5px] font-bold border border-[#D5D2BE]"
-          >
-            {expanded ? 'Hide' : 'Manage'}
-          </button>
+        <div>
+          <span className="text-[11px] font-medium text-[#1A3826] block leading-tight">
+            Your reminder {!remindersActive && '(Paused)'}
+          </span>
+          <h4 className="font-serif text-[14.5px] font-bold text-[#0D4A2E] leading-snug">
+            6 Salawat Recited Every Thursday Night
+          </h4>
         </div>
       </div>
 
-      {expanded && (
-        <div className="pt-2 border-t border-[#E2DEC9] space-y-2 fade-in">
-          {slots.map((slot) => (
-            <div
-              key={slot.id}
-              className="flex items-center justify-between rounded-xl bg-[#F5F2E8] px-3 py-2 border border-[#DCD8C6]"
-            >
-              <div>
-                <h4 className="text-[12.5px] font-semibold text-primary">
-                  {slot.title}
-                </h4>
-                <span className="text-[10.5px] text-secondary">{slot.time}</span>
-              </div>
+      {/* Right Mosque Silhouette Backdrop */}
+      <svg
+        className="absolute right-6 bottom-0 h-12 w-28 text-[#135332] opacity-85 pointer-events-none"
+        viewBox="0 0 120 50"
+        fill="currentColor"
+      >
+        <path d="M10 50V38L14 32L18 38V50H10Z" />
+        <path d="M25 50V35C25 28 35 24 35 24C35 24 45 28 45 35V50H25Z" />
+        <rect x="52" y="18" width="4" height="32" />
+        <path d="M54 10L51 18H57L54 10Z" />
+        <path d="M62 50V30C62 20 76 14 76 14C76 14 90 20 90 30V50H62Z" />
+        <rect x="96" y="12" width="4.5" height="38" />
+        <path d="M98.2 4L95 12H101.5L98.2 4Z" />
+      </svg>
 
-              <button
-                type="button"
-                onClick={() => toggleSlot(slot.id)}
-                className={`px-2.5 py-1 rounded-lg text-[10.5px] font-bold ${
-                  slot.enabled
-                    ? 'bg-[#0D4A2E] text-white'
-                    : 'bg-[#EAE8D7] text-secondary'
-                }`}
-              >
-                {slot.enabled ? 'On ✓' : 'Off'}
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
+      <span className="relative z-10 text-[#0D4A2E] text-[18px] font-bold">
+        ›
+      </span>
     </div>
   );
 }
