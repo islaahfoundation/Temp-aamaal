@@ -1,6 +1,19 @@
 import React from 'react';
 import { formatCompactNumber } from './CalendarHistory';
 
+export const COUNTRY_CODES = {
+  India: 'in',
+  'United States': 'us',
+  'United Kingdom': 'gb',
+  'United Arab Emirates': 'ae',
+  'Saudi Arabia': 'sa',
+  Oman: 'om',
+  Qatar: 'qa',
+  Kuwait: 'kw',
+  Canada: 'ca',
+  Australia: 'au',
+};
+
 export const COUNTRY_FLAGS = {
   India: '🇮🇳',
   'United States': '🇺🇸',
@@ -13,6 +26,25 @@ export const COUNTRY_FLAGS = {
   Canada: '🇨🇦',
   Australia: '🇦🇺',
 };
+
+// Universal Country Flag Component (Exported for Home, Account, Admin & Aamaal)
+export function CountryFlag({ country = 'India', size = 18, className = '' }) {
+  const code = COUNTRY_CODES[country] || 'in';
+  return (
+    <img
+      src={`https://flagcdn.com/w40/${code}.png`}
+      srcSet={`https://flagcdn.com/w80/${code}.png 2x`}
+      width={size}
+      height={Math.round(size * 0.75)}
+      alt={country}
+      className={`inline-block rounded-[3px] object-cover shadow-sm shrink-0 ${className}`}
+      style={{ width: `${size}px`, height: `${Math.round(size * 0.75)}px` }}
+      onError={(e) => {
+        e.currentTarget.style.display = 'none';
+      }}
+    />
+  );
+}
 
 function TopCountriesBlock({ rows = [] }) {
   if (!rows.length) {
@@ -32,10 +64,10 @@ function TopCountriesBlock({ rows = [] }) {
         return (
           <div
             key={r.country}
-            className="grid grid-cols-[110px_1fr_65px] items-center gap-2"
+            className="grid grid-cols-[120px_1fr_65px] items-center gap-2"
           >
-            <div className="text-[12px] font-semibold text-primary flex items-center space-x-1.5 truncate">
-              <span>{r.flag || COUNTRY_FLAGS[r.country] || '🌍'}</span>
+            <div className="text-[12px] font-semibold text-primary flex items-center space-x-2 truncate">
+              <CountryFlag country={r.country} size={18} />
               <span className="truncate">{r.country}</span>
             </div>
             <div className="w-full h-2 rounded-full bg-[#DEDCCF] overflow-hidden">
@@ -111,7 +143,7 @@ export default function WeeklySummary({
                       >
                         {idx + 1}
                       </span>
-                      <span className="text-[15px] shrink-0">{item.flag || '🇮🇳'}</span>
+                      <CountryFlag country={item.country || 'India'} size={18} />
                       <span className="text-[13px] font-semibold text-primary truncate">
                         {item.name}
                       </span>
