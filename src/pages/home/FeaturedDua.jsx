@@ -3,140 +3,123 @@
 import React, { useState } from 'react';
 import { DEFAULT_DUAS_LIBRARY } from '../duas/DuaCategories';
 
-const LANG_PILLS = [
-  { id: 'en', label: 'EN' },
-  { id: 'ur-roman', label: 'Roman Urdu' },
-  { id: 'ur', label: 'اردو' },
-  { id: 'hi', label: 'हिन्दी' },
-];
-
 export default function FeaturedDua({
   savedDuaIds = [],
   onToggleBookmark,
   onOpenDuasTab,
 }) {
-  const [duaIndex, setDuaIndex] = useState(0);
-  const [lang, setLang] = useState(
-    localStorage.getItem('aamaal_language') || 'en'
-  );
-
-  const featured =
-    DEFAULT_DUAS_LIBRARY[duaIndex % DEFAULT_DUAS_LIBRARY.length] ||
-    DEFAULT_DUAS_LIBRARY[0];
-
+  const [showReader, setShowReader] = useState(false);
+  const featured = DEFAULT_DUAS_LIBRARY[0]; // "Dua for ease in affairs"
   const isBookmarked = savedDuaIds.includes(featured.id);
 
-  const getTranslationText = () => {
-    if (lang === 'ur-roman' && featured.romanUrdu) return featured.romanUrdu;
-    if (lang === 'ur' && featured.urdu) return featured.urdu;
-    if (lang === 'hi' && featured.hindi) return featured.hindi;
-    return featured.translation;
-  };
-
   return (
-    <div className="card rounded-[22px] p-4 mb-3.5 space-y-3">
-      {/* Header Row */}
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <span className="badge-pill">Featured Supplication</span>
-          <h3 className="font-serif text-[17.5px] font-semibold text-primary mt-1 leading-snug">
-            {featured.title}
-          </h3>
+    <div className="my-3.5">
+      {/* Main Split Featured Card matching screenshot */}
+      <div
+        onClick={() => setShowReader(!showReader)}
+        className="rounded-[22px] bg-[#F5F2E8] border border-white shadow-soft-card overflow-hidden flex items-stretch cursor-pointer relative active:scale-[0.99] transition"
+      >
+        {/* Left: Quran on Wooden Rehal Illustration / Photo */}
+        <div className="w-[38%] relative overflow-hidden shrink-0 bg-[#8C6239]">
+          <img
+            src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=500&q=80"
+            alt="Noble Quran on Wooden Stand"
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-[#F5F2E8]" />
         </div>
 
-        <div className="flex items-center space-x-1.5 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              try {
-                if (navigator.vibrate) navigator.vibrate(8);
-              } catch (_) {}
-              setDuaIndex((prev) => prev + 1);
-            }}
-            title="Next Featured Dua"
-            className="px-2.5 py-1 rounded-full bg-[#EAE8D7] text-primary text-[10.5px] font-bold border border-[#D5D2BE]"
+        {/* Right: Content + Mandala Ornament */}
+        <div className="flex-1 p-3.5 pl-2 relative flex flex-col justify-center">
+          {/* Decorative Gold Mandala in Top-Right Corner */}
+          <svg
+            className="absolute right-0 top-0 w-24 h-24 text-[#C99E4C] opacity-25 pointer-events-none"
+            viewBox="0 0 100 100"
+            fill="none"
           >
-            Next ↻
-          </button>
+            <circle cx="90" cy="10" r="42" stroke="currentColor" strokeWidth="1.2" strokeDasharray="3 3" />
+            <circle cx="90" cy="10" r="28" stroke="currentColor" strokeWidth="1.2" />
+            <path
+              d="M90 10 L48 10 M90 10 L60 40 M90 10 L90 52 M90 10 L65 25 M90 10 L75 45"
+              stroke="currentColor"
+              strokeWidth="1"
+            />
+          </svg>
 
-          <button
-            type="button"
-            onClick={() => {
-              try {
-                if (navigator.vibrate) navigator.vibrate(12);
-              } catch (_) {}
-              if (onToggleBookmark) onToggleBookmark(featured.id);
-            }}
-            aria-label="Bookmark Featured Dua"
-            className={`w-8 h-8 rounded-full flex items-center justify-center border transition ${
-              isBookmarked
-                ? 'bg-[#0D4A2E] text-[#F0D58C] border-[#C99E4C]'
-                : 'bg-[#EAE8D7] text-primary border-[#D5D2BE]'
-            }`}
-          >
-            🔖
-          </button>
-        </div>
-      </div>
-
-      {/* Pure Arabic Script Box */}
-      <div className="rounded-2xl bg-gradient-to-br from-[#165534] to-[#08351D] p-3.5 text-center border border-[#C99E4C]/45 shadow-sm">
-        <p
-          dir="rtl"
-          className="font-arabic text-[22px] leading-[1.7] text-[#F0D58C]"
-        >
-          {featured.arabic}
-        </p>
-      </div>
-
-      {/* Multi-Language Meaning Box (Zero Arabic Transliteration) */}
-      <div className="rounded-xl bg-white/80 p-3 border border-[#E2DFCE] space-y-1.5">
-        <div className="flex items-center justify-between">
-          <span className="text-[9.5px] font-bold uppercase tracking-wider text-secondary">
-            Translation
+          <span className="inline-block self-start px-2.5 py-0.5 rounded-full bg-[#DCE3C8] text-[#0D4A2E] text-[9.5px] font-bold uppercase tracking-wider">
+            DAILY FEATURED DUA
           </span>
 
-          <div className="inline-flex rounded-full p-0.5 bg-[#EAE8D7] border border-[#D5D2BE]">
-            {LANG_PILLS.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setLang(p.id)}
-                className={`px-2 py-0.5 rounded-full text-[9.5px] font-bold transition ${
-                  lang === p.id
-                    ? 'bg-[#0D4A2E] text-white'
-                    : 'text-primary'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
+          <h3 className="font-serif text-[20px] font-bold text-[#0D4A2E] leading-[1.15] mt-1.5">
+            Dua for ease in
+            <br />
+            affairs
+          </h3>
+
+          <p className="text-[11.5px] text-[#2A3B32] mt-1">
+            Recite when facing difficulties.
+          </p>
+
+          <div className="mt-2.5">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowReader(!showReader);
+              }}
+              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-[#0D4A2E] to-[#1A6B44] text-white text-[12px] font-semibold inline-flex items-center space-x-1.5 shadow-sm"
+            >
+              <span>{showReader ? 'Hide dua' : 'Read dua'}</span>
+              <span>›</span>
+            </button>
           </div>
         </div>
-
-        <p
-          dir={lang === 'ur' ? 'rtl' : 'ltr'}
-          className="text-[12.5px] text-[#1A3826] font-medium leading-relaxed"
-        >
-          {getTranslationText()}
-        </p>
       </div>
 
-      {/* Footer Reference & Open Reader Link */}
-      <div className="flex items-center justify-between text-[11px] pt-0.5">
-        <span className="text-secondary font-medium">
-          📖 {featured.reference}
-        </span>
-        {onOpenDuasTab && (
-          <button
-            type="button"
-            onClick={onOpenDuasTab}
-            className="font-bold text-[#0D4A2E] underline"
+      {/* Expandable Pure Arabic + Translation Drawer when "Read dua" is tapped */}
+      {showReader && (
+        <div className="mt-2 rounded-[20px] bg-[#0F4C2B] text-white p-4 border border-[#C99E4C]/50 space-y-2.5 fade-in">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#F0D58C]">
+              Prophetic Supplication ({featured.reference})
+            </span>
+            <button
+              type="button"
+              onClick={() => onToggleBookmark && onToggleBookmark(featured.id)}
+              className="px-2.5 py-0.5 rounded-full bg-white/15 text-[#F0D58C] text-[10.5px] font-bold"
+            >
+              {isBookmarked ? '🔖 Saved' : '🔖 Bookmark'}
+            </button>
+          </div>
+
+          <p
+            dir="rtl"
+            className="font-arabic text-[22px] leading-[1.75] text-[#F0D58C] text-center py-1"
           >
-            Listen &amp; Read All Duas ›
-          </button>
-        )}
-      </div>
+            {featured.arabic}
+          </p>
+
+          <p className="text-[12px] text-white/90 leading-relaxed">
+            {featured.translation}
+          </p>
+
+          {featured.romanUrdu && (
+            <p className="text-[11.5px] text-[#F0D58C]/90 pt-1.5 border-t border-white/15">
+              {featured.romanUrdu}
+            </p>
+          )}
+
+          {onOpenDuasTab && (
+            <button
+              type="button"
+              onClick={onOpenDuasTab}
+              className="w-full py-2 rounded-full bg-[#DFB75A] text-[#07361D] text-[12px] font-bold mt-1"
+            >
+              Open Full Duas Library &amp; Audio ›
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
