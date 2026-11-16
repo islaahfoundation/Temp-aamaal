@@ -12,7 +12,6 @@ import QuickActions from './QuickActions';
 import AllShortcuts from './AllShortcuts';
 import FeaturedDua from './FeaturedDua';
 import ContinueReading from './ContinueReading';
-import DailyReflection from './DailyReflection';
 import ReminderDetails from './ReminderDetails';
 
 const LOGS_STORAGE_KEY = 'aamaal_circle_logs_v1';
@@ -23,7 +22,6 @@ export default function Home({
   updateState,
   onNavigateTab,
   onSearchDuas,
-  onOpenModal,
   onToggleReminders,
   onToggleBookmark,
   onShowToast,
@@ -32,7 +30,7 @@ export default function Home({
   const [showProgressDetails, setShowProgressDetails] = useState(false);
   const [showAllShortcuts, setShowAllShortcuts] = useState(false);
 
-  const [profiles, setProfiles] = useState(() => {
+  const [profiles] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(PROFILES_STORAGE_KEY) || 'null');
       if (Array.isArray(saved) && saved.length > 0) return saved;
@@ -105,115 +103,114 @@ export default function Home({
     }
   };
 
-  const handleBookmarkFeatured = (duaId) => {
-    if (onToggleBookmark) {
-      onToggleBookmark(duaId);
-    } else if (updateState) {
-      updateState((prev) => {
-        const list = prev.savedDuaIds || [];
-        const exists = list.includes(duaId);
-        return {
-          ...prev,
-          savedDuaIds: exists
-            ? list.filter((id) => id !== duaId)
-            : [...list, duaId],
-        };
-      });
-    }
-  };
-
   return (
-    <section className="screen-section no-scrollbar px-5 pt-4 pb-6">
-      {/* 1. Greeting & Active Family Profile Switcher */}
-      <ProfileSwitcher
-        profiles={profiles}
-        activeProfile={activeProfile}
-        onSelectProfile={(id) => {
-          setActiveProfileId(id);
-          const found = profiles.find((p) => p.id === id);
-          if (found && onShowToast) {
-            onShowToast(`Switched to ${found.name}`);
-          }
+    <section className="screen-section no-scrollbar relative px-4 pt-2 pb-6 overflow-x-hidden">
+      {/* Top-Right Sunlit Mosque Hero Illustration Backdrop */}
+      <div
+        className="absolute top-0 right-0 w-[68%] h-60 pointer-events-none select-none overflow-hidden opacity-90"
+        style={{
+          maskImage:
+            'radial-gradient(circle at 80% 32%, black 35%, transparent 78%)',
+          WebkitMaskImage:
+            'radial-gradient(circle at 80% 32%, black 35%, transparent 78%)',
         }}
-        onOpenAccountPage={() => onNavigateTab && onNavigateTab('account')}
-      />
+      >
+        <img
+          src="https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&w=700&q=80"
+          alt=""
+          className="w-full h-full object-cover object-center scale-105"
+        />
+      </div>
 
-      {/* 2. Global Search Bar & Live Search Results */}
-      <GlobalSearch
-        query={searchQuery}
-        onChangeQuery={setSearchQuery}
-        onClearQuery={() => setSearchQuery('')}
-      />
-
-      <SearchResults
-        query={searchQuery}
-        onNavigateTab={onNavigateTab}
-        onSearchDuas={onSearchDuas}
-        onCloseSearch={() => setSearchQuery('')}
-      />
-
-      {/* 3. Today's Hero Aamaal Progress Card */}
-      <TodayProgress
-        activeProfile={activeProfile}
-        todayLogs={todayMemberLogs}
-        streakDays={state?.streakDays || 1}
-        dhikrCount={state?.dhikrCount || weekTotalCount}
-        onOpenProgressDetails={() =>
-          setShowProgressDetails(!showProgressDetails)
-        }
-        onOpenAamaalTracker={() => onNavigateTab && onNavigateTab('aamaal')}
-      />
-
-      {/* 4. Expandable Quick Log & Progress Breakdown */}
-      {showProgressDetails && (
-        <ProgressDetails
+      {/* 1. Header Logo + Assalamu Alaikum / Your Spiritual Journey */}
+      <div className="relative z-10">
+        <ProfileSwitcher
+          profiles={profiles}
           activeProfile={activeProfile}
-          todayLogs={todayMemberLogs}
-          weekTotalCount={weekTotalCount}
-          onQuickLogAamaal={handleQuickLogAamaal}
-          onOpenFullReport={() => onNavigateTab && onNavigateTab('aamaal')}
-          onClose={() => setShowProgressDetails(false)}
+          onSelectProfile={(id) => {
+            setActiveProfileId(id);
+            const found = profiles.find((p) => p.id === id);
+            if (found && onShowToast) {
+              onShowToast(`Active profile: ${found.name}`);
+            }
+          }}
+          onOpenAccountPage={() => onNavigateTab && onNavigateTab('account')}
+          onToggleReminders={onToggleReminders}
+          onOpenSettings={() => onNavigateTab && onNavigateTab('settings')}
         />
-      )}
 
-      {/* 5. Quick Actions Grid + All Shortcuts Drawer */}
-      <QuickActions
-        onNavigateTab={onNavigateTab}
-        onOpenAllShortcuts={() => setShowAllShortcuts(!showAllShortcuts)}
-      />
+        {/* 2. Search Pill ("Search duas, reflections...") */}
+        <GlobalSearch
+          query={searchQuery}
+          onChangeQuery={setSearchQuery}
+          onClearQuery={() => setSearchQuery('')}
+        />
 
-      {showAllShortcuts && (
-        <AllShortcuts
+        <SearchResults
+          query={searchQuery}
           onNavigateTab={onNavigateTab}
-          onClose={() => setShowAllShortcuts(false)}
+          onSearchDuas={onSearchDuas}
+          onCloseSearch={() => setSearchQuery('')}
         />
-      )}
 
-      {/* 6. Featured Daily Dua (Pure Arabic + Multi-Language Translation) */}
-      <FeaturedDua
-        savedDuaIds={state?.savedDuaIds || []}
-        onToggleBookmark={handleBookmarkFeatured}
-        onOpenDuasTab={() => onNavigateTab && onNavigateTab('duas')}
-      />
+        {/* 3. Today's Progress Card with 0% Circle Ring & Dhikr | Sessions | Reminders */}
+        <TodayProgress
+          todayLogs={todayMemberLogs}
+          dhikrCount={state?.dhikrCount || 0}
+          sessionsCount={state?.sessionsCount || 0}
+          remindersCount={state?.remindersCount ?? 1}
+          onOpenProgressDetails={() =>
+            setShowProgressDetails(!showProgressDetails)
+          }
+          onOpenAamaalTracker={() => onNavigateTab && onNavigateTab('aamaal')}
+        />
 
-      {/* 7. Continue Reading Seerah Lesson */}
-      <ContinueReading
-        currentLesson={state?.storyLesson || 1}
-        onAdvanceLesson={(nextNum) => {
-          if (updateState) updateState({ storyLesson: nextNum });
-          if (onShowToast) onShowToast(`Unlocked Lesson ${nextNum}!`);
-        }}
-      />
+        {showProgressDetails && (
+          <ProgressDetails
+            activeProfile={activeProfile}
+            todayLogs={todayMemberLogs}
+            weekTotalCount={weekTotalCount}
+            onQuickLogAamaal={handleQuickLogAamaal}
+            onOpenFullReport={() => onNavigateTab && onNavigateTab('aamaal')}
+            onClose={() => setShowProgressDetails(false)}
+          />
+        )}
 
-      {/* 8. Daily Prophetic Reflection */}
-      <DailyReflection />
+        {/* 4. Quick Actions (Tasbih | Duas | Stories | Saved) */}
+        <QuickActions
+          onNavigateTab={onNavigateTab}
+          onOpenAllShortcuts={() => setShowAllShortcuts(!showAllShortcuts)}
+        />
 
-      {/* 9. Gentle Sunnah Reminders Manager */}
-      <ReminderDetails
-        remindersActive={Boolean(state?.remindersCount !== 0)}
-        onToggleGlobalReminders={onToggleReminders}
-        onShowToast={onShowToast}
-      />
+        {showAllShortcuts && (
+          <AllShortcuts
+            onNavigateTab={onNavigateTab}
+            onClose={() => setShowAllShortcuts(false)}
+          />
+        )}
+
+        {/* 5. Daily Featured Dua Split Card */}
+        <FeaturedDua
+          savedDuaIds={state?.savedDuaIds || []}
+          onToggleBookmark={onToggleBookmark}
+          onOpenDuasTab={() => onNavigateTab && onNavigateTab('duas')}
+        />
+
+        {/* 6. Continue Reading ("The Valley of Makkah") */}
+        <ContinueReading
+          currentLesson={state?.storyLesson || 2}
+          onAdvanceLesson={(nextNum) => {
+            if (updateState) updateState({ storyLesson: nextNum });
+            if (onShowToast) onShowToast(`Unlocked Lesson ${nextNum}!`);
+          }}
+        />
+
+        {/* 7. Bottom Thursday Salawat Reminder Card */}
+        <ReminderDetails
+          remindersActive={Boolean(state?.remindersCount !== 0)}
+          onToggleGlobalReminders={onToggleReminders}
+        />
+      </div>
     </section>
   );
 }
