@@ -4,108 +4,210 @@ import React from 'react';
 import { DEFAULT_AAMAAL_LIST } from '../aamaal/AamaalCategories';
 
 export default function TodayProgress({
-  activeProfile,
   todayLogs = [],
-  streakDays = 1,
   dhikrCount = 0,
+  sessionsCount = 0,
+  remindersCount = 1,
   onOpenProgressDetails,
   onOpenAamaalTracker,
 }) {
-  const aamaalItems = DEFAULT_AAMAAL_LIST.map((a) => {
+  // Calculate how many of the 3 daily goals are completed
+  const totalGoals = DEFAULT_AAMAAL_LIST.length || 3;
+  const completedGoals = DEFAULT_AAMAAL_LIST.filter((a) => {
     const found = todayLogs.find((l) => l.aamaalId === a.id);
-    const count = found ? Number(found.count || 0) : 0;
-    const isCompleted = count >= Number(a.target || 1);
-    return {
-      ...a,
-      count,
-      isCompleted,
-    };
-  });
+    return found && Number(found.count || 0) >= Number(a.target || 1);
+  }).length;
 
-  const completedCount = aamaalItems.filter((i) => i.isCompleted).length;
-  const totalItems = aamaalItems.length;
-  const progressPct = Math.round((completedCount / Math.max(totalItems, 1)) * 100);
+  // Or if user used Tasbih/Sessions, reflect progress smoothly
+  const effectiveCompleted =
+    completedGoals > 0
+      ? completedGoals
+      : dhikrCount >= 100
+      ? 2
+      : dhikrCount > 0
+      ? 1
+      : 0;
+
+  const pct = Math.min(
+    100,
+    Math.round((effectiveCompleted / totalGoals) * 100)
+  );
+
+  // SVG Circle Math
+  const radius = 38;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (pct / 100) * circumference;
 
   return (
-    <div className="card-progress rounded-[24px] p-4 mb-3.5 border border-[#C99E4C]/50 shadow-progress-card">
-      {/* Top Row */}
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <span className="px-2.5 py-0.5 rounded-full bg-white/15 text-[#F0D58C] text-[9.5px] font-bold uppercase tracking-wider">
-            Today&apos;s Circle Progress • {activeProfile?.name || 'You'}
-          </span>
-          <h2 className="font-serif text-[21px] font-semibold text-white mt-1">
-            {completedCount === totalItems
-              ? 'MashaAllah! All Aamaal Done'
-              : `${completedCount} of ${totalItems} Daily Aamaal Done`}
-          </h2>
-        </div>
+    <div
+      onClick={onOpenProgressDetails || onOpenAamaalTracker}
+      className="card-progress rounded-[24px] p-4 my-3 relative overflow-hidden cursor-pointer select-none shadow-progress-card border border-[#C99E4C]/30"
+    >
+      {/* Decorative Gold Arabesque Curve (Top Right) */}
+      <svg
+        className="absolute right-0 top-0 w-36 h-36 opacity-25 pointer-events-none"
+        viewBox="0 0 160 160"
+        fill="none"
+      >
+        <path
+          d="M65 0C70 40 100 55 160 60M95 0C100 30 120 45 160 45"
+          stroke="#DFB75A"
+          strokeWidth="1.5"
+        />
+        <circle cx="145" cy="25" r="28" stroke="#DFB75A" strokeWidth="1" strokeDasharray="3 3" />
+      </svg>
 
-        <div className="px-2.5 py-1 rounded-xl bg-[#DFB75A]/20 border border-[#DFB75A]/40 text-center shrink-0">
-          <div className="font-serif text-[15px] font-bold text-[#F0D58C] leading-none">
-            {streakDays}d
+      {/* Decorative Botanical Leaves (Bottom Left) */}
+      <svg
+        className="absolute left-0 bottom-0 w-16 h-16 opacity-80 pointer-events-none"
+        viewBox="0 0 64 64"
+        fill="none"
+      >
+        <path
+          d="M12 64C12 44 2 34 2 34C2 34 16 32 22 48"
+          fill="#88A94B"
+          opacity="0.75"
+        />
+        <path
+          d="M16 64C18 46 32 38 32 38C32 38 32 52 20 62"
+          fill="#628B35"
+          opacity="0.85"
+        />
+        <path
+          d="M6 64C4 50 14 40 14 40C14 40 18 50 10 62"
+          fill="#C99E4C"
+          opacity="0.65"
+        />
+      </svg>
+
+      <div className="relative z-10 flex items-center space-x-3.5">
+        {/* Left: Circular Progress Ring */}
+        <div className="relative w-[92px] h-[92px] flex items-center justify-center shrink-0">
+          <svg className="w-full h-full -rotate-90" viewBox="0 0 92 92">
+            <circle
+              cx="46"
+              cy="46"
+              r={radius}
+              stroke="rgba(255, 255, 255, 0.16)"
+              strokeWidth="7.5"
+              fill="rgba(7, 45, 24, 0.45)"
+            />
+            <circle
+              cx="46"
+              cy="46"
+              r={radius}
+              stroke="url(#progressGrad)"
+              strokeWidth="7.5"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              fill="none"
+            />
+            <defs>
+              <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#DCE384" />
+                <stop offset="50%" stopColor="#62B64B" />
+                <stop offset="100%" stopColor="#2E8540" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="font-sans text-[22px] font-bold text-white tracking-tight">
+              {pct}%
+            </span>
           </div>
-          <div className="text-[9px] text-white/80 uppercase font-semibold mt-0.5">
-            Streak
-          </div>
         </div>
-      </div>
 
-      {/* Progress Bar */}
-      <div className="mt-3">
-        <div className="flex items-center justify-between text-[11px] text-white/85 mb-1">
-          <span>Daily Completion</span>
-          <strong className="text-[#F0D58C]">{progressPct}%</strong>
-        </div>
-        <div className="w-full h-2 rounded-full bg-black/25 overflow-hidden p-0.5">
-          <div
-            className="h-full rounded-full bg-gradient-to-r from-[#DFB75A] to-[#F0D58C] transition-all duration-300"
-            style={{ width: `${Math.max(progressPct, 6)}%` }}
-          />
-        </div>
-      </div>
+        {/* Vertical Subtle Divider */}
+        <div className="w-[1px] h-20 bg-white/15 shrink-0" />
 
-      {/* 3 Mini Pills for 313 Durood, Surah Mulk, 100 Istighfar */}
-      <div className="grid grid-cols-3 gap-1.5 mt-3">
-        {aamaalItems.map((item) => (
-          <div
-            key={item.id}
-            className={`rounded-xl p-2 border text-center ${
-              item.isCompleted
-                ? 'bg-white/15 border-[#F0D58C]/60 text-white'
-                : 'bg-black/15 border-white/10 text-white/80'
-            }`}
-          >
-            <div className="text-[10.5px] font-bold truncate">
-              {item.isCompleted ? '✅ ' : '⏳ '}
-              {item.name.replace('313 ', '').replace('100 ', '')}
+        {/* Right: Title, Subtitle, View Details & 3 Columns */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-1">
+            <div>
+              <h2 className="font-serif text-[19px] font-semibold text-white leading-tight">
+                Today&apos;s Progress
+              </h2>
+              <p className="text-[11.5px] text-white/85 mt-0.5">
+                {effectiveCompleted} of {totalGoals} goals completed
+              </p>
             </div>
-            <div className="text-[10px] text-[#F0D58C] font-semibold mt-0.5">
-              {item.count}/{item.target}
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onOpenProgressDetails) onOpenProgressDetails();
+              }}
+              className="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-[#C99E4C]/40 text-[10.5px] font-medium text-white flex items-center space-x-1 shrink-0 transition"
+            >
+              <span>View details</span>
+              <span>›</span>
+            </button>
+          </div>
+
+          {/* 3 Columns: Dhikr | Sessions | Reminders */}
+          <div className="grid grid-cols-3 divide-x divide-white/15 mt-3 pt-1 text-center">
+            {/* Column 1: Dhikr */}
+            <div className="px-1 flex flex-col items-center">
+              <svg
+                className="w-4 h-4 text-[#DFB75A] mb-0.5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <circle cx="12" cy="4" r="1.8" />
+                <circle cx="16.5" cy="5.8" r="1.8" />
+                <circle cx="18.5" cy="10" r="1.8" />
+                <circle cx="17" cy="14.5" r="1.8" />
+                <circle cx="12" cy="16.5" r="1.8" />
+                <circle cx="7" cy="14.5" r="1.8" />
+                <circle cx="5.5" cy="10" r="1.8" />
+                <circle cx="7.5" cy="5.8" r="1.8" />
+                <path d="M12 18.5v3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+              <span className="text-[10.5px] text-white/80">Dhikr</span>
+              <strong className="text-[14px] font-bold text-white leading-tight mt-0.5">
+                {dhikrCount}
+              </strong>
+            </div>
+
+            {/* Column 2: Sessions */}
+            <div className="px-1 flex flex-col items-center">
+              <svg
+                className="w-4 h-4 text-[#DFB75A] mb-0.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M2 4h6a4 4 0 0 1 4 4v12a3 3 0 0 0-3-3H2z" />
+                <path d="M22 4h-6a4 4 0 0 0-4 4v12a3 3 0 0 1 3-3h7z" />
+              </svg>
+              <span className="text-[10.5px] text-white/80">Sessions</span>
+              <strong className="text-[14px] font-bold text-white leading-tight mt-0.5">
+                {sessionsCount}
+              </strong>
+            </div>
+
+            {/* Column 3: Reminders */}
+            <div className="px-1 flex flex-col items-center">
+              <svg
+                className="w-4 h-4 text-[#DFB75A] mb-0.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              <span className="text-[10.5px] text-white/80">Reminders</span>
+              <strong className="text-[14px] font-bold text-white leading-tight mt-0.5">
+                {remindersCount}
+              </strong>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex items-center space-x-2 mt-3.5 pt-2.5 border-t border-white/15">
-        <button
-          type="button"
-          onClick={onOpenAamaalTracker}
-          className="flex-1 py-2 rounded-full bg-[#DFB75A] text-[#07361D] text-[12px] font-bold shadow-sm active:scale-[0.99] transition"
-        >
-          ✓ Log Today&apos;s Aamaal
-        </button>
-
-        {onOpenProgressDetails && (
-          <button
-            type="button"
-            onClick={onOpenProgressDetails}
-            className="px-3.5 py-2 rounded-full bg-white/15 text-white text-[11.5px] font-semibold border border-white/25"
-          >
-            Details ({dhikrCount}) ›
-          </button>
-        )}
+        </div>
       </div>
     </div>
   );
