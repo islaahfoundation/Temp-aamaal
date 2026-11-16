@@ -7,9 +7,13 @@ import AamaalDashboard from './pages/aamaal/AamaalDashboard';
 import TasbihPage from './pages/tasbih/TasbihPage';
 import DuasHome from './pages/duas/DuasHome';
 import FeelingsHome from './pages/feelings/FeelingsHome';
-import SettingsPage from './pages/settings/SettingsPage';
 import AccountDashboard from './pages/account/AccountDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
+import ReadingHome from './pages/learning/ReadingHome';
+import QuizHome from './pages/quiz/QuizHome';
+import MasjidList from './pages/masjids/MasjidList';
+import ReminderDashboard from './pages/notifications/ReminderDashboard';
+import SettingsPage from './pages/settings/SettingsPage';
 
 // Onboarding Pages
 import Splash from './pages/onboarding/Splash';
@@ -135,6 +139,59 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       action: () => onNavigateTab('duas'),
     },
     {
+      id: 'learning',
+      title: 'Islamic Learning Hub',
+      subtitle: 'Guided courses, Seerah, Surah Mulk & Salawat virtues',
+      badge: 'Study',
+      icon: (
+        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+          <path d="M6 12v5c3 3 9 3 12 0v-5" />
+        </svg>
+      ),
+      action: () => onOpenSubPage('learning'),
+    },
+    {
+      id: 'quiz',
+      title: 'Islamic Knowledge Quiz',
+      subtitle: 'Test your knowledge with Arabic proofs & 4 languages',
+      badge: 'Quiz',
+      icon: (
+        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      ),
+      action: () => onOpenSubPage('quiz'),
+    },
+    {
+      id: 'masjids',
+      title: 'Nearby Masjids & Navigation',
+      subtitle: 'Live Google Maps directions & local Jamaat timetables',
+      badge: 'Google Maps',
+      icon: (
+        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      ),
+      action: () => onOpenSubPage('masjids'),
+    },
+    {
+      id: 'notifications',
+      title: 'Reminders & Alerts',
+      subtitle: 'Manage 313 Durood, Surah Mulk & Thursday Salawat alerts',
+      badge: state?.remindersCount ? 'Active' : 'Paused',
+      icon: (
+        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+      ),
+      action: () => onOpenSubPage('notifications'),
+    },
+    {
       id: 'account',
       title: 'Account & Family Profiles',
       subtitle: 'Manage family members, cloud backup & leaderboard privacy',
@@ -163,9 +220,9 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
     },
     {
       id: 'stories',
-      title: 'Stories & Reflections',
-      subtitle: 'The Valley of Makkah & Prophetic Seerah lessons',
-      badge: `Lesson ${state?.storyLesson || 1}/6`,
+      title: 'Stories & Seerah Reflections',
+      subtitle: 'The Valley of Makkah & Prophetic biography lessons',
+      badge: `Lesson ${state?.storyLesson || 2}/6`,
       icon: (
         <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -173,45 +230,6 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
         </svg>
       ),
       action: () => onOpenSubPage('stories'),
-    },
-    {
-      id: 'learning',
-      title: 'Islamic Learning Hub',
-      subtitle: 'Guided courses, Tajweed & daily Sunnah practices',
-      badge: 'Explore',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-          <path d="M6 12v5c3 3 9 3 12 0v-5" />
-        </svg>
-      ),
-      action: () => onOpenSubPage('learning'),
-    },
-    {
-      id: 'masjids',
-      title: 'Nearby Masjids & Prayer Times',
-      subtitle: 'Find local congregations and Jamaat schedules',
-      badge: 'Local',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-      ),
-      action: () => onOpenSubPage('masjids'),
-    },
-    {
-      id: 'notifications',
-      title: 'Reminders & Notifications',
-      subtitle: 'Manage Durood, Surah Mulk & Thursday Salawat alerts',
-      badge: state?.remindersCount ? 'Active' : 'Paused',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-      ),
-      action: () => onOpenSubPage('notifications'),
     },
     {
       id: 'settings',
@@ -237,7 +255,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
         More Features &amp; Pages
       </h2>
       <p className="text-[12px] text-secondary mt-0.5 mb-3.5">
-        Access Digital Tasbih, Heart Check-In, Account &amp; Family Profiles, Admin Tools, Stories, and Settings.
+        Access Digital Tasbih, Heart Check-In, Learning Hub, Knowledge Quiz, Masjids with Google Maps, Reminders, Family Profiles, and Admin Tools.
       </p>
 
       <div className="space-y-2.5">
@@ -318,7 +336,13 @@ export default function AppRouter({
       activeTab === 'tasbih' ||
       activeTab === 'feelings' ||
       activeTab === 'account' ||
-      activeTab === 'admin'
+      activeTab === 'admin' ||
+      activeTab === 'learning' ||
+      activeTab === 'stories' ||
+      activeTab === 'quiz' ||
+      activeTab === 'masjids' ||
+      activeTab === 'notifications' ||
+      activeTab === 'settings'
     ) {
       setOnboardingStep(null);
     } else if (activeTab === 'onboarding') {
@@ -337,6 +361,10 @@ export default function AppRouter({
         target === 'tasbih' ||
         target === 'duas' ||
         target === 'feelings' ||
+        target === 'learning' ||
+        target === 'quiz' ||
+        target === 'masjids' ||
+        target === 'notifications' ||
         target === 'more'
       ) {
         localStorage.setItem('aamaal_onboarded', 'true');
@@ -456,6 +484,45 @@ export default function AppRouter({
         />
       );
 
+    case 'learning':
+    case 'stories':
+      return (
+        <ReadingHome
+          state={state}
+          updateState={updateState}
+          onShowToast={onShowToast}
+          onBack={() => onNavigateTab && onNavigateTab('home')}
+        />
+      );
+
+    case 'quiz':
+      return (
+        <QuizHome
+          state={state}
+          updateState={updateState}
+          onShowToast={onShowToast}
+          onBack={() => onNavigateTab && onNavigateTab('more')}
+        />
+      );
+
+    case 'masjids':
+      return (
+        <MasjidList
+          onShowToast={onShowToast}
+          onBack={() => onNavigateTab && onNavigateTab('more')}
+        />
+      );
+
+    case 'notifications':
+      return (
+        <ReminderDashboard
+          state={state}
+          updateState={updateState}
+          onShowToast={onShowToast}
+          onBack={() => onNavigateTab && onNavigateTab('more')}
+        />
+      );
+
     case 'account':
       return (
         <AccountDashboard
@@ -494,6 +561,48 @@ export default function AppRouter({
             state={state}
             updateState={updateState}
             onNavigateTab={onNavigateTab}
+            onShowToast={onShowToast}
+            onBack={() => setMoreSubPage(null)}
+          />
+        );
+      }
+
+      if (moreSubPage === 'learning' || moreSubPage === 'stories') {
+        return (
+          <ReadingHome
+            state={state}
+            updateState={updateState}
+            onShowToast={onShowToast}
+            onBack={() => setMoreSubPage(null)}
+          />
+        );
+      }
+
+      if (moreSubPage === 'quiz') {
+        return (
+          <QuizHome
+            state={state}
+            updateState={updateState}
+            onShowToast={onShowToast}
+            onBack={() => setMoreSubPage(null)}
+          />
+        );
+      }
+
+      if (moreSubPage === 'masjids') {
+        return (
+          <MasjidList
+            onShowToast={onShowToast}
+            onBack={() => setMoreSubPage(null)}
+          />
+        );
+      }
+
+      if (moreSubPage === 'notifications') {
+        return (
+          <ReminderDashboard
+            state={state}
+            updateState={updateState}
             onShowToast={onShowToast}
             onBack={() => setMoreSubPage(null)}
           />
@@ -547,29 +656,6 @@ export default function AppRouter({
         );
       }
 
-      if (moreSubPage) {
-        return (
-          <section className="screen-section no-scrollbar px-5 pt-4 pb-6">
-            <button
-              type="button"
-              onClick={() => setMoreSubPage(null)}
-              className="btn-secondary px-3 py-1 text-[11.5px] mb-4"
-            >
-              ‹ Back to More Pages
-            </button>
-            <div className="card p-5 text-center mt-4">
-              <span className="badge-pill">Aamaal Circle Module</span>
-              <h2 className="font-serif text-[22px] font-semibold text-primary mt-2 capitalize">
-                {moreSubPage}
-              </h2>
-              <p className="text-[12.5px] text-secondary mt-1">
-                Ready for us to connect the dedicated {moreSubPage} pages next.
-              </p>
-            </div>
-          </section>
-        );
-      }
-
       return (
         <MoreMenuDirectory
           state={state}
@@ -589,10 +675,12 @@ export default function AppRouter({
       return (
         <HomePage
           state={state}
+          updateState={updateState}
           onNavigateTab={onNavigateTab}
           onSearchDuas={onSearchDuas}
           onOpenModal={onOpenModal}
-          onToggleReminders={onToggleReminders}
+          onToggleReminders={() => onNavigateTab && onNavigateTab('notifications')}
+          onToggleBookmark={onToggleBookmark}
           onShowToast={onShowToast}
         />
       );
