@@ -149,4 +149,4 @@ export default function HapticSettings({
       </div>
     </div>
   );
-}SoundSettings.jsx
+}
