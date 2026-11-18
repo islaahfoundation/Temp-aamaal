@@ -23,7 +23,7 @@ export const DEFAULT_AAMAAL_LIST = [
   },
   {
     id: 'istighfar_100',
-    name: '100 Istighfar',
+    name: 'Istighfar',
     arabic: 'أَسْتَغْفِرُ اللَّهَ رَبِّي مِنْ كُلِّ ذَنْبٍ وَأَتُوبُ إِلَيْهِ',
     translation: '"I seek forgiveness from Allah, my Lord, from every sin, and I turn to Him in repentance."',
     romanUrdu: '"Main Allah se apne tamam gunahon ki maafi mangta hoon aur Usi ki taraf rujoo karta hoon."',
