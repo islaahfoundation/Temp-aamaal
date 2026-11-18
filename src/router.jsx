@@ -1,3 +1,4 @@
+// src/router.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 
@@ -10,6 +11,7 @@ import FeelingsHome from './pages/feelings/FeelingsHome';
 import AccountDashboard from './pages/account/AccountDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ReadingHome from './pages/learning/ReadingHome';
+import StoriesHome from './pages/stories/StoriesHome';
 import QuizHome from './pages/quiz/QuizHome';
 import MasjidList from './pages/masjids/MasjidList';
 import ReminderDashboard from './pages/notifications/ReminderDashboard';
@@ -29,7 +31,6 @@ import NotificationPermission from './pages/onboarding/NotificationPermission';
 import Authentication from './pages/onboarding/Authentication';
 import AccountRecovery from './pages/onboarding/AccountRecovery';
 
-// Maps URL-style paths or step names to onboarding keys
 const PATH_TO_STEP_MAP = {
   '/': 'splash',
   'splash': 'splash',
@@ -57,7 +58,6 @@ const PATH_TO_STEP_MAP = {
   'account-recovery': 'account-recovery',
 };
 
-// Listens for useNavigate() calls inside onboarding pages and forwards them only when pathname actually changes
 function RouterLocationBridge({ onRouteChange }) {
   const location = useLocation();
   const lastPathRef = useRef('/__init__');
@@ -76,28 +76,39 @@ function RouterLocationBridge({ onRouteChange }) {
   return null;
 }
 
+// Reusable Universal Top Back Bar for pages that don't render their own internal Back button
+function PageWithBackHeader({ title, onBack, children }) {
+  return (
+    <div className="h-full flex flex-col">
+      <div className="px-4 pt-2.5 pb-1 flex items-center space-x-2.5 shrink-0">
+        <button
+          type="button"
+          onClick={onBack}
+          className="w-8 h-8 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] font-bold text-[16px] active:scale-95 transition"
+          aria-label="Go Back"
+        >
+          ←
+        </button>
+        {title && (
+          <span className="text-[11.5px] font-bold uppercase tracking-wider text-[#0D4A2E]">
+            {title}
+          </span>
+        )}
+      </div>
+      <div className="flex-1 min-h-0">{children}</div>
+    </div>
+  );
+}
+
 // Hub Directory for the "More" Tab
 function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour }) {
   const MORE_PAGES = [
     {
       id: 'tasbih',
       title: 'Digital Tasbih',
-      subtitle: 'Interactive bead counter with 33, 99 & 313 targets',
+      subtitle: 'Interactive 3D bead counter with 33, 99 & 413 targets',
       badge: `${state?.dhikrCount || 0} Today`,
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 28 28" fill="currentColor">
-          <circle cx="14" cy="4.5" r="2" />
-          <circle cx="19" cy="6.5" r="2" />
-          <circle cx="21.5" cy="11" r="2" />
-          <circle cx="20.5" cy="16.5" r="2" />
-          <circle cx="16.5" cy="20" r="2" />
-          <circle cx="11.5" cy="20" r="2" />
-          <circle cx="7.5" cy="16.5" r="2" />
-          <circle cx="6.5" cy="11" r="2" />
-          <circle cx="9" cy="6.5" r="2" />
-          <path d="M14 22v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      ),
+      icon: '📿',
       action: () => onNavigateTab('tasbih'),
     },
     {
@@ -105,11 +116,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       title: 'Heart & Soul Check-In',
       subtitle: 'Select how you feel for Prophetic Duas & gentle remedies',
       badge: 'Comfort',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-      ),
+      icon: '🌿',
       action: () => onOpenSubPage('feelings'),
     },
     {
@@ -117,12 +124,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       title: 'Aamaal Circle & Reports',
       subtitle: '313 Durood, Surah Mulk, 100 Istighfar & monthly reports',
       badge: 'Daily Tracker',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-          <path d="M9 11l3 3L22 4" />
-          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-        </svg>
-      ),
+      icon: '✓',
       action: () => onNavigateTab('aamaal'),
     },
     {
@@ -130,25 +132,23 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       title: 'Duas & Adhkar Library',
       subtitle: 'Authentic Quranic & Prophetic supplications with audio',
       badge: `${(state?.savedDuaIds || []).length} Saved`,
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-        </svg>
-      ),
+      icon: '🤲',
       action: () => onNavigateTab('duas'),
+    },
+    {
+      id: 'stories',
+      title: 'Stories & Seerah Reflections',
+      subtitle: 'The Valley of Makkah, Quranic parables & Hadith gems',
+      badge: `Lesson ${state?.storyLesson || 2}/6`,
+      icon: '📖',
+      action: () => onOpenSubPage('stories'),
     },
     {
       id: 'learning',
       title: 'Islamic Learning Hub',
-      subtitle: 'Guided courses, Seerah, Surah Mulk & Salawat virtues',
-      badge: 'Study',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-          <path d="M6 12v5c3 3 9 3 12 0v-5" />
-        </svg>
-      ),
+      subtitle: 'Guided courses on Salawat, Surah Mulk & Sunnah',
+      badge: 'Courses',
+      icon: '🎓',
       action: () => onOpenSubPage('learning'),
     },
     {
@@ -156,26 +156,15 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       title: 'Islamic Knowledge Quiz',
       subtitle: 'Test your knowledge with Arabic proofs & 4 languages',
       badge: 'Quiz',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-          <line x1="12" y1="17" x2="12.01" y2="17" />
-        </svg>
-      ),
+      icon: '🏆',
       action: () => onOpenSubPage('quiz'),
     },
     {
       id: 'masjids',
       title: 'Nearby Masjids & Navigation',
-      subtitle: 'Live Google Maps directions & local Jamaat timetables',
+      subtitle: 'Free live Google Maps directions & Jamaat timetables',
       badge: 'Google Maps',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-      ),
+      icon: '🕌',
       action: () => onOpenSubPage('masjids'),
     },
     {
@@ -183,12 +172,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       title: 'Reminders & Alerts',
       subtitle: 'Manage 313 Durood, Surah Mulk & Thursday Salawat alerts',
       badge: state?.remindersCount ? 'Active' : 'Paused',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-        </svg>
-      ),
+      icon: '🔔',
       action: () => onOpenSubPage('notifications'),
     },
     {
@@ -196,14 +180,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       title: 'Account & Family Profiles',
       subtitle: 'Manage family members, cloud backup & leaderboard privacy',
       badge: state?.userName ? state.userName : 'Profile',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-      ),
+      icon: '👨‍👩‍👧‍👦',
       action: () => onOpenSubPage('account'),
     },
     {
@@ -211,51 +188,41 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       title: 'Circle Admin Panel',
       subtitle: 'Person-wise daily count inspector, WhatsApp & CSV tools',
       badge: 'Admin',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-        </svg>
-      ),
+      icon: '👑',
       action: () => onOpenSubPage('admin'),
-    },
-    {
-      id: 'stories',
-      title: 'Stories & Seerah Reflections',
-      subtitle: 'The Valley of Makkah & Prophetic biography lessons',
-      badge: `Lesson ${state?.storyLesson || 2}/6`,
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-        </svg>
-      ),
-      action: () => onOpenSubPage('stories'),
     },
     {
       id: 'settings',
       title: 'App Settings & Preferences',
-      subtitle: 'Name, spiritual focus goals, language & reset options',
+      subtitle: 'Language, Arabic font, haptics, themes & privacy',
       badge: 'Configure',
-      icon: (
-        <svg className="w-5 h-5 text-[#F0D58C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      ),
+      icon: '⚙️',
       action: () => onOpenSubPage('settings'),
     },
   ];
 
   return (
-    <section className="screen-section no-scrollbar px-5 pt-4 pb-6">
-      <span className="text-[10.5px] font-bold uppercase tracking-widest text-gold">
-        Aamaal Circle Directory
-      </span>
+    <section className="screen-section no-scrollbar px-5 pt-3 pb-6">
+      {/* Top Back to Home Button */}
+      <div className="flex items-center space-x-2.5 mb-2">
+        <button
+          type="button"
+          onClick={() => onNavigateTab && onNavigateTab('home')}
+          className="w-8 h-8 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] font-bold text-[16px]"
+          aria-label="Back to Home"
+        >
+          ←
+        </button>
+        <span className="text-[10.5px] font-bold uppercase tracking-widest text-gold">
+          Aamaal Circle Directory
+        </span>
+      </div>
+
       <h2 className="font-serif text-[24px] font-semibold text-primary">
         More Features &amp; Pages
       </h2>
       <p className="text-[12px] text-secondary mt-0.5 mb-3.5">
-        Access Digital Tasbih, Heart Check-In, Learning Hub, Knowledge Quiz, Masjids with Google Maps, Reminders, Family Profiles, and Admin Tools.
+        Access Digital Tasbih, Heart Check-In, Stories, Learning Hub, Quiz, Masjids with Google Maps, Reminders, Family Profiles, and Admin Tools.
       </p>
 
       <div className="space-y-2.5">
@@ -266,7 +233,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
             onClick={page.action}
             className="w-full text-left rounded-[18px] bg-[#F3EFE2] border border-white/90 shadow-soft-card p-3 flex items-center space-x-3 active:scale-[0.99] transition"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#165534] to-[#08351D] border border-[#C99E4C]/40 flex items-center justify-center shrink-0 shadow-sm">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#165534] to-[#08351D] border border-[#C99E4C]/40 flex items-center justify-center shrink-0 shadow-sm text-[#F0D58C] text-[17px]">
               {page.icon}
             </div>
 
@@ -291,7 +258,6 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
         ))}
       </div>
 
-      {/* Shortcut to Replay Onboarding Tour */}
       <div className="mt-4 pt-3 border-t border-[#DCD8C6] text-center">
         <button
           type="button"
@@ -325,7 +291,6 @@ export default function AppRouter({
 
   const [moreSubPage, setMoreSubPage] = useState(null);
 
-  // When user clicks a main bottom nav tab, exit onboarding & reset sub-pages
   useEffect(() => {
     setMoreSubPage(null);
     if (
@@ -362,6 +327,7 @@ export default function AppRouter({
         target === 'duas' ||
         target === 'feelings' ||
         target === 'learning' ||
+        target === 'stories' ||
         target === 'quiz' ||
         target === 'masjids' ||
         target === 'notifications' ||
@@ -381,10 +347,9 @@ export default function AppRouter({
     [onNavigateTab]
   );
 
-  const currentStep = onboardingStep;
+  const goHome = () => onNavigateTab && onNavigateTab('home');
 
-  // 1. Render Onboarding Screens if active
-  if (currentStep) {
+  if (onboardingStep) {
     const sharedProps = {
       state,
       updateState,
@@ -394,14 +359,17 @@ export default function AppRouter({
     };
 
     const renderStepScreen = () => {
-      switch (currentStep) {
+      switch (onboardingStep) {
         case 'splash':
           return (
             <Splash
               {...sharedProps}
               onComplete={() => {
-                const isReturnee = localStorage.getItem('aamaal_onboarded') === 'true';
-                handleOnboardingNavigate(isReturnee ? 'authentication' : 'welcome');
+                const isReturnee =
+                  localStorage.getItem('aamaal_onboarded') === 'true';
+                handleOnboardingNavigate(
+                  isReturnee ? 'authentication' : 'welcome'
+                );
               }}
             />
           );
@@ -440,15 +408,16 @@ export default function AppRouter({
     );
   }
 
-  // 2. Render Main App Tabs & Modules
   switch (activeTab) {
     case 'aamaal':
       return (
-        <AamaalDashboard
-          state={state}
-          updateState={updateState}
-          onShowToast={onShowToast}
-        />
+        <PageWithBackHeader title="Back to Home" onBack={goHome}>
+          <AamaalDashboard
+            state={state}
+            updateState={updateState}
+            onShowToast={onShowToast}
+          />
+        </PageWithBackHeader>
       );
 
     case 'tasbih':
@@ -457,20 +426,23 @@ export default function AppRouter({
           state={state}
           updateState={updateState}
           onShowToast={onShowToast}
+          onBack={goHome}
         />
       );
 
     case 'duas':
       return (
-        <DuasHome
-          state={state}
-          searchQuery={searchQuery}
-          onSelectFilter={(f) => updateState({ activeDuaFilter: f })}
-          onToggleBookmark={onToggleBookmark}
-          onOpenModal={onOpenModal}
-          updateState={updateState}
-          onShowToast={onShowToast}
-        />
+        <PageWithBackHeader title="Back to Home" onBack={goHome}>
+          <DuasHome
+            state={state}
+            searchQuery={searchQuery}
+            onSelectFilter={(f) => updateState({ activeDuaFilter: f })}
+            onToggleBookmark={onToggleBookmark}
+            onOpenModal={onOpenModal}
+            updateState={updateState}
+            onShowToast={onShowToast}
+          />
+        </PageWithBackHeader>
       );
 
     case 'feelings':
@@ -480,18 +452,27 @@ export default function AppRouter({
           updateState={updateState}
           onNavigateTab={onNavigateTab}
           onShowToast={onShowToast}
-          onBack={() => onNavigateTab && onNavigateTab('home')}
+          onBack={goHome}
+        />
+      );
+
+    case 'stories':
+      return (
+        <StoriesHome
+          state={state}
+          updateState={updateState}
+          onShowToast={onShowToast}
+          onBack={goHome}
         />
       );
 
     case 'learning':
-    case 'stories':
       return (
         <ReadingHome
           state={state}
           updateState={updateState}
           onShowToast={onShowToast}
-          onBack={() => onNavigateTab && onNavigateTab('home')}
+          onBack={goHome}
         />
       );
 
@@ -501,7 +482,7 @@ export default function AppRouter({
           state={state}
           updateState={updateState}
           onShowToast={onShowToast}
-          onBack={() => onNavigateTab && onNavigateTab('more')}
+          onBack={goHome}
         />
       );
 
@@ -509,7 +490,7 @@ export default function AppRouter({
       return (
         <MasjidList
           onShowToast={onShowToast}
-          onBack={() => onNavigateTab && onNavigateTab('more')}
+          onBack={goHome}
         />
       );
 
@@ -519,7 +500,7 @@ export default function AppRouter({
           state={state}
           updateState={updateState}
           onShowToast={onShowToast}
-          onBack={() => onNavigateTab && onNavigateTab('more')}
+          onBack={goHome}
         />
       );
 
@@ -530,7 +511,7 @@ export default function AppRouter({
           updateState={updateState}
           onNavigateTab={onNavigateTab}
           onShowToast={onShowToast}
-          onBack={() => onNavigateTab && onNavigateTab('more')}
+          onBack={goHome}
         />
       );
 
@@ -540,7 +521,7 @@ export default function AppRouter({
           state={state}
           updateState={updateState}
           onShowToast={onShowToast}
-          onBack={() => onNavigateTab && onNavigateTab('more')}
+          onBack={goHome}
         />
       );
 
@@ -549,12 +530,16 @@ export default function AppRouter({
         <SettingsPage
           state={state}
           updateState={updateState}
+          onNavigateTab={onNavigateTab}
           onResetAll={onResetAll}
           onShowToast={onShowToast}
+          onBack={goHome}
         />
       );
 
     case 'more': {
+      const backToMore = () => setMoreSubPage(null);
+
       if (moreSubPage === 'feelings') {
         return (
           <FeelingsHome
@@ -562,18 +547,29 @@ export default function AppRouter({
             updateState={updateState}
             onNavigateTab={onNavigateTab}
             onShowToast={onShowToast}
-            onBack={() => setMoreSubPage(null)}
+            onBack={backToMore}
           />
         );
       }
 
-      if (moreSubPage === 'learning' || moreSubPage === 'stories') {
+      if (moreSubPage === 'stories') {
+        return (
+          <StoriesHome
+            state={state}
+            updateState={updateState}
+            onShowToast={onShowToast}
+            onBack={backToMore}
+          />
+        );
+      }
+
+      if (moreSubPage === 'learning') {
         return (
           <ReadingHome
             state={state}
             updateState={updateState}
             onShowToast={onShowToast}
-            onBack={() => setMoreSubPage(null)}
+            onBack={backToMore}
           />
         );
       }
@@ -584,7 +580,7 @@ export default function AppRouter({
             state={state}
             updateState={updateState}
             onShowToast={onShowToast}
-            onBack={() => setMoreSubPage(null)}
+            onBack={backToMore}
           />
         );
       }
@@ -593,7 +589,7 @@ export default function AppRouter({
         return (
           <MasjidList
             onShowToast={onShowToast}
-            onBack={() => setMoreSubPage(null)}
+            onBack={backToMore}
           />
         );
       }
@@ -604,7 +600,7 @@ export default function AppRouter({
             state={state}
             updateState={updateState}
             onShowToast={onShowToast}
-            onBack={() => setMoreSubPage(null)}
+            onBack={backToMore}
           />
         );
       }
@@ -616,7 +612,7 @@ export default function AppRouter({
             updateState={updateState}
             onNavigateTab={onNavigateTab}
             onShowToast={onShowToast}
-            onBack={() => setMoreSubPage(null)}
+            onBack={backToMore}
           />
         );
       }
@@ -627,32 +623,21 @@ export default function AppRouter({
             state={state}
             updateState={updateState}
             onShowToast={onShowToast}
-            onBack={() => setMoreSubPage(null)}
+            onBack={backToMore}
           />
         );
       }
 
       if (moreSubPage === 'settings') {
         return (
-          <div className="h-full flex flex-col">
-            <div className="px-5 pt-3 shrink-0">
-              <button
-                type="button"
-                onClick={() => setMoreSubPage(null)}
-                className="btn-secondary px-3 py-1 text-[11.5px]"
-              >
-                ‹ Back to More Pages
-              </button>
-            </div>
-            <div className="flex-1 min-h-0">
-              <SettingsPage
-                state={state}
-                updateState={updateState}
-                onResetAll={onResetAll}
-                onShowToast={onShowToast}
-              />
-            </div>
-          </div>
+          <SettingsPage
+            state={state}
+            updateState={updateState}
+            onNavigateTab={onNavigateTab}
+            onResetAll={onResetAll}
+            onShowToast={onShowToast}
+            onBack={backToMore}
+          />
         );
       }
 
@@ -679,7 +664,9 @@ export default function AppRouter({
           onNavigateTab={onNavigateTab}
           onSearchDuas={onSearchDuas}
           onOpenModal={onOpenModal}
-          onToggleReminders={() => onNavigateTab && onNavigateTab('notifications')}
+          onToggleReminders={() =>
+            onNavigateTab && onNavigateTab('notifications')
+          }
           onToggleBookmark={onToggleBookmark}
           onShowToast={onShowToast}
         />
