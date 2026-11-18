@@ -16,6 +16,7 @@ export default function AamaalDashboard({
   state,
   updateState,
   onShowToast,
+  onBack,
 }) {
   const [currentView, setCurrentView] = useState('daily'); // 'daily' | 'monthly' | 'stats'
   const [aamaalList] = useState(DEFAULT_AAMAAL_LIST);
@@ -176,18 +177,22 @@ export default function AamaalDashboard({
   // Main View A: Daily Aamaal Screen
   return (
     <section className="screen-section no-scrollbar px-4 pt-4 pb-6">
-      {/* Top Bar: Settings Button · Family Profile Switcher · Stats Shortcut */}
+      {/* Top Bar: Back Button · Centered Family Profile Switcher · Invisible Spacer */}
       <div className="flex items-center justify-between relative mb-3">
-        <button
-          type="button"
-          onClick={() => setShowPrivacyModal(true)}
-          title="Settings & Privacy"
-          className="w-9 h-9 rounded-xl bg-[#EAE8D7] border border-white shadow-sm flex items-center justify-center text-primary"
-        >
-          ⚙️
-        </button>
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Back"
+            className="w-9 h-9 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] font-bold text-[18px] active:scale-95 transition shrink-0"
+          >
+            ←
+          </button>
+        ) : (
+          <div className="w-9 h-9 shrink-0" aria-hidden="true" />
+        )}
 
-        {/* Quick Member / Family Switcher Dropdown */}
+        {/* Quick Member / Family Switcher Dropdown (Stays Dead-Center) */}
         <div className="relative">
           <button
             type="button"
@@ -195,7 +200,10 @@ export default function AamaalDashboard({
             className="px-4 py-1.5 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-sm flex items-center space-x-2 text-[13px] font-bold text-primary"
           >
             <span>
-              {activeProfile.flag || '🇮🇳'} {activeProfile.name}
+              {activeProfile.flag && activeProfile.flag !== '????'
+                ? activeProfile.flag
+                : '🇮🇳'}{' '}
+              {activeProfile.name}
             </span>
             <span className="text-[10px]">▼</span>
           </button>
@@ -219,9 +227,10 @@ export default function AamaalDashboard({
                     }`}
                   >
                     <span className="truncate">
-                      {prof.flag || '🇮🇳'} {prof.name}
+                      {prof.flag && prof.flag !== '????' ? prof.flag : '🇮🇳'}{' '}
+                      {prof.name}
                     </span>
-                    {isCurrent && <span>✓</span>}
+                    {isCurrent && <span className="text-[#F0D58C]">✓</span>}
                   </button>
                 );
               })}
@@ -239,14 +248,8 @@ export default function AamaalDashboard({
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setCurrentView('stats')}
-          title="Circle Leaderboard & Stats"
-          className="w-9 h-9 rounded-xl bg-[#EAE8D7] border border-white shadow-sm flex items-center justify-center text-primary"
-        >
-          🏆
-        </button>
+        {/* Invisible Right Spacer so Profile Switcher stays perfectly centered */}
+        <div className="w-9 h-9 shrink-0" aria-hidden="true" />
       </div>
 
       {/* 1. Aamaal Category Tabs (Durood Shareef, Surah Mulk, 100 Istighfar) */}
@@ -299,7 +302,7 @@ export default function AamaalDashboard({
         onClick={() => setCurrentView('monthly')}
         className="w-full rounded-full bg-gradient-to-r from-[#0F4C2B] to-[#165534] text-white px-4 py-3.5 flex items-center justify-between shadow-md mb-2.5 border border-[#C99E4C]/40"
       >
-        <span className="text-[15px]">📅</span>
+        <span className="text-[15px]">📊</span>
         <span className="text-[13px] font-bold text-[#F0D58C]">
           View My Monthly Report &amp; Missed Days
         </span>
@@ -319,7 +322,7 @@ export default function AamaalDashboard({
         <span className="text-secondary font-bold">»</span>
       </button>
 
-      {/* 8. Settings, Family & Privacy Modal */}
+      {/* 8. Family & Privacy Modal (Opened via "+ Add Family Member") */}
       <PrivacySettings
         isOpen={showPrivacyModal}
         activeProfile={activeProfile}
@@ -343,7 +346,7 @@ export default function AamaalDashboard({
             id: `fam_${Date.now()}`,
             name: formattedName,
             country: activeProfile.country || 'India',
-            flag: activeProfile.flag || '🇮🇳',
+            flag: activeProfile.flag && activeProfile.flag !== '????' ? activeProfile.flag : '🇮🇳',
             privacy: 'public',
             isPrimary: false,
             createdAt: Date.now(),
