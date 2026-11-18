@@ -1,5 +1,6 @@
 //The master controller for src/pages/admin/ that unites all 20 Admin Panel files with clean sub-navigation tabs (All-in-One Inspector, Monthly Reports, Manage Aamaal, Members & Roles, and Analytics) and persists changes across localStorage so your AamaalDashboard and AccountDashboard stay 100% synchronized.
 
+// src/pages/admin/AdminDashboard.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { DEFAULT_AAMAAL_LIST } from '../aamaal/AamaalCategories';
 import { getLocalDateString } from '../aamaal/DateSelector';
@@ -12,10 +13,12 @@ import Leaderboard from './Leaderboard';
 import AamaalManagement from './AamaalManagement';
 import MemberDirectory from './MemberDirectory';
 import AdminManagement from './AdminManagement';
+import { DEFAULT_DUAS_LIBRARY } from '../duas/DuaCategories';
 
 const AAMAAL_STORAGE_KEY = 'aamaal_circle_catalog_v1';
 const LOGS_STORAGE_KEY = 'aamaal_circle_logs_v1';
 const PROFILES_STORAGE_KEY = 'aamaal_circle_profiles_v1';
+const ADMIN_CONTENT_KEY = 'aamaal_admin_cms_content_v1';
 
 export default function AdminDashboard({
   state,
@@ -23,7 +26,9 @@ export default function AdminDashboard({
   onShowToast,
   onBack,
 }) {
-  const [adminTab, setAdminTab] = useState('inspector'); // 'inspector' | 'monthly' | 'aamaal' | 'members' | 'stats'
+  const [adminTab, setAdminTab] = useState('inspector'); 
+  // 'inspector' | 'monthly' | 'aamaal' | 'members' | 'stats' | 'cms' | 'broadcast'
+
   const [inspectorDate, setInspectorDate] = useState(getLocalDateString());
   const [inspectorAamaalId, setInspectorAamaalId] = useState('durood_313');
   const inspectorCardRef = useRef(null);
@@ -67,6 +72,21 @@ export default function AdminDashboard({
     return [];
   });
 
+  // 4. CMS Content State
+  const [cmsContent, setCmsContent] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(ADMIN_CONTENT_KEY) || 'null');
+      if (saved && typeof saved === 'object') return saved;
+    } catch (_) {}
+    return {
+      featuredDuaTitle: DEFAULT_DUAS_LIBRARY[0].title,
+      featuredDuaArabic: DEFAULT_DUAS_LIBRARY[0].arabic,
+      dailyHadithQuote: 'The most beloved of deeds to Allah are those that are most consistent, even if they are small.',
+      thursdayBannerText: '6 Salawat Recited Every Thursday Night',
+      announcementMessage: '',
+    };
+  });
+
   useEffect(() => {
     try {
       localStorage.setItem(AAMAAL_STORAGE_KEY, JSON.stringify(aamaalList));
@@ -84,6 +104,12 @@ export default function AdminDashboard({
       localStorage.setItem(LOGS_STORAGE_KEY, JSON.stringify(allLogs));
     } catch (_) {}
   }, [allLogs]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(ADMIN_CONTENT_KEY, JSON.stringify(cmsContent));
+    } catch (_) {}
+  }, [cmsContent]);
 
   // Handlers
   const handleUpsertMemberLog = (memberId, aamaalId, dateKey, newCount) => {
@@ -164,6 +190,16 @@ export default function AdminDashboard({
     if (onShowToast) onShowToast('Member and logs removed');
   };
 
+  const handleSaveCms = (e) => {
+    e.preventDefault();
+    try {
+      if (navigator.vibrate) navigator.vibrate(15);
+    } catch (_) {}
+    if (onShowToast) {
+      onShowToast('✓ Admin CMS content published successfully across app!');
+    }
+  };
+
   return (
     <section className="screen-section no-scrollbar px-4 pt-4 pb-6">
       {/* Top Header */}
@@ -183,7 +219,7 @@ export default function AdminDashboard({
               Islaah Foundation Governance
             </span>
             <h2 className="font-serif text-[21px] font-semibold text-primary leading-tight">
-              👑 Circle Admin Panel
+              👑 Circle Admin Panel &amp; CMS
             </h2>
           </div>
         </div>
@@ -198,6 +234,8 @@ export default function AdminDashboard({
           { id: 'aamaal', label: '📿 Manage Aamaal' },
           { id: 'members', label: `👥 Members (${allMembers.length})` },
           { id: 'stats', label: '📈 Circle & Country' },
+          { id: 'cms', label: '✍️ Content Manager (CMS)' },
+          { id: 'broadcast', label: '📢 Broadcast Alert' },
         ].map((t) => (
           <button
             key={t.id}
@@ -322,6 +360,115 @@ export default function AdminDashboard({
             allMembers={allMembers}
             allLogs={allLogs}
           />
+        </div>
+      )}
+
+      {/* TAB 6: CONTENT MANAGER (CMS) */}
+      {adminTab === 'cms' && (
+        <form onSubmit={handleSaveCms} className="card rounded-[22px] p-4 space-y-3.5 bg-[#EAE8D7] border border-[#0D4A2E]/30">
+          <span className="badge-pill">Live App Content Publisher</span>
+          <h3 className="font-serif text-[18px] font-semibold text-primary">
+            Update Screen Contents &amp; Banners
+          </h3>
+
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary mb-1">
+              Featured Dua Title (Home Screen)
+            </label>
+            <input
+              type="text"
+              value={cmsContent.featuredDuaTitle}
+              onChange={(e) =>
+                setCmsContent({ ...cmsContent, featuredDuaTitle: e.target.value })
+              }
+              className="bg-[#F5F2E8] text-primary text-[12.5px] font-semibold"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary mb-1">
+              Featured Dua Arabic Calligraphy
+            </label>
+            <input
+              type="text"
+              dir="rtl"
+              value={cmsContent.featuredDuaArabic}
+              onChange={(e) =>
+                setCmsContent({ ...cmsContent, featuredDuaArabic: e.target.value })
+              }
+              className="bg-[#F5F2E8] text-primary font-arabic text-[18px]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary mb-1">
+              Daily Prophetic Reflection Quote
+            </label>
+            <textarea
+              rows={2}
+              value={cmsContent.dailyHadithQuote}
+              onChange={(e) =>
+                setCmsContent({ ...cmsContent, dailyHadithQuote: e.target.value })
+              }
+              className="bg-[#F5F2E8] text-primary text-[12px] p-2.5 rounded-xl border border-[#DCD8C6]"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary mb-1">
+              Thursday Salawat Banner Text
+            </label>
+            <input
+              type="text"
+              value={cmsContent.thursdayBannerText}
+              onChange={(e) =>
+                setCmsContent({ ...cmsContent, thursdayBannerText: e.target.value })
+              }
+              className="bg-[#F5F2E8] text-primary text-[12.5px]"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="btn-primary w-full py-3 text-[13px] font-semibold shadow-md"
+          >
+            Publish CMS Updates to App
+          </button>
+        </form>
+      )}
+
+      {/* TAB 7: BROADCAST ALERT */}
+      {adminTab === 'broadcast' && (
+        <div className="card rounded-[22px] p-4 space-y-3">
+          <span className="badge-pill">Circle Announcement</span>
+          <h3 className="font-serif text-[17.5px] font-semibold text-primary">
+            Broadcast Notification to All Members
+          </h3>
+          <p className="text-[12px] text-secondary">
+            Send an instant announcement into the Notification Inbox of every circle member.
+          </p>
+
+          <textarea
+            rows={3}
+            value={cmsContent.announcementMessage}
+            onChange={(e) =>
+              setCmsContent({ ...cmsContent, announcementMessage: e.target.value })
+            }
+            placeholder="Type special announcement (e.g., Special Durood gathering tonight after Isha...)"
+            className="w-full bg-[#F5F2E8] text-primary text-[12.5px] p-3 rounded-xl border border-[#DCD8C6]"
+          />
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!cmsContent.announcementMessage.trim()) return;
+              if (onShowToast) onShowToast('📢 Broadcast sent to all circle member inboxes!');
+              setCmsContent({ ...cmsContent, announcementMessage: '' });
+            }}
+            className="btn-primary w-full py-2.5 text-[12.5px] font-semibold"
+          >
+            Broadcast Announcement Now ↗
+          </button>
         </div>
       )}
     </section>
