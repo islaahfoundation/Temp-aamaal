@@ -411,13 +411,12 @@ export default function AppRouter({
   switch (activeTab) {
     case 'aamaal':
       return (
-        <PageWithBackHeader title="Back to Home" onBack={goHome}>
-          <AamaalDashboard
-            state={state}
-            updateState={updateState}
-            onShowToast={onShowToast}
-          />
-        </PageWithBackHeader>
+        <AamaalDashboard
+          state={state}
+          updateState={updateState}
+          onShowToast={onShowToast}
+          onBack={goHome}
+        />
       );
 
     case 'tasbih':
