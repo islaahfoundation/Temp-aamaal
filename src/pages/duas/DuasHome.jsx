@@ -20,10 +20,19 @@ export default function DuasHome({
   onShowToast,
 }) {
   const [localSearch, setLocalSearch] = useState(externalSearchQuery || '');
-  const [activeCategory, setActiveCategory] = useState(
-    state?.activeDuaFilter || 'all'
-  );
-  const [showingSavedOnly, setShowingSavedOnly] = useState(false);
+
+  const [showingSavedOnly, setShowingSavedOnly] = useState(() => {
+    const flag = localStorage.getItem('aamaal_open_saved_duas') === 'true';
+    return flag || state?.activeDuaFilter === 'saved';
+  });
+
+  const [activeCategory, setActiveCategory] = useState(() => {
+    if (state?.activeDuaFilter && state.activeDuaFilter !== 'saved') {
+      return state.activeDuaFilter;
+    }
+    return 'all';
+  });
+
   const [selectedDua, setSelectedDua] = useState(null);
   const [showPrefs, setShowPrefs] = useState(false);
 
@@ -47,8 +56,17 @@ export default function DuasHome({
     }
   }, [externalSearchQuery]);
 
+  // Handle routing directly to Saved Duas from Home Quick Actions
   useEffect(() => {
-    if (state?.activeDuaFilter) {
+    const flag = localStorage.getItem('aamaal_open_saved_duas') === 'true';
+    if (flag || state?.activeDuaFilter === 'saved') {
+      setShowingSavedOnly(true);
+      setActiveCategory('all');
+      try {
+        localStorage.removeItem('aamaal_open_saved_duas');
+      } catch (_) {}
+    } else if (state?.activeDuaFilter) {
+      setShowingSavedOnly(false);
       setActiveCategory(state.activeDuaFilter);
     }
   }, [state?.activeDuaFilter]);
@@ -63,14 +81,18 @@ export default function DuasHome({
   const savedDuaIds = state?.savedDuaIds || [];
 
   const handleCategoryChange = (catId) => {
+    setShowingSavedOnly(false);
     setActiveCategory(catId);
     if (onSelectFilter) onSelectFilter(catId);
   };
 
   const handleToggleSavedFilter = (forceVal) => {
-    setShowingSavedOnly(
-      typeof forceVal === 'boolean' ? forceVal : !showingSavedOnly
-    );
+    const nextVal =
+      typeof forceVal === 'boolean' ? forceVal : !showingSavedOnly;
+    setShowingSavedOnly(nextVal);
+    if (!nextVal && onSelectFilter) {
+      onSelectFilter('all');
+    }
   };
 
   const handleBookmarkClick = (id) => {
@@ -94,6 +116,7 @@ export default function DuasHome({
   const filteredDuas = DEFAULT_DUAS_LIBRARY.filter((dua) => {
     if (
       activeCategory !== 'all' &&
+      activeCategory !== 'saved' &&
       dua.category.toLowerCase() !== activeCategory.toLowerCase()
     ) {
       return false;
@@ -145,7 +168,7 @@ export default function DuasHome({
           title="Reading Preferences"
           className="px-3 py-1.5 rounded-full bg-[#EAE8D7] border border-[#D5D2BE] text-primary text-[11.5px] font-semibold flex items-center space-x-1"
         >
-          <span>⚙️</span>
+          <span>Aa</span>
           <span>Display</span>
         </button>
       </div>
@@ -180,7 +203,7 @@ export default function DuasHome({
           preferredLanguage={preferences.language}
           onSelectDua={setSelectedDua}
           onToggleBookmark={onToggleBookmark}
-          onBrowseAll={() => setShowingSavedOnly(false)}
+          onBrowseAll={() => handleToggleSavedFilter(false)}
         />
       ) : (
         <>
