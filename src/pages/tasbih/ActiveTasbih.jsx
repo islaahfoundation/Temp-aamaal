@@ -98,7 +98,7 @@ export default function ActiveTasbih({
     settings,
   ]);
 
-  // Live session timer once user starts counting
+  // Background session timer for history logging
   useEffect(() => {
     if (!timerActive) return undefined;
     const interval = setInterval(() => {
@@ -106,12 +106,6 @@ export default function ActiveTasbih({
     }, 1000);
     return () => clearInterval(interval);
   }, [timerActive]);
-
-  const formatTimer = (totalSec) => {
-    const mins = Math.floor(totalSec / 60);
-    const secs = totalSec % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
 
   // +1 Bead Advance Handler
   const handleAdvanceBead = () => {
@@ -151,6 +145,7 @@ export default function ActiveTasbih({
         arabic: currentDhikr.arabic,
         count: nextCount,
         goal,
+        round,
         durationSeconds: sessionSeconds,
         timestamp: new Date().toISOString(),
       };
@@ -209,7 +204,7 @@ export default function ActiveTasbih({
 
   return (
     <section
-      className="screen-section no-scrollbar relative px-4 pt-3 pb-5 flex flex-col justify-between overflow-x-hidden select-none"
+      className="h-full w-full overflow-hidden relative px-4 pt-2.5 pb-3 flex flex-col justify-between select-none touch-none"
       style={
         hasCustomWallpaper
           ? {
@@ -221,7 +216,7 @@ export default function ActiveTasbih({
       }
     >
       {/* 1. TOP HEADER BAR: Back Arrow + Title + 4 Ribbon Buttons (?, 🖼️, ⏱️, ⚙️) */}
-      <div className="relative z-30 flex items-start justify-between mb-2">
+      <div className="relative z-30 flex items-start justify-between shrink-0">
         <div className="flex items-start space-x-2.5">
           {onBack && (
             <button
@@ -234,10 +229,10 @@ export default function ActiveTasbih({
             </button>
           )}
           <div>
-            <h1 className="font-serif text-[28px] font-bold text-[#0D4A2E] leading-none">
+            <h1 className="font-serif text-[26px] font-bold text-[#0D4A2E] leading-none">
               Tasbih
             </h1>
-            <p className="text-[11.5px] font-medium text-[#4E5953] mt-1">
+            <p className="text-[11px] font-medium text-[#4E5953] mt-1">
               Count your dhikr, earn your peace
             </p>
           </div>
@@ -325,8 +320,8 @@ export default function ActiveTasbih({
         </div>
       </div>
 
-      {/* 2. TOP DHIKR SELECTOR & GOAL CARD (Matches Image 3 Pill Card) */}
-      <div className="relative z-20 rounded-[24px] bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card p-3 flex items-center justify-between">
+      {/* 2. TOP DHIKR SELECTOR & GOAL CARD */}
+      <div className="relative z-20 rounded-[22px] bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card p-2.5 flex items-center justify-between shrink-0">
         {/* Left: Circular Arabic Badge + Allahu Akbar Dropdown */}
         <button
           type="button"
@@ -335,10 +330,10 @@ export default function ActiveTasbih({
           }
           className="flex items-center space-x-3 text-left flex-1 min-w-0 pr-2"
         >
-          <div className="w-12 h-12 rounded-full bg-[#0F4C2B] border-2 border-[#C99E4C] flex items-center justify-center shrink-0 shadow-sm px-1">
+          <div className="w-11 h-11 rounded-full bg-[#0F4C2B] border-2 border-[#C99E4C] flex items-center justify-center shrink-0 shadow-sm px-1">
             <span
               dir="rtl"
-              className="font-arabic text-[13.5px] text-[#F0D58C] leading-none text-center line-clamp-1"
+              className="font-arabic text-[13px] text-[#F0D58C] leading-none text-center line-clamp-1"
             >
               {currentDhikr.arabic}
             </span>
@@ -346,19 +341,19 @@ export default function ActiveTasbih({
 
           <div className="min-w-0 flex-1">
             <div className="flex items-center space-x-1.5">
-              <h2 className="font-serif text-[19px] font-bold text-[#0D4A2E] truncate">
+              <h2 className="font-serif text-[18px] font-bold text-[#0D4A2E] truncate">
                 {currentDhikr.title}
               </h2>
               <span className="text-[#0D4A2E] text-[12px] font-bold">⌄</span>
             </div>
-            <p className="text-[11.5px] text-[#4E5953] truncate">
+            <p className="text-[11px] text-[#4E5953] truncate">
               {currentDhikr.translation}
             </p>
           </div>
         </button>
 
         {/* Vertical Divider */}
-        <div className="w-[1px] h-10 bg-[#D5D2BE] mx-2 shrink-0" />
+        <div className="w-[1px] h-9 bg-[#D5D2BE] mx-2 shrink-0" />
 
         {/* Right: Goal Target Button */}
         <button
@@ -366,70 +361,43 @@ export default function ActiveTasbih({
           onClick={() =>
             setActiveModal(activeModal === 'goal' ? null : 'goal')
           }
-          className="flex items-center space-x-2.5 pl-1 pr-1.5 py-1 rounded-2xl hover:bg-[#EAE8D7] transition shrink-0"
+          className="flex items-center space-x-2 pl-1 pr-1.5 py-1 rounded-2xl hover:bg-[#EAE8D7] transition shrink-0"
         >
           <div className="text-right">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#4E5953] block">
+            <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#4E5953] block">
               Goal
             </span>
-            <span className="font-sans text-[18px] font-bold text-[#0D4A2E] leading-none">
+            <span className="font-sans text-[17px] font-bold text-[#0D4A2E] leading-none">
               {goal}
             </span>
           </div>
 
-          <div className="w-9 h-9 rounded-full bg-[#EAE8D7] border border-[#C99E4C] flex items-center justify-center text-[#0D4A2E]">
+          <div className="w-8 h-8 rounded-full bg-[#EAE8D7] border border-[#C99E4C] flex items-center justify-center text-[#0D4A2E] text-[13px]">
             🎯
           </div>
         </button>
       </div>
 
-      {/* 3. MIDDLE ARENA: Floating Counter Box + Undo/Reset Buttons + 3D Bead Loop */}
-      <div className="relative z-10 my-1.5 flex-1 flex flex-col justify-center">
-        {/* Top Overlay Row inside Arena: Counter Box on Left, Undo & Reset on Right */}
-        <div className="flex items-start justify-between pointer-events-none z-20 mb-[-26px]">
-          {/* Left Floating Counter Card */}
-          <div className="pointer-events-auto rounded-[20px] bg-[#F3EFE2]/95 backdrop-blur-md border border-[#D5D2BE] shadow-soft-card px-4 py-3 min-w-[152px]">
-            <div className="flex items-center space-x-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#1E7A44]" />
-              <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#0D4A2E]">
-                {count === 0 ? 'READY TO BEGIN' : 'IN REMEMBRANCE'}
-              </span>
-            </div>
-
-            <div className="mt-1 flex items-baseline space-x-1">
-              <span className="font-sans text-[38px] font-bold text-[#0D4A2E] leading-none">
-                {count}
-              </span>
-              <span className="text-[14px] font-semibold text-[#4E5953]">
-                / {goal}
-              </span>
-            </div>
-
-            <div className="text-[11px] font-semibold text-[#135332] mt-1">
-              Round {round} <span className="mx-0.5">•</span>{' '}
-              {formatTimer(sessionSeconds)}
-            </div>
-          </div>
-
-          {/* Right Floating Undo (-1) & Reset Buttons */}
-          <div className="pointer-events-auto flex items-center space-x-2 pt-1">
-            <button
-              type="button"
-              onClick={handleUndoBead}
-              title="Undo (-1 Bead)"
-              className="w-10 h-10 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] text-[16px] font-bold active:scale-90 transition"
-            >
-              ↶
-            </button>
-            <button
-              type="button"
-              onClick={handleResetCounter}
-              title="Reset Counter"
-              className="w-10 h-10 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] text-[15px] font-bold active:scale-90 transition"
-            >
-              ↻
-            </button>
-          </div>
+      {/* 3. MIDDLE ARENA: Floating Undo/Reset Buttons + 3D Scrolling Bead Loop */}
+      <div className="relative z-10 flex-1 min-h-0 flex flex-col justify-center">
+        {/* Top-Right Undo (-1) & Reset Buttons */}
+        <div className="absolute right-0 top-2 z-20 flex items-center space-x-2">
+          <button
+            type="button"
+            onClick={handleUndoBead}
+            title="Undo (-1 Bead)"
+            className="w-9 h-9 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] text-[15px] font-bold active:scale-90 transition"
+          >
+            ↶
+          </button>
+          <button
+            type="button"
+            onClick={handleResetCounter}
+            title="Reset Counter"
+            className="w-9 h-9 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] text-[14px] font-bold active:scale-90 transition"
+          >
+            ↻
+          </button>
         </div>
 
         {/* Interactive Photorealistic 3D Bead Loop */}
@@ -442,7 +410,7 @@ export default function ActiveTasbih({
         />
 
         {/* Gesture Instruction Pill */}
-        <div className="mx-auto w-full max-w-[340px] rounded-full bg-[#EAE8D7]/90 border border-[#D5D2BE] px-4 py-2 text-center shadow-sm -mt-2 relative z-20">
+        <div className="mx-auto w-full max-w-[340px] rounded-full bg-[#EAE8D7]/90 border border-[#D5D2BE] px-4 py-1.5 text-center shadow-sm -mt-1 relative z-20 shrink-0">
           <p className="text-[11px] font-medium text-[#1A3826]">
             Tap or pull down anywhere to begin • Long swipe up to undo
           </p>
@@ -450,20 +418,20 @@ export default function ActiveTasbih({
       </div>
 
       {/* 4. BOTTOM PROGRESS CARD: Progress Bar + Goal | Completed | Remaining */}
-      <div className="relative z-20 rounded-[24px] bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card p-3.5 space-y-3 mt-2">
+      <div className="relative z-20 rounded-[22px] bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card p-3 space-y-2.5 shrink-0">
         <ProgressRing count={count} goal={goal} />
 
-        <div className="grid grid-cols-3 divide-x divide-[#D5D2BE] pt-1">
+        <div className="grid grid-cols-3 divide-x divide-[#D5D2BE] pt-0.5">
           {/* Column 1: Goal */}
           <div className="pr-2 flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-[#EAE8D7] border border-[#C99E4C] flex items-center justify-center text-[13px] shrink-0">
+            <div className="w-7 h-7 rounded-full bg-[#EAE8D7] border border-[#C99E4C] flex items-center justify-center text-[12px] shrink-0">
               🎯
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] font-semibold text-[#4E5953] block">
+              <span className="text-[9.5px] font-semibold text-[#4E5953] block">
                 Goal
               </span>
-              <strong className="font-sans text-[15px] font-bold text-[#0D4A2E]">
+              <strong className="font-sans text-[14.5px] font-bold text-[#0D4A2E]">
                 {goal}
               </strong>
             </div>
@@ -471,29 +439,29 @@ export default function ActiveTasbih({
 
           {/* Column 2: Completed */}
           <div className="px-2.5 flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-[#DCE3C8] border border-[#0D4A2E]/25 flex items-center justify-center text-[#0D4A2E] text-[12px] font-bold shrink-0">
+            <div className="w-7 h-7 rounded-full bg-[#DCE3C8] border border-[#0D4A2E]/25 flex items-center justify-center text-[#0D4A2E] text-[11px] font-bold shrink-0">
               ✓
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] font-semibold text-[#4E5953] block">
+              <span className="text-[9.5px] font-semibold text-[#4E5953] block">
                 Completed
               </span>
-              <strong className="font-sans text-[15px] font-bold text-[#0D4A2E]">
+              <strong className="font-sans text-[14.5px] font-bold text-[#0D4A2E]">
                 {count}
               </strong>
             </div>
           </div>
 
-          {/* Column 3: Remaining (Replaces old In-Progress block) */}
+          {/* Column 3: Remaining */}
           <div className="pl-2.5 flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-[#EAE8D7] border border-[#D5D2BE] flex items-center justify-center text-[#135332] text-[12px] font-bold shrink-0">
+            <div className="w-7 h-7 rounded-full bg-[#EAE8D7] border border-[#D5D2BE] flex items-center justify-center text-[#135332] text-[11px] font-bold shrink-0">
               ⏳
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] font-semibold text-[#4E5953] block">
+              <span className="text-[9.5px] font-semibold text-[#4E5953] block">
                 Remaining
               </span>
-              <strong className="font-sans text-[15px] font-bold text-[#135332]">
+              <strong className="font-sans text-[14.5px] font-bold text-[#135332]">
                 {remaining}
               </strong>
             </div>
@@ -503,7 +471,7 @@ export default function ActiveTasbih({
 
       {/* ================= MODALS & POPOVERS ================= */}
 
-      {/* A. Interactive Gesture Guide Popup (Exact Wording Requested) */}
+      {/* A. Interactive Gesture Guide Popup (Without Rapid Tap) */}
       {activeModal === 'info' && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
           <div className="w-full max-w-sm rounded-[26px] bg-[#F5F2E8] border-2 border-[#C99E4C] shadow-2xl p-5 space-y-4">
@@ -536,13 +504,6 @@ export default function ActiveTasbih({
                 <strong className="text-[#0D4A2E]">Long Swipe Up</strong>
                 <span className="text-secondary font-medium">
                   Push bead back (Undo -1)
-                </span>
-              </div>
-
-              <div className="rounded-xl bg-[#FFFDF9] p-3 border border-[#DCD8C6] flex items-center justify-between">
-                <strong className="text-[#0D4A2E]">Rapid Tap</strong>
-                <span className="text-secondary font-medium">
-                  Instant queued response
                 </span>
               </div>
             </div>
