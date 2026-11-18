@@ -1,0 +1,655 @@
+//The complete interactive Tasbih screen matching Image 3's layout in our Cream, Deep Emerald & Gold palette.
+
+// src/pages/tasbih/ActiveTasbih.jsx
+import React, { useState, useEffect } from 'react';
+import BeadEngine from './engine/BeadEngine';
+import ProgressRing from './engine/ProgressRing';
+import DhikrSelection, { PREDEFINED_DHIKRS } from './DhikrSelection';
+import CustomDhikr from './CustomDhikr';
+import GoalSelection from './GoalSelection';
+import TasbihAppearance from './TasbihAppearance';
+import TasbihFeedback from './TasbihFeedback';
+import TasbihHistory from './TasbihHistory';
+import SessionCompletion from './SessionCompletion';
+import HapticEngine from './engine/HapticEngine';
+import SoundEngine from './engine/SoundEngine';
+
+const TASBIH_STATE_KEY = 'aamaal_active_tasbih_v1';
+const TASBIH_HISTORY_KEY = 'aamaal_tasbih_history_v1';
+
+export default function ActiveTasbih({
+  state,
+  updateState,
+  onShowToast,
+  onOpenSummary,
+  onBack,
+}) {
+  // Load saved preferences & state
+  const [savedConfig] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(TASBIH_STATE_KEY) || 'null') || {};
+    } catch (_) {
+      return {};
+    }
+  });
+
+  const [count, setCount] = useState(savedConfig.count || 0);
+  const [goal, setGoal] = useState(savedConfig.goal || 413);
+  const [round, setRound] = useState(savedConfig.round || 1);
+  const [sessionSeconds, setSessionSeconds] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
+
+  const [customDhikrs, setCustomDhikrs] = useState(
+    savedConfig.customDhikrs || []
+  );
+  const [currentDhikr, setCurrentDhikr] = useState(
+    savedConfig.currentDhikr || PREDEFINED_DHIKRS[0]
+  );
+
+  const [materialId, setMaterialId] = useState(
+    savedConfig.materialId || 'olivewood'
+  );
+  const [bgUrl, setBgUrl] = useState(savedConfig.bgUrl || '');
+  const [settings, setSettings] = useState(
+    savedConfig.settings || {
+      hapticsEnabled: true,
+      soundEnabled: true,
+      motionEnabled: true,
+    }
+  );
+
+  const [historyLogs, setHistoryLogs] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(TASBIH_HISTORY_KEY) || '[]');
+      if (Array.isArray(saved)) return saved;
+    } catch (_) {}
+    return [];
+  });
+
+  // Active modal / popover state:
+  // null | 'info' | 'dhikr' | 'custom_dhikr' | 'goal' | 'appearance' | 'feedback' | 'history' | 'completion'
+  const [activeModal, setActiveModal] = useState(null);
+
+  // Persist current session state
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        TASBIH_STATE_KEY,
+        JSON.stringify({
+          count,
+          goal,
+          round,
+          currentDhikr,
+          customDhikrs,
+          materialId,
+          bgUrl,
+          settings,
+        })
+      );
+    } catch (_) {}
+  }, [
+    count,
+    goal,
+    round,
+    currentDhikr,
+    customDhikrs,
+    materialId,
+    bgUrl,
+    settings,
+  ]);
+
+  // Live session timer once user starts counting
+  useEffect(() => {
+    if (!timerActive) return undefined;
+    const interval = setInterval(() => {
+      setSessionSeconds((s) => s + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timerActive]);
+
+  const formatTimer = (totalSec) => {
+    const mins = Math.floor(totalSec / 60);
+    const secs = totalSec % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+
+  // +1 Bead Advance Handler
+  const handleAdvanceBead = () => {
+    if (!timerActive) setTimerActive(true);
+    const nextCount = count + 1;
+    setCount(nextCount);
+
+    if (settings.hapticsEnabled !== false) {
+      if (nextCount % 33 === 0) {
+        HapticEngine.triggerRoundMilestone(true);
+      } else {
+        HapticEngine.triggerBeadAdvance(true, 12);
+      }
+    }
+    if (settings.soundEnabled !== false) {
+      SoundEngine.playBeadClick(true, 0.85);
+    }
+
+    if (updateState) {
+      updateState((prev) => ({
+        ...prev,
+        dhikrCount: (prev.dhikrCount || 0) + 1,
+      }));
+    }
+
+    if (nextCount >= goal) {
+      if (settings.hapticsEnabled !== false) {
+        HapticEngine.triggerGoalComplete(true);
+      }
+      if (settings.soundEnabled !== false) {
+        SoundEngine.playGoalChime(true, 0.9);
+      }
+
+      const newEntry = {
+        id: `thist_${Date.now()}`,
+        dhikrTitle: currentDhikr.title,
+        arabic: currentDhikr.arabic,
+        count: nextCount,
+        goal,
+        durationSeconds: sessionSeconds,
+        timestamp: new Date().toISOString(),
+      };
+
+      const nextHistory = [newEntry, ...historyLogs];
+      setHistoryLogs(nextHistory);
+      try {
+        localStorage.setItem(TASBIH_HISTORY_KEY, JSON.stringify(nextHistory));
+      } catch (_) {}
+
+      if (updateState) {
+        updateState((prev) => ({
+          ...prev,
+          sessionsCount: (prev.sessionsCount || 0) + 1,
+        }));
+      }
+
+      setActiveModal('completion');
+    }
+  };
+
+  // -1 Undo Handler
+  const handleUndoBead = () => {
+    if (count <= 0) return;
+    setCount((prev) => Math.max(prev - 1, 0));
+
+    if (settings.hapticsEnabled !== false) {
+      HapticEngine.triggerBeadUndo(true);
+    }
+    if (settings.soundEnabled !== false) {
+      SoundEngine.playUndoClick(true, 0.8);
+    }
+
+    if (updateState) {
+      updateState((prev) => ({
+        ...prev,
+        dhikrCount: Math.max((prev.dhikrCount || 1) - 1, 0),
+      }));
+    }
+  };
+
+  // Reset Counter Handler
+  const handleResetCounter = () => {
+    if (count === 0) return;
+    try {
+      if (navigator.vibrate) navigator.vibrate(15);
+    } catch (_) {}
+    setCount(0);
+    setSessionSeconds(0);
+    setTimerActive(false);
+    if (onShowToast) onShowToast('Tasbih counter reset to 0');
+  };
+
+  const remaining = Math.max(goal - count, 0);
+  const hasCustomWallpaper = Boolean(bgUrl);
+
+  return (
+    <section
+      className="screen-section no-scrollbar relative px-4 pt-3 pb-5 flex flex-col justify-between overflow-x-hidden select-none"
+      style={
+        hasCustomWallpaper
+          ? {
+              backgroundImage: `linear-gradient(rgba(245, 242, 232, 0.86), rgba(243, 239, 226, 0.92)), url(${bgUrl})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }
+          : { backgroundColor: '#F5F2E8' }
+      }
+    >
+      {/* 1. TOP HEADER BAR: Back Arrow + Title + 4 Ribbon Buttons (?, 🖼️, ⏱️, ⚙️) */}
+      <div className="relative z-30 flex items-start justify-between mb-2">
+        <div className="flex items-start space-x-2.5">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              aria-label="Back"
+              className="w-9 h-9 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] font-bold text-[18px] active:scale-95 transition mt-0.5"
+            >
+              ←
+            </button>
+          )}
+          <div>
+            <h1 className="font-serif text-[28px] font-bold text-[#0D4A2E] leading-none">
+              Tasbih
+            </h1>
+            <p className="text-[11.5px] font-medium text-[#4E5953] mt-1">
+              Count your dhikr, earn your peace
+            </p>
+          </div>
+        </div>
+
+        {/* Top-Right 4-Icon Ribbon */}
+        <div className="flex items-center space-x-1.5">
+          {/* A. Info Gesture Guide Button (?) */}
+          <button
+            type="button"
+            onClick={() =>
+              setActiveModal(activeModal === 'info' ? null : 'info')
+            }
+            aria-label="Interactive Gesture Guide"
+            className={`w-9 h-9 rounded-full border flex items-center justify-center transition shadow-sm ${
+              activeModal === 'info'
+                ? 'bg-[#0D4A2E] text-[#F0D58C] border-[#C99E4C]'
+                : 'bg-[#F3EFE2] text-[#0D4A2E] border-[#D5D2BE]'
+            }`}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+          </button>
+
+          {/* B. Temporary Image Wallpaper Button (🖼️) */}
+          <button
+            type="button"
+            onClick={() =>
+              setActiveModal(activeModal === 'appearance' ? null : 'appearance')
+            }
+            aria-label="Choose Background Image & Beads"
+            className={`w-9 h-9 rounded-full border flex items-center justify-center transition shadow-sm ${
+              activeModal === 'appearance'
+                ? 'bg-[#0D4A2E] text-[#F0D58C] border-[#C99E4C]'
+                : 'bg-[#F3EFE2] text-[#0D4A2E] border-[#D5D2BE]'
+            }`}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="18" height="18" rx="3" ry="3" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <polyline points="21 15 16 10 5 21" />
+            </svg>
+          </button>
+
+          {/* C. History Button (⏱️) */}
+          <button
+            type="button"
+            onClick={() =>
+              setActiveModal(activeModal === 'history' ? null : 'history')
+            }
+            aria-label="Saved Dhikr History"
+            className={`w-9 h-9 rounded-full border flex items-center justify-center transition shadow-sm ${
+              activeModal === 'history'
+                ? 'bg-[#0D4A2E] text-[#F0D58C] border-[#C99E4C]'
+                : 'bg-[#F3EFE2] text-[#0D4A2E] border-[#D5D2BE]'
+            }`}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </button>
+
+          {/* D. Settings Button (⚙️) */}
+          <button
+            type="button"
+            onClick={() =>
+              setActiveModal(activeModal === 'feedback' ? null : 'feedback')
+            }
+            aria-label="Tasbih Settings"
+            className={`w-9 h-9 rounded-full border flex items-center justify-center transition shadow-sm ${
+              activeModal === 'feedback'
+                ? 'bg-[#0D4A2E] text-[#F0D58C] border-[#C99E4C]'
+                : 'bg-[#F3EFE2] text-[#0D4A2E] border-[#D5D2BE]'
+            }`}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* 2. TOP DHIKR SELECTOR & GOAL CARD (Matches Image 3 Pill Card) */}
+      <div className="relative z-20 rounded-[24px] bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card p-3 flex items-center justify-between">
+        {/* Left: Circular Arabic Badge + Allahu Akbar Dropdown */}
+        <button
+          type="button"
+          onClick={() =>
+            setActiveModal(activeModal === 'dhikr' ? null : 'dhikr')
+          }
+          className="flex items-center space-x-3 text-left flex-1 min-w-0 pr-2"
+        >
+          <div className="w-12 h-12 rounded-full bg-[#0F4C2B] border-2 border-[#C99E4C] flex items-center justify-center shrink-0 shadow-sm px-1">
+            <span
+              dir="rtl"
+              className="font-arabic text-[13.5px] text-[#F0D58C] leading-none text-center line-clamp-1"
+            >
+              {currentDhikr.arabic}
+            </span>
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center space-x-1.5">
+              <h2 className="font-serif text-[19px] font-bold text-[#0D4A2E] truncate">
+                {currentDhikr.title}
+              </h2>
+              <span className="text-[#0D4A2E] text-[12px] font-bold">⌄</span>
+            </div>
+            <p className="text-[11.5px] text-[#4E5953] truncate">
+              {currentDhikr.translation}
+            </p>
+          </div>
+        </button>
+
+        {/* Vertical Divider */}
+        <div className="w-[1px] h-10 bg-[#D5D2BE] mx-2 shrink-0" />
+
+        {/* Right: Goal Target Button */}
+        <button
+          type="button"
+          onClick={() =>
+            setActiveModal(activeModal === 'goal' ? null : 'goal')
+          }
+          className="flex items-center space-x-2.5 pl-1 pr-1.5 py-1 rounded-2xl hover:bg-[#EAE8D7] transition shrink-0"
+        >
+          <div className="text-right">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#4E5953] block">
+              Goal
+            </span>
+            <span className="font-sans text-[18px] font-bold text-[#0D4A2E] leading-none">
+              {goal}
+            </span>
+          </div>
+
+          <div className="w-9 h-9 rounded-full bg-[#EAE8D7] border border-[#C99E4C] flex items-center justify-center text-[#0D4A2E]">
+            🎯
+          </div>
+        </button>
+      </div>
+
+      {/* 3. MIDDLE ARENA: Floating Counter Box + Undo/Reset Buttons + 3D Bead Loop */}
+      <div className="relative z-10 my-1.5 flex-1 flex flex-col justify-center">
+        {/* Top Overlay Row inside Arena: Counter Box on Left, Undo & Reset on Right */}
+        <div className="flex items-start justify-between pointer-events-none z-20 mb-[-26px]">
+          {/* Left Floating Counter Card */}
+          <div className="pointer-events-auto rounded-[20px] bg-[#F3EFE2]/95 backdrop-blur-md border border-[#D5D2BE] shadow-soft-card px-4 py-3 min-w-[152px]">
+            <div className="flex items-center space-x-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#1E7A44]" />
+              <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#0D4A2E]">
+                {count === 0 ? 'READY TO BEGIN' : 'IN REMEMBRANCE'}
+              </span>
+            </div>
+
+            <div className="mt-1 flex items-baseline space-x-1">
+              <span className="font-sans text-[38px] font-bold text-[#0D4A2E] leading-none">
+                {count}
+              </span>
+              <span className="text-[14px] font-semibold text-[#4E5953]">
+                / {goal}
+              </span>
+            </div>
+
+            <div className="text-[11px] font-semibold text-[#135332] mt-1">
+              Round {round} <span className="mx-0.5">•</span>{' '}
+              {formatTimer(sessionSeconds)}
+            </div>
+          </div>
+
+          {/* Right Floating Undo (-1) & Reset Buttons */}
+          <div className="pointer-events-auto flex items-center space-x-2 pt-1">
+            <button
+              type="button"
+              onClick={handleUndoBead}
+              title="Undo (-1 Bead)"
+              className="w-10 h-10 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] text-[16px] font-bold active:scale-90 transition"
+            >
+              ↶
+            </button>
+            <button
+              type="button"
+              onClick={handleResetCounter}
+              title="Reset Counter"
+              className="w-10 h-10 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] text-[15px] font-bold active:scale-90 transition"
+            >
+              ↻
+            </button>
+          </div>
+        </div>
+
+        {/* Interactive Photorealistic 3D Bead Loop */}
+        <BeadEngine
+          count={count}
+          materialId={materialId}
+          motionEnabled={settings.motionEnabled !== false}
+          onAdvanceBead={handleAdvanceBead}
+          onUndoBead={handleUndoBead}
+        />
+
+        {/* Gesture Instruction Pill */}
+        <div className="mx-auto w-full max-w-[340px] rounded-full bg-[#EAE8D7]/90 border border-[#D5D2BE] px-4 py-2 text-center shadow-sm -mt-2 relative z-20">
+          <p className="text-[11px] font-medium text-[#1A3826]">
+            Tap or pull down anywhere to begin • Long swipe up to undo
+          </p>
+        </div>
+      </div>
+
+      {/* 4. BOTTOM PROGRESS CARD: Progress Bar + Goal | Completed | Remaining */}
+      <div className="relative z-20 rounded-[24px] bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card p-3.5 space-y-3 mt-2">
+        <ProgressRing count={count} goal={goal} />
+
+        <div className="grid grid-cols-3 divide-x divide-[#D5D2BE] pt-1">
+          {/* Column 1: Goal */}
+          <div className="pr-2 flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-full bg-[#EAE8D7] border border-[#C99E4C] flex items-center justify-center text-[13px] shrink-0">
+              🎯
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] font-semibold text-[#4E5953] block">
+                Goal
+              </span>
+              <strong className="font-sans text-[15px] font-bold text-[#0D4A2E]">
+                {goal}
+              </strong>
+            </div>
+          </div>
+
+          {/* Column 2: Completed */}
+          <div className="px-2.5 flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-full bg-[#DCE3C8] border border-[#0D4A2E]/25 flex items-center justify-center text-[#0D4A2E] text-[12px] font-bold shrink-0">
+              ✓
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] font-semibold text-[#4E5953] block">
+                Completed
+              </span>
+              <strong className="font-sans text-[15px] font-bold text-[#0D4A2E]">
+                {count}
+              </strong>
+            </div>
+          </div>
+
+          {/* Column 3: Remaining (Replaces old In-Progress block) */}
+          <div className="pl-2.5 flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-full bg-[#EAE8D7] border border-[#D5D2BE] flex items-center justify-center text-[#135332] text-[12px] font-bold shrink-0">
+              ⏳
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] font-semibold text-[#4E5953] block">
+                Remaining
+              </span>
+              <strong className="font-sans text-[15px] font-bold text-[#135332]">
+                {remaining}
+              </strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= MODALS & POPOVERS ================= */}
+
+      {/* A. Interactive Gesture Guide Popup (Exact Wording Requested) */}
+      {activeModal === 'info' && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
+          <div className="w-full max-w-sm rounded-[26px] bg-[#F5F2E8] border-2 border-[#C99E4C] shadow-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="px-3 py-1 rounded-full bg-[#0D4A2E] text-[#F0D58C] text-[10px] font-bold uppercase tracking-wider">
+                INTERACTIVE GESTURE GUIDE
+              </span>
+              <button
+                type="button"
+                onClick={() => setActiveModal(null)}
+                className="w-7 h-7 rounded-full bg-[#EAE8D7] text-primary font-bold text-xs flex items-center justify-center"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-[12.5px] font-semibold text-[#1A3826] bg-[#EAE8D7] p-3 rounded-xl border border-[#D5D2BE]">
+              Tap or pull down anywhere to begin • Long swipe up to undo
+            </p>
+
+            <div className="space-y-2.5 text-[12.5px]">
+              <div className="rounded-xl bg-[#FFFDF9] p-3 border border-[#DCD8C6] flex items-center justify-between">
+                <strong className="text-[#0D4A2E]">Tap / Pull Down</strong>
+                <span className="text-secondary font-medium">
+                  Advance bead (+1 count)
+                </span>
+              </div>
+
+              <div className="rounded-xl bg-[#FFFDF9] p-3 border border-[#DCD8C6] flex items-center justify-between">
+                <strong className="text-[#0D4A2E]">Long Swipe Up</strong>
+                <span className="text-secondary font-medium">
+                  Push bead back (Undo -1)
+                </span>
+              </div>
+
+              <div className="rounded-xl bg-[#FFFDF9] p-3 border border-[#DCD8C6] flex items-center justify-between">
+                <strong className="text-[#0D4A2E]">Rapid Tap</strong>
+                <span className="text-secondary font-medium">
+                  Instant queued response
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setActiveModal(null)}
+              className="btn-primary w-full py-3 text-[13.5px] font-bold shadow-md"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Dhikr Dropdown Modal */}
+      {activeModal === 'dhikr' && (
+        <DhikrSelection
+          currentDhikrId={currentDhikr.id}
+          customDhikrs={customDhikrs}
+          onSelectDhikr={(item) => {
+            setCurrentDhikr(item);
+            if (item.defaultTarget) setGoal(item.defaultTarget);
+            setCount(0);
+            setSessionSeconds(0);
+          }}
+          onOpenCustomModal={() => setActiveModal('custom_dhikr')}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {/* Add Custom Dhikr Modal */}
+      {activeModal === 'custom_dhikr' && (
+        <CustomDhikr
+          onSaveCustomDhikr={(cust) => {
+            setCustomDhikrs((prev) => [...prev, cust]);
+            setCurrentDhikr(cust);
+            setGoal(cust.defaultTarget);
+            setCount(0);
+            setActiveModal(null);
+            if (onShowToast) onShowToast(`Added "${cust.title}"`);
+          }}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {/* Goal Selection Modal */}
+      {activeModal === 'goal' && (
+        <GoalSelection
+          currentGoal={goal}
+          onSelectGoal={(newGoal) => {
+            setGoal(newGoal);
+            if (onShowToast) onShowToast(`Target goal set to ${newGoal}`);
+          }}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {/* B. Temporary Image Wallpaper & Bead Material Picker */}
+      {activeModal === 'appearance' && (
+        <TasbihAppearance
+          currentMaterial={materialId}
+          currentBgUrl={bgUrl}
+          onSelectMaterial={(matId) => setMaterialId(matId)}
+          onSelectBackground={(url) => setBgUrl(url)}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {/* C. History Modal */}
+      {activeModal === 'history' && (
+        <TasbihHistory
+          historyLogs={historyLogs}
+          onClearHistory={() => {
+            setHistoryLogs([]);
+            localStorage.removeItem(TASBIH_HISTORY_KEY);
+          }}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {/* D. Settings & Haptics/Sound/Bead Theme Modal */}
+      {activeModal === 'feedback' && (
+        <TasbihFeedback
+          settings={settings}
+          onUpdateSettings={setSettings}
+          onClose={() => setActiveModal(null)}
+        />
+      )}
+
+      {/* Goal Completion Celebration Modal */}
+      {activeModal === 'completion' && (
+        <SessionCompletion
+          dhikrTitle={currentDhikr.title}
+          count={count}
+          goal={goal}
+          onStartNewRound={() => {
+            setCount(0);
+            setRound((r) => r + 1);
+            setActiveModal(null);
+          }}
+          onReturnHome={() => {
+            setActiveModal(null);
+            if (onOpenSummary) onOpenSummary();
+          }}
+        />
+      )}
+    </section>
+  );
+}
