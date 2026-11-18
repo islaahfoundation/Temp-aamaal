@@ -9,7 +9,6 @@ export default function TodayProgress({
   sessionsCount = 0,
   remindersCount = 1,
   onOpenProgressDetails,
-  onOpenAamaalTracker,
 }) {
   // Calculate how many of the 3 daily goals are completed
   const totalGoals = DEFAULT_AAMAAL_LIST.length || 3;
@@ -39,10 +38,7 @@ export default function TodayProgress({
   const strokeDashoffset = circumference - (pct / 100) * circumference;
 
   return (
-    <div
-      onClick={onOpenProgressDetails || onOpenAamaalTracker}
-      className="card-progress rounded-[24px] p-4 my-3 relative overflow-hidden cursor-pointer select-none shadow-progress-card border border-[#C99E4C]/30"
-    >
+    <div className="card-progress rounded-[24px] p-4 my-3 relative overflow-hidden select-none shadow-progress-card border border-[#C99E4C]/30">
       {/* Decorative Gold Arabesque Curve (Top Right) */}
       <svg
         className="absolute right-0 top-0 w-36 h-36 opacity-25 pointer-events-none"
@@ -135,11 +131,10 @@ export default function TodayProgress({
 
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={() => {
                 if (onOpenProgressDetails) onOpenProgressDetails();
               }}
-              className="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-[#C99E4C]/40 text-[10.5px] font-medium text-white flex items-center space-x-1 shrink-0 transition"
+              className="px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 border border-[#C99E4C]/40 text-[10.5px] font-medium text-white flex items-center space-x-1 shrink-0 transition cursor-pointer active:scale-95"
             >
               <span>View details</span>
               <span>›</span>
