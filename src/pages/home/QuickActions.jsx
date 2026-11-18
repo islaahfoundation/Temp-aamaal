@@ -58,7 +58,7 @@ export default function QuickActions({
       onClick: () =>
         onOpenStories
           ? onOpenStories()
-          : onNavigateTab && onNavigateTab('more'),
+          : onNavigateTab && onNavigateTab('stories'),
       icon: (
         <svg
           className="w-6 h-6 text-[#0D4A2E]"

@@ -6,9 +6,10 @@ import { CountryFlag } from '../aamaal/WeeklySummary';
 export default function ProfileSwitcher({
   profiles = [],
   activeProfile,
+  unreadAlertsCount = 0,
   onSelectProfile,
   onOpenAccountPage,
-  onToggleReminders,
+  onOpenAlertInbox,
   onOpenSettings,
 }) {
   const [openMenu, setOpenMenu] = useState(false);
@@ -22,7 +23,7 @@ export default function ProfileSwitcher({
 
   return (
     <div className="relative pt-1 pb-2">
-      {/* Top Bar: Aamaal Arch Logo + Notification & Settings Icons */}
+      {/* Top Bar: Aamaal Arch Logo + Notification Bell (Alert Inbox) & Settings Icons */}
       <div className="flex items-center justify-between mb-3">
         <button
           type="button"
@@ -67,13 +68,13 @@ export default function ProfileSwitcher({
           </div>
         </button>
 
-        {/* Top-Right Circular Action Buttons (Bell + Settings Gear) */}
+        {/* Top-Right Circular Action Buttons (Alert Inbox Bell + Settings Gear) */}
         <div className="flex items-center space-x-2">
           <button
             type="button"
-            onClick={onToggleReminders}
-            aria-label="Reminders"
-            className="w-9 h-9 rounded-full bg-[#F5F2E8]/90 border border-white shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition"
+            onClick={onOpenAlertInbox}
+            aria-label="Alert Inbox"
+            className="relative w-9 h-9 rounded-full bg-[#F5F2E8]/90 border border-white shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition"
           >
             <svg
               className="w-[18px] h-[18px]"
@@ -87,6 +88,11 @@ export default function ProfileSwitcher({
               <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
               <path d="M13.73 21a2 2 0 0 1-3.46 0" />
             </svg>
+            {unreadAlertsCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-[#0D4A2E] text-[#F0D58C] text-[9px] font-bold flex items-center justify-center border border-white">
+                {unreadAlertsCount}
+              </span>
+            )}
           </button>
 
           <button
@@ -147,7 +153,7 @@ export default function ProfileSwitcher({
         </div>
       </div>
 
-      {/* Profile Switcher Dropdown (Opens if user taps logo or greeting) */}
+      {/* Profile Switcher Dropdown */}
       {openMenu && (
         <div className="absolute left-0 top-14 w-60 rounded-[18px] bg-[#F5F2E8] border border-[#D5D2BE] shadow-xl p-1.5 z-40 fade-in">
           <div className="px-2.5 py-1 text-[9.5px] font-bold uppercase tracking-wider text-secondary">
