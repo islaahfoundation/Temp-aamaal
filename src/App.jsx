@@ -6,9 +6,6 @@ import BottomNavigation from './components/BottomNavigation';
 import { ReaderModal, ToastPill } from './components/ConfirmationDialog';
 import GlobalAlarmWatcher from './components/GlobalAlarmWatcher';
 
-// Inside App() return:
-<GlobalAlarmWatcher onShowToast={showToast} />
-
 export default function App() {
   const { state, updateState, resetAll } = useAamaalState();
   const [activeTab, setActiveTab] = useState(() =>
@@ -91,6 +88,8 @@ export default function App() {
         }}
       />
       <ToastPill message={toastMessage} />
+      // Inside App() return:
+      <GlobalAlarmWatcher onShowToast={showToast} />
     </div>
   );
 }
