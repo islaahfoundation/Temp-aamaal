@@ -1,6 +1,6 @@
 //The main hub uniting DuaSearch, DuaCategories, CategoryDetails, SavedDuas, DuaDetails, and DuaPreferences.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DuaSearch from './DuaSearch';
 import DuaCategories, { DEFAULT_DUAS_LIBRARY } from './DuaCategories';
 import CategoryDetails from './CategoryDetails';
@@ -20,6 +20,7 @@ export default function DuasHome({
   onShowToast,
 }) {
   const [localSearch, setLocalSearch] = useState(externalSearchQuery || '');
+  const sectionRef = useRef(null);
 
   const [showingSavedOnly, setShowingSavedOnly] = useState(() => {
     const flag = localStorage.getItem('aamaal_open_saved_duas') === 'true';
@@ -55,6 +56,13 @@ export default function DuasHome({
       setLocalSearch(externalSearchQuery);
     }
   }, [externalSearchQuery]);
+
+  // Scroll to top whenever opening or closing a Dua
+  useEffect(() => {
+    if (sectionRef.current) {
+      sectionRef.current.scrollTop = 0;
+    }
+  }, [selectedDua]);
 
   // Handle routing directly to Saved Duas from Home Quick Actions
   useEffect(() => {
@@ -136,7 +144,7 @@ export default function DuasHome({
   if (selectedDua) {
     const isCurrentBookmarked = savedDuaIds.includes(selectedDua.id);
     return (
-      <section className="screen-section no-scrollbar px-5 pt-4 pb-6">
+      <section ref={sectionRef} className="screen-section no-scrollbar px-5 pt-4 pb-6">
         <DuaDetails
           dua={selectedDua}
           isBookmarked={isCurrentBookmarked}
@@ -150,7 +158,7 @@ export default function DuasHome({
   }
 
   return (
-    <section className="screen-section no-scrollbar px-5 pt-4 pb-6">
+    <section ref={sectionRef} className="screen-section no-scrollbar px-5 pt-4 pb-6">
       {/* Top Header */}
       <div className="flex items-center justify-between mb-3">
         <div>
@@ -164,7 +172,7 @@ export default function DuasHome({
 
         <button
           type="button"
-          onClick={() => setShowPrefs(!showPrefs)}
+          onClick={() => setShowPrefs(true)}
           title="Reading Preferences"
           className="px-3 py-1.5 rounded-full bg-[#EAE8D7] border border-[#D5D2BE] text-primary text-[11.5px] font-semibold flex items-center space-x-1"
         >
@@ -173,15 +181,13 @@ export default function DuasHome({
         </button>
       </div>
 
-      {/* Collapsible Reading Preferences Drawer */}
+      {/* Reading Preferences Popup Modal */}
       {showPrefs && (
-        <div className="mb-3.5">
-          <DuaPreferences
-            preferences={preferences}
-            onUpdatePreferences={handleUpdatePrefs}
-            onClose={() => setShowPrefs(false)}
-          />
-        </div>
+        <DuaPreferences
+          preferences={preferences}
+          onUpdatePreferences={handleUpdatePrefs}
+          onClose={() => setShowPrefs(false)}
+        />
       )}
 
       {/* Search Bar, Saved Filter & Category Chips */}
@@ -207,7 +213,6 @@ export default function DuasHome({
         />
       ) : (
         <>
-          {/* Show Category Cards when browsing 'all' without a search filter */}
           {activeCategory === 'all' && !localSearch.trim() && (
             <DuaCategories
               activeCategory={activeCategory}
@@ -216,7 +221,6 @@ export default function DuasHome({
             />
           )}
 
-          {/* Filtered Duas List */}
           <CategoryDetails
             categoryId={activeCategory}
             duas={filteredDuas}
