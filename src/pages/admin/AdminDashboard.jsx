@@ -119,7 +119,7 @@ export default function AdminDashboard({
     return [];
   });
 
-  // 4. Jamaat Time Change Requests State (8g)
+  // 4. Jamaat Time Change Requests State
   const [jamaatRequests, setJamaatRequests] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(JAMAAT_REQUESTS_KEY) || '[]');
@@ -129,11 +129,11 @@ export default function AdminDashboard({
     }
   });
 
-  // 5. Broadcast State (8f)
+  // 5. Broadcast State
   const [broadcastTitle, setBroadcastTitle] = useState('');
   const [broadcastBody, setBroadcastBody] = useState('');
 
-  // 6. Full Multi-Module CMS State (8d)
+  // 6. Full Multi-Module CMS State
   const [cmsModule, setCmsModule] = useState('feelings');
   const [cmsForm, setCmsForm] = useState({
     title: '',
@@ -170,7 +170,7 @@ export default function AdminDashboard({
     } catch (_) {}
   }, [jamaatRequests]);
 
-  // 8a: Restrict access to Admins only
+  // Restrict access to Admins only
   if (!isAdmin) {
     return (
       <section className="screen-section no-scrollbar px-5 pt-10 pb-6 text-center space-y-3">
@@ -269,7 +269,7 @@ export default function AdminDashboard({
     if (onShowToast) onShowToast('Member and logs removed');
   };
 
-  // 8g: Approve or Reject Jamaat Time Change Request
+  // Approve or Reject Jamaat Time Change Request
   const handleApproveJamaatRequest = (req) => {
     try {
       const masjids = JSON.parse(localStorage.getItem(MASJIDS_STORAGE_KEY) || '[]');
@@ -304,7 +304,7 @@ export default function AdminDashboard({
     if (onShowToast) onShowToast('Request rejected');
   };
 
-  // 8f: Send Broadcast to All Members' Alert Inbox + PWA Notification
+  // Send Broadcast to All Members' Alert Inbox + PWA Notification
   const handleSendBroadcast = (e) => {
     e.preventDefault();
     if (!broadcastBody.trim()) return;
@@ -341,7 +341,7 @@ export default function AdminDashboard({
     }
   };
 
-  // 8d: Save New CMS Entry to Selected Module
+  // Save New CMS Entry to Selected Module
   const handleSaveCmsEntry = (e) => {
     e.preventDefault();
     if (!cmsForm.title.trim()) return;
@@ -393,7 +393,6 @@ export default function AdminDashboard({
         },
       };
     } else {
-      // stories, learning, quiz
       payload = {
         id: `cms_${cmsModule}_${Date.now()}`,
         title: cmsForm.title.trim(),
@@ -432,7 +431,6 @@ export default function AdminDashboard({
     (r) => r.status === 'pending'
   ).length;
 
-  // 8b: Vertical Admin Menu List
   const ADMIN_MENU_ITEMS = [
     {
       id: 'jamaat_requests',
@@ -521,7 +519,7 @@ export default function AdminDashboard({
         <span className="badge-pill">{allMembers.length} Members</span>
       </div>
 
-      {/* 8b: Clean Vertical Admin List */}
+      {/* Vertical Admin Menu List */}
       <div className="space-y-2.5">
         {ADMIN_MENU_ITEMS.map((item) => (
           <button
@@ -590,36 +588,37 @@ export default function AdminDashboard({
         ))}
       </div>
 
-      {/* 8b: POPUP MODAL PAGE FOR SELECTED ADMIN MODULE */}
+      {/* CENTERED POPUP MODAL PAGE FOR SELECTED ADMIN MODULE */}
       {activePopup && (
         <div
           onClick={() => setActivePopup(null)}
-          className="fixed inset-0 z-50 bg-black/55 backdrop-blur-sm flex items-end sm:items-center justify-center p-2 sm:p-4 fade-in"
+          className="fixed inset-0 z-[90] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 fade-in"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md h-[88vh] rounded-[26px] bg-[#F5F2E8] border-2 border-[#C99E4C] shadow-2xl flex flex-col overflow-hidden"
+            className="w-full max-w-md max-h-[80dvh] rounded-[24px] bg-[#F5F2E8] border-2 border-[#C99E4C] shadow-2xl flex flex-col overflow-hidden"
           >
-            {/* Popup Top Bar */}
-            <div className="px-4 py-3 bg-[#0F4C2B] text-white flex items-center justify-between shrink-0">
+            {/* Popup Top Bar (Always Visible) */}
+            <div className="px-4 py-3 bg-[#0F4C2B] text-white flex items-center justify-between shrink-0 border-b border-[#C99E4C]/30">
               <div className="flex items-center space-x-2 min-w-0">
                 <span className="text-[18px]">{activeMenuItem?.icon}</span>
-                <h3 className="font-serif text-[17px] font-semibold truncate">
+                <h3 className="font-serif text-[17px] font-semibold truncate text-white">
                   {activeMenuItem?.title}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setActivePopup(null)}
-                className="w-7 h-7 rounded-full bg-white/15 text-[#F0D58C] font-bold text-xs flex items-center justify-center shrink-0"
+                aria-label="Close popup"
+                className="w-8 h-8 rounded-full bg-white/20 text-[#F0D58C] font-bold text-sm flex items-center justify-center shrink-0 active:scale-95 transition"
               >
                 ✕
               </button>
             </div>
 
             {/* Popup Scrollable Body */}
-            <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-3.5">
-              {/* 8c & 8e: Tab-Specific Excel Export (ONLY on Inspector, Monthly, Members, Stats) */}
+            <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar p-4 space-y-3.5">
+              {/* Tab-Specific Excel Export (ONLY on Inspector, Monthly, Members, Stats) */}
               {['inspector', 'monthly', 'members', 'stats'].includes(
                 activePopup
               ) && (
@@ -634,7 +633,7 @@ export default function AdminDashboard({
                 />
               )}
 
-              {/* POPUP 1: JAMAAT TIME REQUESTS (8g) */}
+              {/* POPUP 1: JAMAAT TIME REQUESTS */}
               {activePopup === 'jamaat_requests' && (
                 <div className="space-y-3">
                   {jamaatRequests.length === 0 ? (
@@ -812,7 +811,7 @@ export default function AdminDashboard({
                 </div>
               )}
 
-              {/* POPUP 7: FULL MULTI-MODULE CMS (8d, NO EXCEL EXPORT) */}
+              {/* POPUP 7: FULL MULTI-MODULE CMS (NO EXCEL EXPORT) */}
               {activePopup === 'cms' && (
                 <form
                   onSubmit={handleSaveCmsEntry}
@@ -997,7 +996,7 @@ export default function AdminDashboard({
                 </form>
               )}
 
-              {/* POPUP 8: BROADCAST ALERT (8f, NO EXCEL EXPORT) */}
+              {/* POPUP 8: BROADCAST ALERT (NO EXCEL EXPORT) */}
               {activePopup === 'broadcast' && (
                 <form
                   onSubmit={handleSendBroadcast}
