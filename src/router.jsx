@@ -415,7 +415,6 @@ export default function AppRouter({
           state={state}
           updateState={updateState}
           onShowToast={onShowToast}
-          onBack={goHome}
         />
       );
 
@@ -431,17 +430,15 @@ export default function AppRouter({
 
     case 'duas':
       return (
-        <PageWithBackHeader title="Back to Home" onBack={goHome}>
-          <DuasHome
-            state={state}
-            searchQuery={searchQuery}
-            onSelectFilter={(f) => updateState({ activeDuaFilter: f })}
-            onToggleBookmark={onToggleBookmark}
-            onOpenModal={onOpenModal}
-            updateState={updateState}
-            onShowToast={onShowToast}
-          />
-        </PageWithBackHeader>
+        <DuasHome
+          state={state}
+          searchQuery={searchQuery}
+          onSelectFilter={(f) => updateState({ activeDuaFilter: f })}
+          onToggleBookmark={onToggleBookmark}
+          onOpenModal={onOpenModal}
+          updateState={updateState}
+          onShowToast={onShowToast}
+        />
       );
 
     case 'feelings':
