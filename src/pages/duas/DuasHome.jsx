@@ -146,6 +146,14 @@ export default function DuasHome({
 
   const isSearching = Boolean(localSearch.trim());
 
+  const activeViewLabel = isSearching
+    ? 'Search Results'
+    : activeCategory === 'saved'
+    ? `Saved Duas (${savedDuaIds.length})`
+    : activeCategory === 'all'
+    ? `All Duas (${DEFAULT_DUAS_LIBRARY.length})`
+    : activeCategory;
+
   return (
     <section ref={sectionRef} className="screen-section no-scrollbar px-5 pt-4 pb-6">
       {/* Top Header */}
@@ -184,6 +192,42 @@ export default function DuasHome({
         searchQuery={localSearch}
         onSearchChange={setLocalSearch}
       />
+
+      {/* Guaranteed Back & Show All Bar for Saved, All Duas, Categories, and Search */}
+      {(activeCategory || isSearching) && (
+        <div className="flex items-center justify-between gap-2 mt-2 mb-3 py-1.5 px-2.5 rounded-2xl bg-[#EAE8D7] border border-[#D5D2BE]">
+          <button
+            type="button"
+            onClick={handleBackToCategories}
+            className="px-3 py-1 rounded-full bg-[#0D4A2E] text-[#F0D58C] text-[11.5px] font-bold flex items-center space-x-1 active:scale-95 transition"
+          >
+            <span>←</span>
+            <span>Categories</span>
+          </button>
+
+          <span className="text-[11.5px] font-bold text-primary truncate">
+            {activeViewLabel}
+          </span>
+
+          {activeCategory === 'saved' ? (
+            <button
+              type="button"
+              onClick={() => handleCategoryChange('all')}
+              className="px-2.5 py-1 rounded-full bg-[#F5F2E8] border border-[#D5D2BE] text-[#0D4A2E] text-[11px] font-bold shrink-0"
+            >
+              Show All
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleCategoryChange('saved')}
+              className="px-2.5 py-1 rounded-full bg-[#F5F2E8] border border-[#D5D2BE] text-[#0D4A2E] text-[11px] font-bold shrink-0"
+            >
+              Saved ({savedDuaIds.length})
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Show ONLY Category Grid when no category is selected and not searching */}
       {!activeCategory && !isSearching ? (
