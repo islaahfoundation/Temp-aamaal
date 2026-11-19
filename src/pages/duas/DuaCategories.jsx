@@ -4,10 +4,22 @@ import React from 'react';
 
 export const DUA_CATEGORIES_META = [
   {
+    id: 'all',
+    title: 'All Duas',
+    subtitle: 'Complete library of supplications',
+    icon: '🤲',
+  },
+  {
+    id: 'saved',
+    title: 'Saved',
+    subtitle: 'Your personal bookmarked collection',
+    icon: '🔖',
+  },
+  {
     id: 'Daily',
     title: 'Morning & Evening',
     subtitle: 'Daily protection & Sunnah remembrance',
-    icon: '☀️',
+    icon: '🌅',
   },
   {
     id: 'Peace',
@@ -19,7 +31,7 @@ export const DUA_CATEGORIES_META = [
     id: 'Forgiveness',
     title: 'Repentance & Mercy',
     subtitle: 'Seeking pardon and spiritual renewal',
-    icon: '🤲',
+    icon: '✨',
   },
   {
     id: 'Family',
@@ -31,7 +43,7 @@ export const DUA_CATEGORIES_META = [
     id: 'Gratitude',
     title: 'Durood & Gratitude',
     subtitle: 'Salawat upon the Prophet ﷺ & thanks',
-    icon: '✨',
+    icon: '💚',
   },
 ];
 
@@ -42,14 +54,15 @@ export const DEFAULT_DUAS_LIBRARY = [
     badge: 'SEEKING EASE',
     title: 'Supplication for Ease in Difficult Tasks',
     shortDesc: 'Recite when any matter feels heavy or challenging.',
-    arabic: 'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا',
+    arabic:
+      'اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا، وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا',
     translation:
       'O Allah, nothing is easy except what You make easy, and You alone can turn a difficult situation into ease whenever You will.',
     romanUrdu:
       'Aye Allah! Koi kaam aasan nahi magar jise Tu aasan bana de, aur Tu hi har mushkil aur sakhti ko jab chahe aasan farma deta hai.',
-    urdu: 'اے اللہ! کوئی کام آسان نہیں مگر جسے تو آسان بنا دے، اور تو ہی مشکل کو جب چاہے آسان فرما دیتا ہے۔',
+    urdu: 'اے اللہ! کوئی کام آسان نہیں مگر جسے تو آسان بنا دے، اور تو ہی ہر مشکل کو جب چاہے آسان فرما دیتا ہے۔',
     hindi:
-      'ऐ अल्लाह! कोई काम आसान नहीं मगर जिसे तू आसान बना दे, और तू ही मुश्किल को जब चाहे आसान कर देता है।',
+      'ऐ अल्लाह! कोई काम आसान नहीं मगर जिसे तू आसान बना दे, और तू ही हर मुश्किल को जब चाहे आसान फरमा देता है।',
     benefits:
       'Cultivates complete reliance on Allah when facing life tests, exams, or overwhelming responsibilities.',
     recommendedTime: 'Whenever facing a difficult task or decision',
@@ -83,14 +96,15 @@ export const DEFAULT_DUAS_LIBRARY = [
     badge: 'DAILY ISTIGHFAR',
     title: 'Sincere Repentance & Seeking Pardon',
     shortDesc: 'Daily plea for mercy and cleansing of the heart.',
-    arabic: 'رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ',
+    arabic:
+      'رَبِّ اغْفِرْ لِي وَتُبْ عَلَيَّ إِنَّكَ أَنْتَ التَّوَّابُ الرَّحِيمُ',
     translation:
       'My Lord, grant me forgiveness and accept my repentance; truly You are the Ever-Accepting of repentance, the Most Merciful.',
     romanUrdu:
       'Aye mere Rab! Meri maghfirat farma aur meri tauba qubool kar, beshak Tu hi tauba qubool karne wala aur bada meharban hai.',
-    urdu: 'اے میرے رب! مجھے بخش دے اور میری توبہ قبول فرما، بے شک تو ہی توبہ قبول کرنے والا مہربان ہے۔',
+    urdu: 'اے میرے رب! مجھے معاف کر اور میری توبہ قبول فرما، بے شک تو ہی توبہ قبول کرنے والا اور مہربان ہے۔',
     hindi:
-      'ऐ मेरे रब! मुझे बख़्श दे और मेरी तौबा क़ुबूल फ़रमा, बेशक तू ही तौबा क़ुबूल करने वाला मेहरबान है।',
+      'ऐ मेरे रब! मुझे माफ़ कर और मेरी तौबा क़ुबूल फ़रमा, बेशक तू ही तौबा क़ुबूल करने वाला और मेहरबान है।',
     benefits:
       'The Companions counted the Prophet ﷺ reciting this supplication up to a hundred times in a single gathering.',
     recommendedTime: 'After prayers & before sleeping',
@@ -104,7 +118,8 @@ export const DEFAULT_DUAS_LIBRARY = [
     badge: 'MORNING & EVENING',
     title: 'Supplication for Complete Well-Being (Afiyah)',
     shortDesc: 'Ask for safety in faith, worldly life, family, and wealth.',
-    arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ',
+    arabic:
+      'اللَّهُمَّ إِنِّي أَسْأَلُكَ الْعَفْوَ وَالْعَافِيَةَ فِي الدُّنْيَا وَالْآخِرَةِ',
     translation:
       'O Allah, I ask You for pardon and complete well-being in this world and in the Hereafter.',
     romanUrdu:
@@ -131,7 +146,7 @@ export const DEFAULT_DUAS_LIBRARY = [
       'Aye mere Rab! Mere walidain par apni rehmat naazil farma jis tarah unhon ne bachpan mein meri mohabbat se parwarish ki.',
     urdu: 'اے میرے رب! ان دونوں پر رحم فرما جیسا کہ انہوں نے بچپن میں میری پرورش کی۔',
     hindi:
-      'ऐ मेरे रब! मेरे माता-पिता पर रहम फ़रमा जिस तरह उन्होंने बचपन में मेरी परवरिश की।',
+      'ऐ मेरे रब! मेरे माता-पिता पर रहम फ़रमा जैसा कि उन्होंने बचपन में मेरी परवरिश की।',
     benefits:
       'A continuous charity and source of elevated ranks for parents in this life and the Hereafter.',
     recommendedTime: 'After every obligatory prayer',
@@ -145,7 +160,8 @@ export const DEFAULT_DUAS_LIBRARY = [
     badge: 'MORNING SUNNAH',
     title: 'Dua for Beneficial Knowledge & Pure Provision',
     shortDesc: 'Begin the day with purposeful knowledge and accepted deeds.',
-    arabic: 'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا',
+    arabic:
+      'اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا، وَرِزْقًا طَيِّبًا، وَعَمَلًا مُتَقَبَّلًا',
     translation:
       'O Allah, I ask You for knowledge that benefits, provision that is pure, and deeds that are accepted by You.',
     romanUrdu:
@@ -166,14 +182,15 @@ export const DEFAULT_DUAS_LIBRARY = [
     badge: 'DAILY & THURSDAY SALAWAT',
     title: 'Durood Ibrahimiyyah',
     shortDesc: 'Send abundant peace and blessings upon the Prophet ﷺ.',
-    arabic: 'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ',
+    arabic:
+      'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ كَمَا صَلَّيْتَ عَلَى إِبْرَاهِيمَ وَعَلَى آلِ إِبْرَاهِيمَ إِنَّكَ حَمِيدٌ مَجِيدٌ',
     translation:
       'O Allah, send Your grace, honor, and mercy upon Muhammad ﷺ and the family of Muhammad ﷺ, as You sent blessings upon Ibrahim (AS) and the family of Ibrahim (AS); truly You are Praiseworthy, Glorious.',
     romanUrdu:
       'Aye Allah! Rehmat aur barakat naazil farma Muhammad ﷺ par aur Aap ﷺ ki Aal par, jis tarah Tu ne rehmat naazil farmayi Ibrahim (AS) aur unki Aal par, beshak Tu tareef wala aur buzurgi wala hai.',
-    urdu: 'اے اللہ! محمد ﷺ اور آلِ محمد ﷺ پر رحمت بھیج جس طرح تو نے ابراہیم علیہ السلام اور آلِ ابراہیم پر رحمت بھیجی، بے شک تو تعریف والا بزرگی والا ہے۔',
+    urdu: 'اے اللہ! رحمت نازل فرما محمد ﷺ اور آلِ محمد ﷺ پر جیسا کہ تو نے رحمت نازل فرمائی ابراہیم علیہ السلام اور آلِ ابراہیم پر، بے شک تو تعریف والا اور بزرگی والا ہے۔',
     hindi:
-      'ऐ अल्लाह! मुहम्मद ﷺ और आप ﷺ की आल पर रहमत और बरकत नाज़िल फ़रमा, बेशक तू तारीफ़ वाला और बुज़ुर्गी वाला है।',
+      'ऐ अल्लाह! मुहम्मद ﷺ और आप ﷺ की आल पर रहमत नाज़िल फ़रमा, जैसा तूने इब्राहीम (अ.स.) और उनकी आल पर रहमत नाज़िल फ़रमाई, बेशक तू तारीफ़ वाला और बुज़ुर्गी वाला है।',
     benefits:
       'Whoever sends one blessing upon the Prophet ﷺ, Allah sends ten blessings upon him, forgives ten sins, and raises him ten degrees.',
     recommendedTime: 'Throughout the day (313x target) & abundantly on Thursday/Friday',
@@ -185,14 +202,25 @@ export const DEFAULT_DUAS_LIBRARY = [
 
 export default function DuaCategories({
   duasList = DEFAULT_DUAS_LIBRARY,
+  savedCount = 0,
   activeCategory = 'all',
+  showingSavedOnly = false,
   onSelectCategory,
 }) {
   return (
     <div className="grid grid-cols-2 gap-2.5 mb-4">
       {DUA_CATEGORIES_META.map((cat) => {
-        const count = duasList.filter((d) => d.category === cat.id).length;
-        const isSelected = activeCategory === cat.id;
+        const count =
+          cat.id === 'all'
+            ? duasList.length
+            : cat.id === 'saved'
+            ? savedCount
+            : duasList.filter((d) => d.category === cat.id).length;
+
+        const isSelected =
+          cat.id === 'saved'
+            ? showingSavedOnly
+            : !showingSavedOnly && activeCategory === cat.id;
 
         return (
           <button
@@ -204,7 +232,7 @@ export default function DuaCategories({
               } catch (_) {}
               if (onSelectCategory) onSelectCategory(cat.id);
             }}
-            className={`text-left rounded-[18px] p-3 border transition ${
+            className={`text-left rounded-[18px] p-3 border transition active:scale-[0.98] ${
               isSelected
                 ? 'bg-[#0F4C2B] text-white border-[#C99E4C] shadow-md'
                 : 'bg-[#F3EFE2] text-primary border-white/90 shadow-soft-card'
