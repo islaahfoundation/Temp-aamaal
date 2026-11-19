@@ -15,7 +15,6 @@ export default function DuasHome({
   searchQuery: externalSearchQuery = '',
   onSelectFilter,
   onToggleBookmark,
-  onOpenModal,
   updateState,
   onShowToast,
 }) {
@@ -57,7 +56,7 @@ export default function DuasHome({
     }
   }, [externalSearchQuery]);
 
-  // Scroll to top whenever opening or closing a Dua
+  // Always start at top when opening or closing a Dua
   useEffect(() => {
     if (sectionRef.current) {
       sectionRef.current.scrollTop = 0;
@@ -89,17 +88,14 @@ export default function DuasHome({
   const savedDuaIds = state?.savedDuaIds || [];
 
   const handleCategoryChange = (catId) => {
-    setShowingSavedOnly(false);
-    setActiveCategory(catId);
-    if (onSelectFilter) onSelectFilter(catId);
-  };
-
-  const handleToggleSavedFilter = (forceVal) => {
-    const nextVal =
-      typeof forceVal === 'boolean' ? forceVal : !showingSavedOnly;
-    setShowingSavedOnly(nextVal);
-    if (!nextVal && onSelectFilter) {
-      onSelectFilter('all');
+    if (catId === 'saved') {
+      setShowingSavedOnly(true);
+      setActiveCategory('all');
+      if (onSelectFilter) onSelectFilter('saved');
+    } else {
+      setShowingSavedOnly(false);
+      setActiveCategory(catId);
+      if (onSelectFilter) onSelectFilter(catId);
     }
   };
 
@@ -190,16 +186,22 @@ export default function DuasHome({
         />
       )}
 
-      {/* Search Bar, Saved Filter & Category Chips */}
+      {/* Search Bar Only */}
       <DuaSearch
-        activeCategory={activeCategory}
-        onSearchChange={setLocalSearch}
-        onSelectCategory={handleCategoryChange}
-        onToggleSavedOnly={handleToggleSavedFilter}
-        savedCount={savedDuaIds.length}
         searchQuery={localSearch}
-        showingSavedOnly={showingSavedOnly}
+        onSearchChange={setLocalSearch}
       />
+
+      {/* Categories Grid (All Duas + Saved at start) */}
+      {!localSearch.trim() && (
+        <DuaCategories
+          activeCategory={activeCategory}
+          showingSavedOnly={showingSavedOnly}
+          savedCount={savedDuaIds.length}
+          duasList={DEFAULT_DUAS_LIBRARY}
+          onSelectCategory={handleCategoryChange}
+        />
+      )}
 
       {/* Saved Duas View vs Category Browse View */}
       {showingSavedOnly ? (
@@ -209,28 +211,18 @@ export default function DuasHome({
           preferredLanguage={preferences.language}
           onSelectDua={setSelectedDua}
           onToggleBookmark={onToggleBookmark}
-          onBrowseAll={() => handleToggleSavedFilter(false)}
+          onBrowseAll={() => handleCategoryChange('all')}
         />
       ) : (
-        <>
-          {activeCategory === 'all' && !localSearch.trim() && (
-            <DuaCategories
-              activeCategory={activeCategory}
-              duasList={DEFAULT_DUAS_LIBRARY}
-              onSelectCategory={handleCategoryChange}
-            />
-          )}
-
-          <CategoryDetails
-            categoryId={activeCategory}
-            duas={filteredDuas}
-            savedDuaIds={savedDuaIds}
-            preferredLanguage={preferences.language}
-            onSelectDua={setSelectedDua}
-            onToggleBookmark={onToggleBookmark}
-            onClearCategory={() => handleCategoryChange('all')}
-          />
-        </>
+        <CategoryDetails
+          categoryId={activeCategory}
+          duas={filteredDuas}
+          savedDuaIds={savedDuaIds}
+          preferredLanguage={preferences.language}
+          onSelectDua={setSelectedDua}
+          onToggleBookmark={onToggleBookmark}
+          onClearCategory={() => handleCategoryChange('all')}
+        />
       )}
     </section>
   );
