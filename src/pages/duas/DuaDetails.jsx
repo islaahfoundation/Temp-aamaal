@@ -1,6 +1,6 @@
 //Renders the full dedicated Dua Reader screen uniting ArabicDisplay, AudioPlayer, TranslationDisplay (English, Roman Urdu, Urdu, Hindi), DuaBenefits, DuaReferences, and an interactive repetition counter (+1 Recited).
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ArabicDisplay from './ArabicDisplay';
 import TranslationDisplay from './TranslationDisplay';
 import AudioPlayer from './AudioPlayer';
@@ -22,6 +22,20 @@ export default function DuaDetails({
   onBack,
 }) {
   const [recitedCount, setRecitedCount] = useState(0);
+  const topRef = useRef(null);
+
+  // Always start at the very top when opening a Dua
+  useEffect(() => {
+    setRecitedCount(0);
+    try {
+      window.scrollTo(0, 0);
+      if (topRef.current) {
+        const scrollParent = topRef.current.closest('.screen-section');
+        if (scrollParent) scrollParent.scrollTop = 0;
+        topRef.current.scrollIntoView({ behavior: 'instant', block: 'start' });
+      }
+    } catch (_) {}
+  }, [dua?.id]);
 
   if (!dua) return null;
 
@@ -40,7 +54,7 @@ export default function DuaDetails({
   };
 
   return (
-    <div className="space-y-3.5 fade-in">
+    <div ref={topRef} className="space-y-3.5 fade-in">
       {/* Top Bar */}
       <div className="flex items-center justify-between">
         {onBack && (

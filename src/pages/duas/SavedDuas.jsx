@@ -42,24 +42,13 @@ export default function SavedDuas({
 
   return (
     <div className="space-y-3">
-      <div className="rounded-[16px] bg-[#0F4C2B] text-white px-4 py-3 flex items-center justify-between border border-[#C99E4C]/40">
-        <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#F0D58C] block">
-            Personal Collection
-          </span>
-          <h3 className="font-serif text-[16px] font-semibold">
-            Your Bookmarked Duas ({bookmarkedDuas.length})
-          </h3>
-        </div>
-        {onBrowseAll && (
-          <button
-            type="button"
-            onClick={onBrowseAll}
-            className="px-3 py-1 rounded-full bg-white/15 text-white text-[11px] font-semibold"
-          >
-            View All
-          </button>
-        )}
+      <div className="rounded-[16px] bg-[#0F4C2B] text-white px-4 py-3 border border-[#C99E4C]/40">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-[#F0D58C] block">
+          Personal Collection
+        </span>
+        <h3 className="font-serif text-[16px] font-semibold">
+          Your Bookmarked Duas ({bookmarkedDuas.length})
+        </h3>
       </div>
 
       <CategoryDetails
