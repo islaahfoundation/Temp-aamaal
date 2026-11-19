@@ -1,6 +1,7 @@
 //Implements the Allahu Akbar dropdown menu containing 4 predefined authentic Dhikrs (with pure Arabic script, English/Roman Urdu/Urdu/Hindi translations, and default targets) plus the "+ Add Custom Dhikr" button.
 
 // src/pages/tasbih/DhikrSelection.jsx
+// src/pages/tasbih/DhikrSelection.jsx
 import React from 'react';
 
 export const PREDEFINED_DHIKRS = [
@@ -57,7 +58,7 @@ export default function DhikrSelection({
 
   return (
     <div className="absolute left-5 right-5 top-20 z-50 rounded-[22px] bg-[#F5F2E8] border border-[#C99E4C] shadow-2xl p-4 space-y-2.5 fade-in">
-      <div className="flex items-center justify-between pb-1 border-t border-[#DCD8C6]">
+      <div className="flex items-center justify-between pb-1 border-b border-[#DCD8C6]">
         <span className="text-[10px] font-bold uppercase tracking-wider text-[#135332]">
           Select Dhikr &amp; Tasbih
         </span>
@@ -86,27 +87,33 @@ export default function DhikrSelection({
                 if (onSelectDhikr) onSelectDhikr(item);
                 if (onClose) onClose();
               }}
-              className={`w-full text-left rounded-xl p-3 border transition flex items-center justify-between ${
+              className={`w-full text-left rounded-xl p-3 border transition flex items-center justify-between gap-2 ${
                 isSelected
-                  ? 'bg-[#0D4A2E] text-white border-[#C99E4C]'
-                  : 'bg-[#F9F6EE] text-primary border-[#DCD8C6] hover:bg-[#EAE8D7]'
+                  ? 'bg-[#0D4A2E] border-[#C99E4C] shadow-sm'
+                  : 'bg-[#FFFDF9] border-[#DCD8C6] hover:bg-[#EAE8D7]'
               }`}
             >
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center space-x-2">
-                  <h4 className="font-serif text-[15px] font-semibold">
+                  <h4
+                    className="font-serif text-[15px] font-semibold truncate"
+                    style={{ color: isSelected ? '#FFFFFF' : '#0D4A2E' }}
+                  >
                     {item.title}
                   </h4>
                   {isSelected && (
-                    <span className="text-[9.5px] font-bold text-[#F0D58C]">
+                    <span className="text-[9.5px] font-bold text-[#F0D58C] shrink-0">
                       ✓ Active
                     </span>
                   )}
                 </div>
                 <p
-                  className={`text-[11px] truncate ${
-                    isSelected ? 'text-white/80' : 'text-secondary'
-                  }`}
+                  className="text-[11px] truncate"
+                  style={{
+                    color: isSelected
+                      ? 'rgba(255, 255, 255, 0.85)'
+                      : '#4E5953',
+                  }}
                 >
                   {item.translation}
                 </p>
@@ -114,9 +121,8 @@ export default function DhikrSelection({
 
               <span
                 dir="rtl"
-                className={`font-arabic text-[18px] ${
-                  isSelected ? 'text-[#F0D58C]' : 'text-[#0D4A2E]'
-                }`}
+                className="font-arabic text-[18px] shrink-0"
+                style={{ color: isSelected ? '#F0D58C' : '#0D4A2E' }}
               >
                 {item.arabic}
               </span>
