@@ -13,12 +13,14 @@ import MasjidDetails from './MasjidDetails';
 
 const MASJIDS_STORAGE_KEY = 'aamaal_masjids_directory_v1';
 const PRIMARY_MASJID_KEY = 'aamaal_primary_masjid_id_v1';
+const JAMAAT_REQUESTS_KEY = 'aamaal_jamaat_change_requests_v1';
+const PROFILES_STORAGE_KEY = 'aamaal_circle_profiles_v1';
 
 export const DEFAULT_MASJIDS = [
   {
     id: 'jama-masjid-mumbai',
     name: 'Jama Masjid Mumbai',
-    area: 'walkeshwar / Crawford Market, Mumbai',
+    area: 'Kalbadevi / Crawford Market, Mumbai',
     address: 'Sheikh Memon St, Zaveri Bazaar, Kalbadevi, Mumbai, Maharashtra 400002',
     lat: 18.9476,
     lng: 72.8332,
@@ -101,10 +103,23 @@ function getDistanceKm(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+function checkIsAdmin() {
+  try {
+    const profiles = JSON.parse(localStorage.getItem(PROFILES_STORAGE_KEY) || '[]');
+    if (Array.isArray(profiles) && profiles.length > 0) {
+      const primary = profiles.find((p) => p.isPrimary) || profiles[0];
+      return primary?.role === 'admin';
+    }
+  } catch (_) {}
+  return false;
+}
+
 export default function MasjidList({
   onShowToast,
   onBack,
 }) {
+  const isAdmin = checkIsAdmin();
+
   const [masjids, setMasjids] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(MASJIDS_STORAGE_KEY) || 'null');
@@ -120,10 +135,10 @@ export default function MasjidList({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMasjidId, setSelectedMasjidId] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showNearbyRadarMap, setShowNearbyRadarMap] = useState(false);
 
-  // User Live GPS Coordinates
+  // Near Me GPS Area Filter State
   const [userCoords, setUserCoords] = useState(null);
+  const [nearMeActive, setNearMeActive] = useState(false);
   const [locating, setLocating] = useState(false);
 
   // New Masjid Form State
@@ -137,11 +152,18 @@ export default function MasjidList({
     } catch (_) {}
   }, [masjids]);
 
-  const handleLocateMe = () => {
+  const handleToggleNearMe = () => {
+    if (nearMeActive) {
+      setNearMeActive(false);
+      if (onShowToast) onShowToast('Showing all Masjids');
+      return;
+    }
+
     if (!navigator.geolocation) {
       if (onShowToast) onShowToast('Geolocation not supported on this device');
       return;
     }
+
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -149,17 +171,16 @@ export default function MasjidList({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         });
+        setNearMeActive(true);
         setLocating(false);
-        setShowNearbyRadarMap(true);
         if (onShowToast) {
-          onShowToast('📍 Located! Sorted Masjids by distance from you');
+          onShowToast('📍 Filtered Masjids near your current area (within 15 km)');
         }
       },
       () => {
         setLocating(false);
-        setShowNearbyRadarMap(true);
         if (onShowToast) {
-          onShowToast('Showing Google Map for local Masjids');
+          onShowToast('Please allow location access to filter Masjids near you');
         }
       },
       { enableHighAccuracy: true, timeout: 8000 }
@@ -178,6 +199,8 @@ export default function MasjidList({
       name: newName.trim(),
       area: newArea.trim() || 'Local Area',
       address: newAddress.trim(),
+      lat: userCoords?.lat || null,
+      lng: userCoords?.lng || null,
       facilities: ['Wudu Khana', 'Daily Jamaat'],
       timings: DEFAULT_MASJIDS[0].timings,
     };
@@ -188,14 +211,28 @@ export default function MasjidList({
     setNewAddress('');
     setShowAddForm(false);
     setSelectedMasjidId(created.id);
-    if (onShowToast) onShowToast(`Added ${created.name} with Google Map`);
+    if (onShowToast) onShowToast(`Added ${created.name} to directory`);
   };
 
   const handleUpdateJamatTimes = (masjidId, newTimings) => {
+    if (!isAdmin) return;
     setMasjids((prev) =>
       prev.map((m) => (m.id === masjidId ? { ...m, timings: newTimings } : m))
     );
     if (onShowToast) onShowToast('Jamaat timings updated');
+  };
+
+  const handleSubmitChangeRequest = (requestPayload) => {
+    try {
+      const existing = JSON.parse(
+        localStorage.getItem(JAMAAT_REQUESTS_KEY) || '[]'
+      );
+      const next = [requestPayload, ...(Array.isArray(existing) ? existing : [])];
+      localStorage.setItem(JAMAAT_REQUESTS_KEY, JSON.stringify(next));
+    } catch (_) {}
+    if (onShowToast) {
+      onShowToast('✓ Jamaat change request & clock photo sent to Admin for review!');
+    }
   };
 
   const handleSetPrimary = (id) => {
@@ -218,6 +255,9 @@ export default function MasjidList({
       };
     })
     .sort((a, b) => {
+      if (nearMeActive && a.distanceKm !== null && b.distanceKm !== null) {
+        return a.distanceKm - b.distanceKm;
+      }
       if (a.id === primaryMasjidId) return -1;
       if (b.id === primaryMasjidId) return 1;
       if (a.distanceKm !== null && b.distanceKm !== null) {
@@ -230,23 +270,28 @@ export default function MasjidList({
     (m) => m.id === selectedMasjidId
   );
 
-  // If a Masjid is selected, open MasjidDetails with its embedded Google Map & Navigation
   if (selectedMasjid) {
     return (
       <section className="screen-section no-scrollbar px-5 pt-4 pb-6">
         <MasjidDetails
           masjid={selectedMasjid}
           userCoords={userCoords}
+          isAdmin={isAdmin}
           isPrimaryMasjid={selectedMasjid.id === primaryMasjidId}
           onSetPrimaryMasjid={handleSetPrimary}
           onUpdateJamatTimes={handleUpdateJamatTimes}
+          onSubmitChangeRequest={handleSubmitChangeRequest}
           onBack={() => setSelectedMasjidId(null)}
         />
       </section>
     );
   }
 
+  // Filter by Search Query AND Near Me Area Radius (15 km)
   const filteredMasjids = enrichedMasjids.filter((m) => {
+    if (nearMeActive && userCoords) {
+      if (m.distanceKm === null || m.distanceKm > 15) return false;
+    }
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return (
@@ -256,12 +301,13 @@ export default function MasjidList({
     );
   });
 
-  // Free Google Map query for "Masjids near me" or search term
-  const radarMapQuery = searchQuery.trim()
-    ? encodeURIComponent(`Masjid near ${searchQuery.trim()}`)
-    : userCoords
-    ? `Masjid near ${userCoords.lat},${userCoords.lng}`
-    : encodeURIComponent('Masjids in Mumbai');
+  // 6a: Only show Live Map when user searches and no Masjid is found in the list
+  const showFallbackLiveMap =
+    Boolean(searchQuery.trim()) && filteredMasjids.length === 0;
+
+  const fallbackMapQuery = encodeURIComponent(
+    `Masjid ${searchQuery.trim()}`
+  );
 
   return (
     <section className="screen-section no-scrollbar px-5 pt-4 pb-6 space-y-3.5">
@@ -296,53 +342,31 @@ export default function MasjidList({
         </button>
       </div>
 
-      {/* Search + GPS Locate Bar */}
+      {/* Search + GPS Near Me Area Filter Bar */}
       <div className="flex items-center space-x-2">
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search Masjid or city/area on Google Maps..."
+          placeholder="Search Masjid or area..."
           className="flex-1 py-2.5 px-3.5 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] text-primary text-[12.5px] font-medium shadow-soft-card"
         />
 
         <button
           type="button"
-          onClick={handleLocateMe}
-          className="px-3.5 py-2.5 rounded-full bg-[#EAE8D7] border border-[#D5D2BE] text-primary text-[11.5px] font-bold shrink-0"
+          onClick={handleToggleNearMe}
+          className={`px-3.5 py-2.5 rounded-full text-[11.5px] font-bold shrink-0 border transition ${
+            nearMeActive
+              ? 'bg-[#0D4A2E] text-[#F0D58C] border-[#C99E4C]'
+              : 'bg-[#EAE8D7] text-primary border-[#D5D2BE]'
+          }`}
         >
-          {locating ? 'Locating...' : '📍 Near Me'}
+          {locating
+            ? 'Locating...'
+            : nearMeActive
+            ? '📍 Near Me ✓'
+            : '📍 Near Me'}
         </button>
-      </div>
-
-      {/* Toggleable Live Google Map Explorer for Any City/Location */}
-      <div className="card rounded-[20px] p-3 bg-[#F3EFE2] border border-[#D5D2BE] space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-[11.5px] font-bold text-primary">
-            🗺️ Live Google Maps Masjid Radar
-          </span>
-          <button
-            type="button"
-            onClick={() => setShowNearbyRadarMap(!showNearbyRadarMap)}
-            className="text-[11px] font-bold text-[#0D4A2E] underline"
-          >
-            {showNearbyRadarMap ? 'Hide Map' : 'Show Live Map ›'}
-          </button>
-        </div>
-
-        {showNearbyRadarMap && (
-          <div className="w-full h-48 rounded-[14px] overflow-hidden border border-[#DCD8C6] fade-in">
-            <iframe
-              title="Nearby Masjids Google Map"
-              src={`https://maps.google.com/maps?q=${radarMapQuery}&t=m&z=14&output=embed`}
-              width="100%"
-              height="100%"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-            />
-          </div>
-        )}
       </div>
 
       {/* Add Any Custom Local Masjid Form */}
@@ -385,7 +409,7 @@ export default function MasjidList({
 
           <div>
             <label className="block text-[10px] font-bold uppercase text-secondary mb-1">
-              Full Address or Landmark (Used for Google Maps Navigation)
+              Full Address or Landmark
             </label>
             <input
               type="text"
@@ -404,6 +428,63 @@ export default function MasjidList({
             Save Masjid &amp; Open Map
           </button>
         </form>
+      )}
+
+      {/* 6a: Live Google Map ONLY appears if search yields 0 directory results */}
+      {showFallbackLiveMap && (
+        <div className="card rounded-[22px] p-4 bg-[#F3EFE2] border border-[#C99E4C]/50 space-y-3 fade-in">
+          <div>
+            <span className="badge-pill">Live Google Maps Search</span>
+            <h3 className="font-serif text-[17px] font-semibold text-primary mt-1">
+              &ldquo;{searchQuery}&rdquo; not in directory yet
+            </h3>
+            <p className="text-[11.5px] text-secondary mt-0.5">
+              Here is the live Google Map result for your search:
+            </p>
+          </div>
+
+          <div className="w-full h-52 rounded-[14px] overflow-hidden border border-[#DCD8C6]">
+            <iframe
+              title="Search Masjid on Google Maps"
+              src={`https://maps.google.com/maps?q=${fallbackMapQuery}&t=m&z=14&output=embed`}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setNewName(searchQuery.trim());
+              setShowAddForm(true);
+            }}
+            className="btn-primary w-full py-2.5 text-[12px] font-semibold"
+          >
+            + Add &ldquo;{searchQuery.trim()}&rdquo; to Directory
+          </button>
+        </div>
+      )}
+
+      {/* Empty state if Near Me found nothing within 15 km */}
+      {nearMeActive && !searchQuery.trim() && filteredMasjids.length === 0 && (
+        <div className="card rounded-[20px] p-5 text-center space-y-2">
+          <p className="font-serif text-[16px] font-semibold text-primary">
+            No Masjids Found Within 15 km
+          </p>
+          <p className="text-[11.5px] text-secondary">
+            Try searching for your area name above or add your local Masjid.
+          </p>
+          <button
+            type="button"
+            onClick={() => setNearMeActive(false)}
+            className="btn-secondary px-4 py-1.5 text-[11.5px] font-semibold"
+          >
+            Show All Masjids
+          </button>
+        </div>
       )}
 
       {/* Masjid Cards List */}
@@ -475,7 +556,7 @@ export default function MasjidList({
                 </div>
               </div>
 
-              {/* Action Buttons: View Map & Timetable vs Direct Google Maps Navigation */}
+              {/* Action Buttons */}
               <div className="flex items-center justify-between gap-2 pt-1">
                 <button
                   type="button"
