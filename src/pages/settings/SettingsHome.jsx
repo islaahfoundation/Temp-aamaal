@@ -29,6 +29,7 @@ export default function SettingsHome({
   onBack,
 }) {
   const [activeSubScreen, setActiveSubScreen] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const [settings, setSettings] = useState(() => {
     try {
@@ -283,6 +284,28 @@ export default function SettingsHome({
     },
   ];
 
+  // Live Search Filter
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+
+  const filteredGroups = MENU_GROUPS.map((group) => {
+    if (!normalizedQuery) return group;
+    const groupMatches = group.groupTitle.toLowerCase().includes(normalizedQuery);
+    const matchingItems = groupMatches
+      ? group.items
+      : group.items.filter(
+          (item) =>
+            item.title.toLowerCase().includes(normalizedQuery) ||
+            item.subtitle.toLowerCase().includes(normalizedQuery) ||
+            (item.badge || '').toLowerCase().includes(normalizedQuery) ||
+            item.id.toLowerCase().includes(normalizedQuery)
+        );
+    return { ...group, items: matchingItems };
+  }).filter((group) => group.items.length > 0);
+
+  const showNameCard =
+    !normalizedQuery ||
+    'primary circle member name profile'.includes(normalizedQuery);
+
   return (
     <section className="screen-section no-scrollbar px-5 pt-4 pb-6 space-y-4">
       {/* Header */}
@@ -308,26 +331,72 @@ export default function SettingsHome({
         </div>
       </div>
 
-      {/* Quick Display Name Card */}
-      <div className="card rounded-[20px] p-3.5 bg-[#F3EFE2] border border-[#D5D2BE] flex items-center justify-between gap-2">
-        <div className="flex-1">
-          <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary mb-1">
-            Primary Circle Member Name
-          </label>
-          <input
-            type="text"
-            value={state?.userName || ''}
-            onChange={(e) =>
-              updateState && updateState({ userName: e.target.value })
-            }
-            placeholder="Your Name (e.g. Ubaid)"
-            className="bg-[#F5F2E8] text-primary text-[13px] font-semibold py-1.5 px-3 rounded-xl"
-          />
-        </div>
+      {/* 9a: Live Search Settings Bar */}
+      <div className="relative">
+        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-secondary text-[13px] pointer-events-none">
+          🔍
+        </span>
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search settings (e.g., Arabic, Theme, Haptics, Reset)..."
+          className="w-full py-2.5 pl-9 pr-9 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] text-primary text-[12.5px] font-medium shadow-soft-card focus:outline-none focus:border-[#0D4A2E]"
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            aria-label="Clear search"
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#EAE8D7] text-primary text-[11px] font-bold flex items-center justify-center"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
+      {/* Quick Display Name Card */}
+      {showNameCard && (
+        <div className="card rounded-[20px] p-3.5 bg-[#F3EFE2] border border-[#D5D2BE] flex items-center justify-between gap-2">
+          <div className="flex-1">
+            <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary mb-1">
+              Primary Circle Member Name
+            </label>
+            <input
+              type="text"
+              value={state?.userName || ''}
+              onChange={(e) =>
+                updateState && updateState({ userName: e.target.value })
+              }
+              placeholder="Your Name (e.g. Ubaid)"
+              className="w-full bg-[#F5F2E8] text-primary text-[13px] font-semibold py-1.5 px-3 rounded-xl"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Empty Search State */}
+      {filteredGroups.length === 0 && !showNameCard && (
+        <div className="card rounded-[20px] p-6 text-center space-y-2 fade-in">
+          <span className="text-[22px]">🔍</span>
+          <p className="font-serif text-[16px] font-semibold text-primary">
+            No settings matched &ldquo;{searchQuery}&rdquo;
+          </p>
+          <p className="text-[11.5px] text-secondary">
+            Try searching for Language, Arabic, Theme, Audio, Haptics, or Privacy.
+          </p>
+          <button
+            type="button"
+            onClick={() => setSearchQuery('')}
+            className="btn-secondary px-4 py-1.5 text-[11.5px] font-semibold mt-1"
+          >
+            Clear Search
+          </button>
+        </div>
+      )}
+
       {/* Categorized Settings Directory */}
-      {MENU_GROUPS.map((group) => (
+      {filteredGroups.map((group) => (
         <div key={group.groupTitle} className="space-y-2">
           <h3 className="font-serif text-[15.5px] font-semibold text-[#0D4A2E] px-0.5">
             {group.groupTitle}
