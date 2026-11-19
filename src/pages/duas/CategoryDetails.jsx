@@ -3,6 +3,29 @@
 import React from 'react';
 import { DUA_CATEGORIES_META } from './DuaCategories';
 
+const SPECIAL_CATEGORY_META = {
+  saved: {
+    icon: '🔖',
+    title: 'Saved Duas',
+    subtitle: 'Your bookmarked supplications for quick daily access',
+  },
+  'all duas': {
+    icon: '🤲',
+    title: 'All Duas & Adhkar',
+    subtitle: 'Complete collection of Quranic & Prophetic supplications',
+  },
+  all: {
+    icon: '🤲',
+    title: 'All Duas & Adhkar',
+    subtitle: 'Complete collection of Quranic & Prophetic supplications',
+  },
+  'search results': {
+    icon: '🔍',
+    title: 'Search Results',
+    subtitle: 'Matching supplications from the library',
+  },
+};
+
 export default function CategoryDetails({
   categoryId = 'all',
   duas = [],
@@ -12,7 +35,17 @@ export default function CategoryDetails({
   onToggleBookmark,
   onClearCategory,
 }) {
-  const categoryMeta = DUA_CATEGORIES_META.find((c) => c.id === categoryId);
+  const normalizedId = String(categoryId || '').toLowerCase();
+
+  const categoryMeta =
+    DUA_CATEGORIES_META.find(
+      (c) => String(c.id).toLowerCase() === normalizedId
+    ) ||
+    SPECIAL_CATEGORY_META[normalizedId] || {
+      icon: '📖',
+      title: categoryId || 'Duas',
+      subtitle: 'Authentic Quranic & Prophetic supplications',
+    };
 
   const getPreviewTranslation = (dua) => {
     if (preferredLanguage === 'ur-roman' && dua.romanUrdu) return dua.romanUrdu;
@@ -23,31 +56,29 @@ export default function CategoryDetails({
 
   return (
     <div className="space-y-3">
-      {/* Category Header Banner when a specific category is selected */}
-      {categoryId !== 'all' && categoryMeta && (
-        <div className="rounded-[18px] bg-[#EAE8D7] p-3.5 border border-[#D5D2BE] flex items-center justify-between">
-          <div className="flex items-center space-x-2.5">
-            <span className="text-[22px]">{categoryMeta.icon}</span>
-            <div>
-              <h3 className="font-serif text-[16px] font-semibold text-primary">
-                {categoryMeta.title}
-              </h3>
-              <p className="text-[11px] text-secondary">
-                {categoryMeta.subtitle}
-              </p>
-            </div>
+      {/* Unified Category Header Banner (Shown for Every Category including Saved & All Duas) */}
+      <div className="rounded-[18px] bg-[#EAE8D7] p-3.5 border border-[#D5D2BE] flex items-center justify-between gap-2">
+        <div className="flex items-center space-x-2.5 min-w-0">
+          <span className="text-[22px] shrink-0">{categoryMeta.icon}</span>
+          <div className="min-w-0">
+            <h3 className="font-serif text-[16px] font-semibold text-primary truncate">
+              {categoryMeta.title}
+            </h3>
+            <p className="text-[11px] text-secondary truncate">
+              {categoryMeta.subtitle}
+            </p>
           </div>
-          {onClearCategory && (
-            <button
-              type="button"
-              onClick={onClearCategory}
-              className="px-2.5 py-1 rounded-full bg-[#F5F2E8] text-primary text-[11px] font-bold border border-[#D5D2BE]"
-            >
-              Show All
-            </button>
-          )}
         </div>
-      )}
+        {onClearCategory && (
+          <button
+            type="button"
+            onClick={onClearCategory}
+            className="px-2.5 py-1 rounded-full bg-[#F5F2E8] text-primary text-[11px] font-bold border border-[#D5D2BE] shrink-0 active:scale-95 transition"
+          >
+            Show All
+          </button>
+        )}
+      </div>
 
       {/* Duas List */}
       {duas.length === 0 ? (
