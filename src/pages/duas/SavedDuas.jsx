@@ -33,7 +33,7 @@ export default function SavedDuas({
             onClick={onBrowseAll}
             className="btn-primary px-5 py-2.5 text-[12.5px] font-semibold"
           >
-            Browse All Duas
+            Show All
           </button>
         )}
       </div>
@@ -41,24 +41,14 @@ export default function SavedDuas({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="rounded-[16px] bg-[#0F4C2B] text-white px-4 py-3 border border-[#C99E4C]/40">
-        <span className="text-[10px] font-bold uppercase tracking-wider text-[#F0D58C] block">
-          Personal Collection
-        </span>
-        <h3 className="font-serif text-[16px] font-semibold">
-          Your Bookmarked Duas ({bookmarkedDuas.length})
-        </h3>
-      </div>
-
-      <CategoryDetails
-        categoryId="all"
-        duas={bookmarkedDuas}
-        savedDuaIds={savedDuaIds}
-        preferredLanguage={preferredLanguage}
-        onSelectDua={onSelectDua}
-        onToggleBookmark={onToggleBookmark}
-      />
-    </div>
+    <CategoryDetails
+      categoryId="Saved"
+      duas={bookmarkedDuas}
+      savedDuaIds={savedDuaIds}
+      preferredLanguage={preferredLanguage}
+      onSelectDua={onSelectDua}
+      onToggleBookmark={onToggleBookmark}
+      onClearCategory={onBrowseAll}
+    />
   );
 }
