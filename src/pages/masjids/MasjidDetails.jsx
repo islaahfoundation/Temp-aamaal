@@ -27,7 +27,7 @@ const MASJID_DUAS = [
     en: 'O Allah, I ask You from Your immense bounty and grace.',
     romanUrdu: 'Aye Allah! Main Tujhse Tere fazl aur karam ka sawal karta hoon.',
     ur: 'اے اللہ! میں تجھ سے تیرے فضل کا سوال کرتا ہوں۔',
-    hi: 'ऐ अल्लाह! मैं तुझसे तेरे फ़ज़्ल और करम का सवाल करता हूँ।',
+    hi: 'ऐ अल्लाह! मैं तुझसे तेरे फ़ज़्ल का सवाल करता हूँ।',
     reference: 'Sahih Muslim 713',
   },
 ];
@@ -42,9 +42,11 @@ const LANG_TABS = [
 export default function MasjidDetails({
   masjid,
   userCoords,
+  isAdmin = false,
   isPrimaryMasjid = false,
   onSetPrimaryMasjid,
   onUpdateJamatTimes,
+  onSubmitChangeRequest,
   onBack,
 }) {
   const [travelMode, setTravelMode] = useState('walking'); // 'walking' | 'driving'
@@ -52,7 +54,6 @@ export default function MasjidDetails({
 
   if (!masjid) return null;
 
-  // Build 100% Free Keyless Google Maps Embed URL
   const mapQuery =
     masjid.lat && masjid.lng
       ? `${masjid.lat},${masjid.lng}`
@@ -60,7 +61,6 @@ export default function MasjidDetails({
 
   const freeEmbedUrl = `https://maps.google.com/maps?q=${mapQuery}&t=m&z=16&output=embed&iwloc=Near`;
 
-  // Build Official Google Maps Turn-by-Turn Navigation Link
   const destinationParam =
     masjid.lat && masjid.lng
       ? `${masjid.lat},${masjid.lng}`
@@ -183,7 +183,7 @@ export default function MasjidDetails({
           </div>
         </div>
 
-        {/* Embedded Interactive Google Map (100% Free, Zero API Key Needed) */}
+        {/* Embedded Interactive Google Map */}
         <div className="w-full h-52 rounded-[16px] overflow-hidden border border-[#DCD8C6] bg-[#EAE8D7] relative shadow-inner">
           <iframe
             title={`Google Map for ${masjid.name}`}
@@ -209,7 +209,7 @@ export default function MasjidDetails({
           }}
           className="btn-primary w-full py-3 rounded-full text-[13px] font-bold flex items-center justify-center space-x-2 shadow-md no-underline"
         >
-          <span>🧭 Start Google Maps Turn-by-Turn Navigation</span>
+          <span>🗺️ Start Google Maps Turn-by-Turn Navigation</span>
           <span>↗</span>
         </a>
       </div>
@@ -217,10 +217,12 @@ export default function MasjidDetails({
       {/* Jamaat Timetable Component */}
       <JamatTimetable
         masjid={masjid}
+        isAdmin={isAdmin}
         onUpdateJamatTimes={onUpdateJamatTimes}
+        onSubmitChangeRequest={onSubmitChangeRequest}
       />
 
-      {/* Sunnah Duas for Entering & Leaving the Masjid (Pure Arabic + Translations) */}
+      {/* Sunnah Duas for Entering & Leaving the Masjid */}
       <div className="card rounded-[22px] p-4 space-y-3 border border-[#D5D2BE]">
         <div className="flex items-center justify-between flex-wrap gap-1.5">
           <div>
@@ -269,7 +271,6 @@ export default function MasjidDetails({
                 {item.title}
               </h4>
 
-              {/* Pure Arabic Calligraphy */}
               <div className="rounded-xl bg-[#0F4C2B] px-3 py-2 text-center border border-[#C99E4C]/40">
                 <p
                   dir="rtl"
@@ -279,7 +280,6 @@ export default function MasjidDetails({
                 </p>
               </div>
 
-              {/* Selected Translation */}
               <p
                 dir={duaLang === 'ur' ? 'rtl' : 'ltr'}
                 className="text-[12px] text-[#1A3826] font-medium pt-0.5"
