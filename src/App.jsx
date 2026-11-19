@@ -88,7 +88,6 @@ export default function App() {
         }}
       />
       <ToastPill message={toastMessage} />
-      // Inside App() return:
       <GlobalAlarmWatcher onShowToast={showToast} />
     </div>
   );
