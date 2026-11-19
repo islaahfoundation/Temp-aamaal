@@ -266,7 +266,7 @@ export default function ActiveTasbih({
             onClick={() =>
               setActiveModal(activeModal === 'appearance' ? null : 'appearance')
             }
-            aria-label="Choose Background Image & Beads"
+            aria-label="Choose Background Image"
             className={`w-9 h-9 rounded-full border flex items-center justify-center transition shadow-sm ${
               activeModal === 'appearance'
                 ? 'bg-[#0D4A2E] text-[#F0D58C] border-[#C99E4C]'
@@ -299,13 +299,13 @@ export default function ActiveTasbih({
             </svg>
           </button>
 
-          {/* D. Settings Button (⚙️) */}
+          {/* D. Settings & Bead Theme Button (⚙️) */}
           <button
             type="button"
             onClick={() =>
               setActiveModal(activeModal === 'feedback' ? null : 'feedback')
             }
-            aria-label="Tasbih Settings"
+            aria-label="Tasbih Settings & Beads"
             className={`w-9 h-9 rounded-full border flex items-center justify-center transition shadow-sm ${
               activeModal === 'feedback'
                 ? 'bg-[#0D4A2E] text-[#F0D58C] border-[#C99E4C]'
@@ -562,12 +562,10 @@ export default function ActiveTasbih({
         />
       )}
 
-      {/* B. Temporary Image Wallpaper & Bead Material Picker */}
+      {/* B. Temporary Image Wallpaper Picker Only */}
       {activeModal === 'appearance' && (
         <TasbihAppearance
-          currentMaterial={materialId}
           currentBgUrl={bgUrl}
-          onSelectMaterial={(matId) => setMaterialId(matId)}
           onSelectBackground={(url) => setBgUrl(url)}
           onClose={() => setActiveModal(null)}
         />
@@ -585,11 +583,13 @@ export default function ActiveTasbih({
         />
       )}
 
-      {/* D. Settings & Haptics/Sound/Bead Theme Modal */}
+      {/* D. Settings & Bead Material Theme Modal */}
       {activeModal === 'feedback' && (
         <TasbihFeedback
           settings={settings}
+          currentMaterial={materialId}
           onUpdateSettings={setSettings}
+          onSelectMaterial={(matId) => setMaterialId(matId)}
           onClose={() => setActiveModal(null)}
         />
       )}
