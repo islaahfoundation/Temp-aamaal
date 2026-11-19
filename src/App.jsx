@@ -4,6 +4,10 @@ import { triggerHaptic } from './utils/haptics';
 import AppRouter from './router';
 import BottomNavigation from './components/BottomNavigation';
 import { ReaderModal, ToastPill } from './components/ConfirmationDialog';
+import GlobalAlarmWatcher from './components/GlobalAlarmWatcher';
+
+// Inside App() return:
+<GlobalAlarmWatcher onShowToast={showToast} />
 
 export default function App() {
   const { state, updateState, resetAll } = useAamaalState();
