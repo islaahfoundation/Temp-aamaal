@@ -2,7 +2,6 @@
 
 // src/pages/tasbih/TasbihAppearance.jsx
 import React from 'react';
-import { BEAD_MATERIAL_THEMES } from './engine/BeadCanvas';
 
 const BACKGROUND_WALLPAPERS = [
   {
@@ -23,17 +22,15 @@ const BACKGROUND_WALLPAPERS = [
 ];
 
 export default function TasbihAppearance({
-  currentMaterial = 'olivewood',
   currentBgUrl = '',
-  onSelectMaterial,
   onSelectBackground,
   onClose,
 }) {
   return (
-    <div className="absolute right-5 top-20 z-50 rounded-[24px] bg-[#F5F2E8] border border-[#C99E4C] shadow-2xl p-4 w-72 space-y-3.5 fade-in">
-      <div className="flex items-center justify-between pb-1 border-t border-[#DCD8C6]">
+    <div className="absolute right-5 top-20 z-50 rounded-[24px] bg-[#F5F2E8] border border-[#C99E4C] shadow-2xl p-4 w-72 space-y-3 fade-in">
+      <div className="flex items-center justify-between pb-1 border-b border-[#DCD8C6]">
         <span className="text-[10px] font-bold uppercase tracking-wider text-[#135332]">
-          Tasbih Visual Customisation
+          Background Wallpaper (Temporary)
         </span>
         {onClose && (
           <button
@@ -46,81 +43,39 @@ export default function TasbihAppearance({
         )}
       </div>
 
-      {/* Bead Material Theme Picker */}
-      <div className="space-y-1.5">
-        <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary">
-          Bead Material &amp; Gemstone
-        </label>
-        {Object.values(BEAD_MATERIAL_THEMES).map((mat) => {
-          const isSelected = currentMaterial === mat.id;
+      <div className="grid grid-cols-3 gap-2">
+        {BACKGROUND_WALLPAPERS.map((bg) => {
+          const isSelected = currentBgUrl === bg.url;
           return (
             <button
-              key={mat.id}
+              key={bg.id}
               type="button"
               onClick={() => {
                 try {
                   if (navigator.vibrate) navigator.vibrate(8);
                 } catch (_) {}
-                if (onSelectMaterial) onSelectMaterial(mat.id);
+                if (onSelectBackground) onSelectBackground(bg.url);
               }}
-              className={`w-full text-left rounded-xl p-2.5 border transition flex items-center justify-between ${
+              className={`h-14 rounded-xl overflow-hidden border-2 relative transition ${
                 isSelected
-                  ? 'bg-[#0D4A2E] text-white border-[#C99E4C]'
-                  : 'bg-[#FFFDF9] text-primary border-[#DCD8C6]'
+                  ? 'border-[#0D4A2E] ring-2 ring-[#C99E4C]'
+                  : 'border-[#DCD8C6]'
               }`}
             >
-              <div>
-                <h4 className="font-serif text-[13.5px] font-semibold">
-                  {mat.name}
-                </h4>
-                <p
-                  className={`text-[10px] truncate max-w-[180px] ${
-                    isSelected ? 'text-white/80' : 'text-secondary'
-                  }`}
-                >
-                  {mat.description}
-                </p>
-              </div>
-              {isSelected && <span className="text-[#F0D58C] font-bold">✓</span>}
+              {bg.url ? (
+                <img
+                  src={bg.url}
+                  alt={bg.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-[#F5F2E8] flex items-center justify-center text-[10.5px] font-bold text-[#0D4A2E]">
+                  Clean
+                </div>
+              )}
             </button>
           );
         })}
-      </div>
-
-      {/* Temporary Background Wallpaper Selector */}
-      <div className="space-y-1.5 pt-1 border-t border-[#DCD8C6]">
-        <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary">
-          Background Wallpaper (Temporary)
-        </label>
-        <div className="grid grid-cols-3 gap-1.5">
-          {BACKGROUND_WALLPAPERS.map((bg) => {
-            const isSelected = currentBgUrl === bg.url;
-            return (
-              <button
-                key={bg.id}
-                type="button"
-                onClick={() => {
-                  if (onSelectBackground) onSelectBackground(bg.url);
-                }}
-                className={`h-12 rounded-xl overflow-hidden border-2 relative transition ${
-                  isSelected ? 'border-[#0D4A2E] ring-2 ring-[#C99E4C]' : 'border-transparent'
-                }`}
-              >
-                {bg.url ? (
-                  <img
-                    src={bg.url}
-                    alt={bg.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#F5F2E8] flex items-center justify-center text-[10px] font-bold text-primary">
-                    Clean
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
       </div>
     </div>
   );
