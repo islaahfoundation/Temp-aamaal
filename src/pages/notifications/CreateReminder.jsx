@@ -75,7 +75,6 @@ export default function CreateReminder({
   const [category, setCategory] = useState('Daily Aamaal');
   const [linkedAamaalId, setLinkedAamaalId] = useState('durood_313');
   const [times, setTimes] = useState(['07:30']);
-  const [newTimeInput, setNewTimeInput] = useState('13:30');
   const [selectedDays, setSelectedDays] = useState(WEEK_DAYS);
   const [arabic, setArabic] = useState(
     'اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ وَعَلَى آلِ مُحَمَّدٍ'
@@ -94,23 +93,24 @@ export default function CreateReminder({
     setTitle(tpl.title);
     setCategory(tpl.category);
     setLinkedAamaalId(tpl.linkedAamaalId || '');
-    setTimes(tpl.times || ['07:30']);
+    setTimes(tpl.times ? [...tpl.times] : ['07:30']);
     setSelectedDays(tpl.days);
     setArabic(tpl.arabic);
     setTranslation(tpl.translation);
     setRomanUrdu(tpl.romanUrdu);
   };
 
-  const handleAddTime = () => {
-    if (!newTimeInput) return;
-    if (!times.includes(newTimeInput)) {
-      setTimes((prev) => [...prev, newTimeInput].sort());
-    }
+  const handleChangeTimeAt = (index, newValue) => {
+    setTimes((prev) => prev.map((t, idx) => (idx === index ? newValue : t)));
   };
 
-  const handleRemoveTime = (t) => {
+  const handleAddTimeSlot = () => {
+    setTimes((prev) => [...prev, '13:30']);
+  };
+
+  const handleRemoveTimeAt = (index) => {
     if (times.length <= 1) return;
-    setTimes((prev) => prev.filter((item) => item !== t));
+    setTimes((prev) => prev.filter((_, idx) => idx !== index));
   };
 
   const toggleDay = (day) => {
@@ -121,12 +121,15 @@ export default function CreateReminder({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!title.trim() || times.length === 0) return;
+    const cleanedTimes = Array.from(
+      new Set(times.filter((t) => Boolean(t && t.trim())))
+    ).sort();
+
+    if (!title.trim() || cleanedTimes.length === 0) return;
+
     try {
       if (navigator.vibrate) navigator.vibrate([15, 30, 15]);
     } catch (_) {}
-
-    const sortedTimes = [...times].sort();
 
     if (onSaveReminder) {
       onSaveReminder({
@@ -134,8 +137,8 @@ export default function CreateReminder({
         title: title.trim(),
         category,
         linkedAamaalId: linkedAamaalId || '',
-        time: sortedTimes[0],
-        times: sortedTimes,
+        time: cleanedTimes[0],
+        times: cleanedTimes,
         days: selectedDays.length > 0 ? selectedDays : WEEK_DAYS,
         icon: '🔔',
         arabic,
@@ -205,7 +208,7 @@ export default function CreateReminder({
         />
       </div>
 
-      {/* Category & Linked Aamaal (Auto-Stop Once Completed) */}
+      {/* Category & Auto-Stop Linked Amal */}
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary mb-1">
@@ -242,8 +245,8 @@ export default function CreateReminder({
         </div>
       </div>
 
-      {/* Multi-Time Daily Schedule Builder */}
-      <div className="space-y-2 rounded-2xl bg-[#F5F2E8] p-3 border border-[#DCD8C6]">
+      {/* Directly Editable Multi-Time Daily Schedule */}
+      <div className="space-y-2.5 rounded-2xl bg-[#F5F2E8] p-3 border border-[#DCD8C6]">
         <div className="flex items-center justify-between flex-wrap gap-1">
           <label className="text-[10px] font-bold uppercase tracking-wider text-primary">
             Daily Alarm Times ({times.length})
@@ -253,7 +256,7 @@ export default function CreateReminder({
               <button
                 key={preset.id}
                 type="button"
-                onClick={() => setTimes(preset.times)}
+                onClick={() => setTimes([...preset.times])}
                 className="px-2 py-0.5 rounded-full bg-[#DCE3C8] text-[#0D4A2E] text-[9.5px] font-bold"
               >
                 {preset.label}
@@ -263,46 +266,44 @@ export default function CreateReminder({
         </div>
 
         <p className="text-[10.5px] text-secondary">
-          Alarms will repeat at these times until the linked Amal is marked completed for the day.
+          Tap any time below to change it directly. Alarms pause once the linked Amal is completed today.
         </p>
 
-        {/* Active Time Chips */}
-        <div className="flex flex-wrap gap-1.5">
-          {times.map((t) => (
-            <span
-              key={t}
-              className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-[#0D4A2E] text-[#F0D58C] text-[11.5px] font-bold"
-            >
-              <span>⏰ {t}</span>
+        {/* Editable Time Pickers List */}
+        <div className="space-y-1.5">
+          {times.map((t, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <span className="text-[11px] font-bold text-secondary w-14 shrink-0">
+                Alarm {index + 1}
+              </span>
+              <input
+                type="time"
+                required
+                value={t}
+                onChange={(e) => handleChangeTimeAt(index, e.target.value)}
+                className="flex-1 bg-white text-primary text-[13px] font-bold py-1.5 px-2.5 rounded-xl border border-[#D5D2BE]"
+              />
               {times.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => handleRemoveTime(t)}
-                  className="text-white/80 hover:text-white text-[10px] font-bold"
+                  onClick={() => handleRemoveTimeAt(index)}
+                  aria-label="Remove alarm time"
+                  className="w-8 h-8 rounded-xl bg-red-50 text-red-600 border border-red-200 text-[12px] font-bold flex items-center justify-center shrink-0"
                 >
                   ✕
                 </button>
               )}
-            </span>
+            </div>
           ))}
         </div>
 
-        {/* Add Another Time Picker */}
-        <div className="flex items-center space-x-2 pt-1">
-          <input
-            type="time"
-            value={newTimeInput}
-            onChange={(e) => setNewTimeInput(e.target.value)}
-            className="flex-1 bg-white text-primary text-[12.5px] font-bold py-1.5 px-2.5 rounded-xl border border-[#D5D2BE]"
-          />
-          <button
-            type="button"
-            onClick={handleAddTime}
-            className="px-3.5 py-1.5 rounded-xl bg-[#EAE8D7] border border-[#0D4A2E]/30 text-[#0D4A2E] text-[11.5px] font-bold"
-          >
-            + Add Time
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={handleAddTimeSlot}
+          className="w-full py-1.5 rounded-xl bg-[#EAE8D7] border border-[#0D4A2E]/30 text-[#0D4A2E] text-[11.5px] font-bold"
+        >
+          + Add Another Time
+        </button>
       </div>
 
       {/* Days of the Week Selector */}
