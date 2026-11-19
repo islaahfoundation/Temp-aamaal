@@ -21,16 +21,11 @@ export default function DuasHome({
   const [localSearch, setLocalSearch] = useState(externalSearchQuery || '');
   const sectionRef = useRef(null);
 
-  const [showingSavedOnly, setShowingSavedOnly] = useState(() => {
-    const flag = localStorage.getItem('aamaal_open_saved_duas') === 'true';
-    return flag || state?.activeDuaFilter === 'saved';
-  });
-
+  // null = show Category Grid only (no dua list)
   const [activeCategory, setActiveCategory] = useState(() => {
-    if (state?.activeDuaFilter && state.activeDuaFilter !== 'saved') {
-      return state.activeDuaFilter;
-    }
-    return 'all';
+    const flag = localStorage.getItem('aamaal_open_saved_duas') === 'true';
+    if (flag || state?.activeDuaFilter === 'saved') return 'saved';
+    return null;
   });
 
   const [selectedDua, setSelectedDua] = useState(null);
@@ -56,25 +51,21 @@ export default function DuasHome({
     }
   }, [externalSearchQuery]);
 
-  // Always start at top when opening or closing a Dua
+  // Always start at top when opening/closing a Dua or switching category
   useEffect(() => {
     if (sectionRef.current) {
       sectionRef.current.scrollTop = 0;
     }
-  }, [selectedDua]);
+  }, [selectedDua, activeCategory]);
 
   // Handle routing directly to Saved Duas from Home Quick Actions
   useEffect(() => {
     const flag = localStorage.getItem('aamaal_open_saved_duas') === 'true';
     if (flag || state?.activeDuaFilter === 'saved') {
-      setShowingSavedOnly(true);
-      setActiveCategory('all');
+      setActiveCategory('saved');
       try {
         localStorage.removeItem('aamaal_open_saved_duas');
       } catch (_) {}
-    } else if (state?.activeDuaFilter) {
-      setShowingSavedOnly(false);
-      setActiveCategory(state.activeDuaFilter);
     }
   }, [state?.activeDuaFilter]);
 
@@ -88,15 +79,14 @@ export default function DuasHome({
   const savedDuaIds = state?.savedDuaIds || [];
 
   const handleCategoryChange = (catId) => {
-    if (catId === 'saved') {
-      setShowingSavedOnly(true);
-      setActiveCategory('all');
-      if (onSelectFilter) onSelectFilter('saved');
-    } else {
-      setShowingSavedOnly(false);
-      setActiveCategory(catId);
-      if (onSelectFilter) onSelectFilter(catId);
-    }
+    setActiveCategory(catId);
+    if (onSelectFilter) onSelectFilter(catId || 'all');
+  };
+
+  const handleBackToCategories = () => {
+    setActiveCategory(null);
+    setLocalSearch('');
+    if (onSelectFilter) onSelectFilter('all');
   };
 
   const handleBookmarkClick = (id) => {
@@ -119,6 +109,7 @@ export default function DuasHome({
   // Filter Duas by Search & Category
   const filteredDuas = DEFAULT_DUAS_LIBRARY.filter((dua) => {
     if (
+      activeCategory &&
       activeCategory !== 'all' &&
       activeCategory !== 'saved' &&
       dua.category.toLowerCase() !== activeCategory.toLowerCase()
@@ -153,6 +144,8 @@ export default function DuasHome({
     );
   }
 
+  const isSearching = Boolean(localSearch.trim());
+
   return (
     <section ref={sectionRef} className="screen-section no-scrollbar px-5 pt-4 pb-6">
       {/* Top Header */}
@@ -186,42 +179,45 @@ export default function DuasHome({
         />
       )}
 
-      {/* Search Bar Only */}
+      {/* Search Bar */}
       <DuaSearch
         searchQuery={localSearch}
         onSearchChange={setLocalSearch}
       />
 
-      {/* Categories Grid (All Duas + Saved at start) */}
-      {!localSearch.trim() && (
+      {/* Show ONLY Category Grid when no category is selected and not searching */}
+      {!activeCategory && !isSearching ? (
         <DuaCategories
-          activeCategory={activeCategory}
-          showingSavedOnly={showingSavedOnly}
+          activeCategory=""
+          showingSavedOnly={false}
           savedCount={savedDuaIds.length}
           duasList={DEFAULT_DUAS_LIBRARY}
           onSelectCategory={handleCategoryChange}
         />
-      )}
-
-      {/* Saved Duas View vs Category Browse View */}
-      {showingSavedOnly ? (
+      ) : activeCategory === 'saved' && !isSearching ? (
         <SavedDuas
           allDuas={DEFAULT_DUAS_LIBRARY}
           savedDuaIds={savedDuaIds}
           preferredLanguage={preferences.language}
           onSelectDua={setSelectedDua}
           onToggleBookmark={onToggleBookmark}
-          onBrowseAll={() => handleCategoryChange('all')}
+          onBrowseAll={handleBackToCategories}
         />
       ) : (
         <CategoryDetails
-          categoryId={activeCategory}
+          categoryId={
+            isSearching
+              ? 'Search Results'
+              : activeCategory === 'all'
+              ? 'All Duas'
+              : activeCategory
+          }
           duas={filteredDuas}
           savedDuaIds={savedDuaIds}
           preferredLanguage={preferences.language}
           onSelectDua={setSelectedDua}
           onToggleBookmark={onToggleBookmark}
-          onClearCategory={() => handleCategoryChange('all')}
+          onClearCategory={handleBackToCategories}
         />
       )}
     </section>
