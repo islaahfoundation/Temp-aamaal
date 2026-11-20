@@ -8,6 +8,7 @@ import LogoutConfirmation from './LogoutConfirmation';
 
 const LOGS_STORAGE_KEY = 'aamaal_circle_logs_v1';
 const PROFILES_STORAGE_KEY = 'aamaal_circle_profiles_v1';
+const ACTIVE_PROFILE_KEY = 'aamaal_active_profile_id';
 
 export default function AccountDashboard({
   state,
@@ -39,7 +40,17 @@ export default function AccountDashboard({
     ];
   });
 
-  const [activeProfileId, setActiveProfileId] = useState('primary_member');
+  const [activeProfileId, setActiveProfileId] = useState(() => {
+    try {
+      return (
+        localStorage.getItem(ACTIVE_PROFILE_KEY) ||
+        state?.activeProfileId ||
+        'primary_member'
+      );
+    } catch (_) {
+      return 'primary_member';
+    }
+  });
 
   const [allLogs, setAllLogs] = useState(() => {
     try {
@@ -63,6 +74,20 @@ export default function AccountDashboard({
 
   const primaryProfile = profiles.find((p) => p.isPrimary) || profiles[0];
   const inspectedMember = profiles.find((p) => p.id === inspectedMemberId) || null;
+
+  const activateMember = (member) => {
+    if (!member) return;
+    setActiveProfileId(member.id);
+    try {
+      localStorage.setItem(ACTIVE_PROFILE_KEY, String(member.id));
+    } catch (_) {}
+    if (updateState) {
+      updateState({
+        activeProfileId: member.id,
+        activeProfileName: member.name,
+      });
+    }
+  };
 
   const handleUpdateMemberLog = (memberId, aamaalId, dateKey, newCount) => {
     const logId = `${dateKey}_${aamaalId}_${memberId}`;
@@ -171,7 +196,8 @@ export default function AccountDashboard({
               allLogs={allLogs}
               onUpdateMemberLog={handleUpdateMemberLog}
               onMakeActiveProfile={(id) => {
-                setActiveProfileId(id);
+                const found = profiles.find((p) => p.id === id);
+                if (found) activateMember(found);
                 if (onShowToast) onShowToast(`${inspectedMember.name} is now active`);
               }}
               onSaveMemberDetails={(id, updates) => {
@@ -191,7 +217,7 @@ export default function AccountDashboard({
                 setProfiles((prev) => prev.filter((p) => p.id !== id));
                 setAllLogs((prev) => prev.filter((l) => l.memberId !== id));
                 setInspectedMemberId(null);
-                if (activeProfileId === id) setActiveProfileId(primaryProfile.id);
+                if (activeProfileId === id) activateMember(primaryProfile);
                 if (onShowToast) onShowToast('Family profile removed');
               }}
               onBack={() => setInspectedMemberId(null)}
@@ -204,7 +230,7 @@ export default function AccountDashboard({
                   defaultCountry={primaryProfile?.country || 'India'}
                   onAddMember={(newMember) => {
                     setProfiles((prev) => [...prev, newMember]);
-                    setActiveProfileId(newMember.id);
+                    activateMember(newMember);
                     setShowAddFamily(false);
                     if (onShowToast) {
                       onShowToast(`${newMember.name} added to your family circle!`);
@@ -218,13 +244,17 @@ export default function AccountDashboard({
                 profiles={profiles}
                 activeProfileId={activeProfileId}
                 onSelectProfile={(id) => {
-                  setActiveProfileId(id);
                   const found = profiles.find((p) => p.id === id);
-                  if (found && onShowToast) {
-                    onShowToast(`Active profile: ${found.name}`);
+                  if (found) {
+                    activateMember(found);
+                    if (onShowToast) onShowToast(`Selected: ${found.name}`);
                   }
                 }}
-                onInspectMember={(member) => setInspectedMemberId(member.id)}
+                onContinue={(member) => {
+                  activateMember(member);
+                  if (onShowToast) onShowToast(`Viewing ${member.name}'s Aamaal`);
+                  if (onNavigateTab) onNavigateTab('aamaal');
+                }}
                 onOpenAddFamily={() => setShowAddFamily(true)}
               />
             </>
