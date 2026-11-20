@@ -1,10 +1,11 @@
 //Renders the 4 primary quick-action cards (Daily Aamaal, Digital Tasbih, Heart Check-In, Duas Library) plus a "View All Shortcuts" button that opens AllShortcuts.jsx.
 
 // src/components/QuickActions.jsx
+// src/components/QuickActions.jsx
 import React from 'react';
 // Assuming the high-res custom hand-dua image is saved here. 
 // Use '/icons/dua-icon.png' directly in image src if you prefer public folder path.
-import duaIcon from '../assets/icons/dua-icon.webp'; 
+import duaIcon from '../assets/icons/dua-icon.png'; 
 
 export default function QuickActions({
   onNavigateTab,
