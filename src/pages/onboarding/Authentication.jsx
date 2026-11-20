@@ -53,9 +53,9 @@ export default function Authentication() {
   };
 
   return (
-    <section className="screen-section relative overflow-hidden bg-[#FAF8F2] px-5 pt-3.5 pb-4 flex flex-col justify-between min-h-[100dvh] select-none">
+    <section className="screen-section relative overflow-hidden bg-[#FAF8F2] px-5 pt-2.5 pb-3 flex flex-col justify-between h-[100dvh] select-none">
       {/* Top Navigation Bar */}
-      <div className="relative z-10 flex items-center justify-between">
+      <div className="relative z-20 flex items-center justify-between shrink-0">
         <button
           type="button"
           onClick={() => navigate(-1)}
@@ -86,8 +86,8 @@ export default function Authentication() {
       </div>
 
       {/* Main Centered Content */}
-      <div className="relative z-10 w-full max-w-[360px] mx-auto my-auto py-1">
-        {/* Larger Brand Logo & Tagline */}
+      <div className="relative z-10 w-full max-w-[360px] mx-auto my-auto">
+        {/* Large Brand Logo & Tagline */}
         <div className="flex flex-col items-center text-center">
           <img
             src="./img/logo.png"
@@ -95,33 +95,33 @@ export default function Authentication() {
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
-            className="w-60 h-44 -mb-9 object-contain -mb-7"
+            className="w-48 h-36 object-contain -mt-4 -mb-6 pointer-events-none"
           />
-          <h2 className="font-serif text-[42px] font-bold text-[#0D4A2E] leading-none tracking-tight">
+          <h2 className="font-serif text-[38px] font-bold text-[#0D4A2E] leading-none tracking-tight">
             Aamaal
           </h2>
-          <p className="text-[15.5px] font-medium text-[#1F3528] mt-1.5">
+          <p className="text-[14.5px] font-medium text-[#1F3528] mt-1">
             Live with Purpose
           </p>
         </div>
 
         {/* Dynamic Greeting */}
-        <div className="text-center mt-4 mb-3.5">
-          <h1 className="font-serif text-[26px] font-bold text-[#14261C] leading-tight">
+        <div className="text-center mt-3 mb-2.5">
+          <h1 className="font-serif text-[24px] font-bold text-[#14261C] leading-tight">
             {isReturningUser ? 'Welcome Back' : 'Welcome'}
           </h1>
-          <p className="text-[13px] text-[#4E5953] mt-0.5">
+          <p className="text-[12.5px] text-[#4E5953] mt-0.5">
             Sign in to continue
           </p>
         </div>
 
         {/* Sign-In Form */}
-        <form onSubmit={handleSignIn} className="space-y-2.5">
+        <form onSubmit={handleSignIn} className="space-y-2">
           {/* Email or Phone Input */}
           <div className="relative flex items-center">
             <span className="absolute left-3.5 text-[#4E5953] pointer-events-none">
               <svg
-                className="w-[18px] h-[18px]"
+                className="w-[17px] h-[17px]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -138,7 +138,7 @@ export default function Authentication() {
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               placeholder="Email or Phone Number"
-              className="w-full h-[45px] pl-11 pr-4 rounded-[14px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13.5px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition"
+              className="w-full h-[42px] pl-10 pr-4 rounded-[13px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition"
             />
           </div>
 
@@ -146,7 +146,7 @@ export default function Authentication() {
           <div className="relative flex items-center">
             <span className="absolute left-3.5 text-[#4E5953] pointer-events-none">
               <svg
-                className="w-[18px] h-[18px]"
+                className="w-[17px] h-[17px]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -163,7 +163,7 @@ export default function Authentication() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full h-[45px] pl-11 pr-11 rounded-[14px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13.5px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition"
+              className="w-full h-[42px] pl-10 pr-10 rounded-[13px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition"
             />
             <button
               type="button"
@@ -173,7 +173,7 @@ export default function Authentication() {
             >
               {showPassword ? (
                 <svg
-                  className="w-[18px] h-[18px]"
+                  className="w-[17px] h-[17px]"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -186,7 +186,7 @@ export default function Authentication() {
                 </svg>
               ) : (
                 <svg
-                  className="w-[18px] h-[18px]"
+                  className="w-[17px] h-[17px]"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -203,14 +203,14 @@ export default function Authentication() {
           </div>
 
           {/* Remember Me & Forgot Password */}
-          <div className="flex items-center justify-between pt-0.5 pb-1">
+          <div className="flex items-center justify-between pt-0.5 pb-0.5">
             <label className="flex items-center space-x-2 cursor-pointer">
               <button
                 type="button"
                 role="checkbox"
                 aria-checked={rememberMe}
                 onClick={() => setRememberMe((prev) => !prev)}
-                className={`w-[18px] h-[18px] rounded-[5px] flex items-center justify-center border transition ${
+                className={`w-[17px] h-[17px] rounded-[5px] flex items-center justify-center border transition ${
                   rememberMe
                     ? 'bg-[#0D4A2E] border-[#0D4A2E] text-white'
                     : 'bg-white border-[#C9C5B4]'
@@ -230,7 +230,7 @@ export default function Authentication() {
                   </svg>
                 )}
               </button>
-              <span className="text-[12.5px] font-medium text-[#1F3528]">
+              <span className="text-[12px] font-medium text-[#1F3528]">
                 Remember me
               </span>
             </label>
@@ -238,7 +238,7 @@ export default function Authentication() {
             <button
               type="button"
               onClick={() => navigate('/onboarding/recovery')}
-              className="text-[12.5px] font-semibold text-[#0D4A2E] hover:underline"
+              className="text-[12px] font-semibold text-[#0D4A2E] hover:underline"
             >
               Forgot Password?
             </button>
@@ -247,16 +247,16 @@ export default function Authentication() {
           {/* Primary Sign In Button */}
           <button
             type="submit"
-            className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#0B462B] via-[#135B39] to-[#083B23] text-white text-[15px] font-semibold shadow-md active:scale-[0.98] transition"
+            className="w-full h-[44px] rounded-full bg-gradient-to-r from-[#0B462B] via-[#135B39] to-[#083B23] text-white text-[14.5px] font-semibold shadow-md active:scale-[0.98] transition"
           >
             Sign In
           </button>
         </form>
 
         {/* OR Divider */}
-        <div className="flex items-center my-3">
+        <div className="flex items-center my-2">
           <div className="flex-1 h-[1px] bg-[#E2DEC9]" />
-          <span className="px-3 text-[12px] font-medium text-[#4E5953]">or</span>
+          <span className="px-3 text-[11.5px] font-medium text-[#4E5953]">or</span>
           <div className="flex-1 h-[1px] bg-[#E2DEC9]" />
         </div>
 
@@ -264,9 +264,9 @@ export default function Authentication() {
         <button
           type="button"
           onClick={() => finishAuth('Continue with Google')}
-          className="w-full h-[45px] rounded-full bg-[#FDFCF8] border border-[#DDD9C8] shadow-sm flex items-center justify-center space-x-2.5 text-[13.5px] font-semibold text-[#14261C] active:scale-[0.98] transition"
+          className="w-full h-[42px] rounded-full bg-[#FDFCF8] border border-[#DDD9C8] shadow-sm flex items-center justify-center space-x-2.5 text-[13px] font-semibold text-[#14261C] active:scale-[0.98] transition"
         >
-          <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24">
+          <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24">
             <path
               fill="#4285F4"
               d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
@@ -289,7 +289,7 @@ export default function Authentication() {
       </div>
 
       {/* Bottom Register Link */}
-      <footer className="relative z-10 text-center pb-2.5 pt-2">
+      <footer className="relative z-10 text-center pb-1.5 pt-1 shrink-0">
         <p className="text-[12.5px] text-[#4E5953]">
           Don&apos;t have an account?{' '}
           <button
@@ -304,7 +304,7 @@ export default function Authentication() {
 
       {/* Subtle Bottom Mosque Skyline Silhouette */}
       <svg
-        className="pointer-events-none absolute inset-x-0 bottom-0 w-full h-16 opacity-30"
+        className="pointer-events-none absolute inset-x-0 bottom-0 w-full h-14 opacity-30"
         viewBox="0 0 400 70"
         preserveAspectRatio="none"
         fill="none"
