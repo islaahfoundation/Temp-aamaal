@@ -1,7 +1,7 @@
 //The complete interactive Tasbih screen matching Image 3's layout in our Cream, Deep Emerald & Gold palette.
 
 // src/pages/tasbih/ActiveTasbih.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BeadEngine from './engine/BeadEngine';
 import ProgressRing from './engine/ProgressRing';
 import DhikrSelection, { PREDEFINED_DHIKRS } from './DhikrSelection';
@@ -66,9 +66,30 @@ export default function ActiveTasbih({
     return [];
   });
 
-  // Active modal / popover state:
-  // null | 'info' | 'dhikr' | 'custom_dhikr' | 'goal' | 'appearance' | 'feedback' | 'history' | 'completion'
+  // Active modal / popover state
   const [activeModal, setActiveModal] = useState(null);
+
+  // Floating +1 / -1 feedback badge state
+  const [deltaFeedback, setDeltaFeedback] = useState(null); // { value: '+1' | '-1', key: number }
+  const deltaTimerRef = useRef(null);
+
+  // Auto-hide gesture instruction pill after 3 seconds
+  const [showGestureHint, setShowGestureHint] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowGestureHint(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const triggerDeltaBadge = (val) => {
+    if (deltaTimerRef.current) clearTimeout(deltaTimerRef.current);
+    setDeltaFeedback({ value: val, key: Date.now() });
+    deltaTimerRef.current = setTimeout(() => {
+      setDeltaFeedback(null);
+    }, 650);
+  };
 
   // Persist current session state
   useEffect(() => {
@@ -112,6 +133,7 @@ export default function ActiveTasbih({
     if (!timerActive) setTimerActive(true);
     const nextCount = count + 1;
     setCount(nextCount);
+    triggerDeltaBadge('+1');
 
     if (settings.hapticsEnabled !== false) {
       if (nextCount % 33 === 0) {
@@ -171,6 +193,7 @@ export default function ActiveTasbih({
   const handleUndoBead = () => {
     if (count <= 0) return;
     setCount((prev) => Math.max(prev - 1, 0));
+    triggerDeltaBadge('-1');
 
     if (settings.hapticsEnabled !== false) {
       HapticEngine.triggerBeadUndo(true);
@@ -320,8 +343,8 @@ export default function ActiveTasbih({
         </div>
       </div>
 
-      {/* 2. TOP DHIKR SELECTOR & GOAL CARD */}
-      <div className="relative z-20 rounded-[22px] bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card p-2.5 flex items-center justify-between shrink-0">
+      {/* 2. TOP DHIKR SELECTOR & GOAL CARD (Added spacing from header with mt-2.5) */}
+      <div className="relative z-20 mt-2.5 rounded-[22px] bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card p-2.5 flex items-center justify-between shrink-0">
         {/* Left: Circular Arabic Badge + Allahu Akbar Dropdown */}
         <button
           type="button"
@@ -378,7 +401,7 @@ export default function ActiveTasbih({
         </button>
       </div>
 
-      {/* 3. MIDDLE ARENA: Floating Undo/Reset Buttons + 3D Scrolling Bead Loop */}
+      {/* 3. MIDDLE ARENA: Floating Undo/Reset Buttons + 3D Scrolling Bead Loop + Floating +1/-1 */}
       <div className="relative z-10 flex-1 min-h-0 flex flex-col justify-center">
         {/* Top-Right Undo (-1) & Reset Buttons */}
         <div className="absolute right-0 top-2 z-20 flex items-center space-x-2">
@@ -400,6 +423,20 @@ export default function ActiveTasbih({
           </button>
         </div>
 
+        {/* Floating +1 / -1 Pill Badge */}
+        {deltaFeedback && (
+          <div
+            key={deltaFeedback.key}
+            className={`pointer-events-none absolute left-[62%] top-[54%] -translate-y-1/2 z-30 px-3 py-1 rounded-full font-sans text-[14px] font-bold shadow-lg border transition-all duration-300 fade-in ${
+              deltaFeedback.value === '+1'
+                ? 'bg-[#0D4A2E]/95 text-[#F0D58C] border-[#C99E4C]'
+                : 'bg-[#7F1D1D]/95 text-[#FECACA] border-[#F87171]/60'
+            }`}
+          >
+            {deltaFeedback.value}
+          </div>
+        )}
+
         {/* Interactive Photorealistic 3D Bead Loop */}
         <BeadEngine
           count={count}
@@ -409,8 +446,14 @@ export default function ActiveTasbih({
           onUndoBead={handleUndoBead}
         />
 
-        {/* Gesture Instruction Pill */}
-        <div className="mx-auto w-full max-w-[340px] rounded-full bg-[#EAE8D7]/90 border border-[#D5D2BE] px-4 py-1.5 text-center shadow-sm -mt-1 relative z-20 shrink-0">
+        {/* Auto-Hiding Gesture Instruction Pill (Shows for 3 seconds, then hides) */}
+        <div
+          className={`mx-auto w-full max-w-[340px] rounded-full bg-[#EAE8D7]/90 border border-[#D5D2BE] px-4 py-1.5 text-center shadow-sm -mt-1 relative z-20 shrink-0 transition-all duration-500 ${
+            showGestureHint
+              ? 'opacity-100 translate-y-0'
+              : 'opacity-0 translate-y-2 pointer-events-none'
+          }`}
+        >
           <p className="text-[11px] font-medium text-[#1A3826]">
             Tap or pull down anywhere to begin • Long swipe up to undo
           </p>
@@ -471,7 +514,7 @@ export default function ActiveTasbih({
 
       {/* ================= MODALS & POPOVERS ================= */}
 
-      {/* A. Interactive Gesture Guide Popup (Without Rapid Tap) */}
+      {/* A. Interactive Gesture Guide Popup */}
       {activeModal === 'info' && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 fade-in">
           <div className="w-full max-w-sm rounded-[26px] bg-[#F5F2E8] border-2 border-[#C99E4C] shadow-2xl p-5 space-y-4">
