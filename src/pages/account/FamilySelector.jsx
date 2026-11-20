@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 
 function DefaultAvatar({ name = '' }) {
   const initial = name.trim() ? name.trim()[0].toUpperCase() : 'A';
@@ -17,8 +16,6 @@ export default function FamilySelector({
   onOpenAddFamily,
   onContinue,
 }) {
-  const navigate = useNavigate();
-
   const activeMember =
     profiles.find((m) => m.id === activeProfileId) || profiles[0] || null;
 
@@ -36,31 +33,19 @@ export default function FamilySelector({
       if (navigator.vibrate) navigator.vibrate(18);
       localStorage.setItem('aamaal_active_profile_id', String(activeMember.id));
     } catch (_) {}
-
-    if (onSelectProfile) onSelectProfile(activeMember.id);
-
-    if (onContinue) {
-      onContinue(activeMember);
-    } else {
-      navigate('/aamaal', {
-        state: {
-          profileId: activeMember.id,
-          profile: activeMember,
-        },
-      });
-    }
+    if (onContinue) onContinue(activeMember);
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#FAF8F2] px-5 pt-7 pb-5 flex flex-col justify-between min-h-[100dvh] select-none">
+    <div className="relative overflow-hidden rounded-[24px] bg-[#FAF8F2] px-4 pt-5 pb-4 flex flex-col justify-between min-h-[520px] select-none">
       {/* Main Content */}
-      <div className="relative z-10 w-full max-w-[380px] mx-auto flex-1 flex flex-col">
+      <div className="relative z-10 w-full flex-1 flex flex-col">
         {/* Header */}
-        <div className="text-center mb-6">
-          <h1 className="font-serif text-[26px] font-bold text-[#14261C] leading-tight">
+        <div className="text-center mb-5">
+          <h1 className="font-serif text-[25px] font-bold text-[#14261C] leading-tight">
             Select a Profile
           </h1>
-          <p className="text-[13px] text-[#4E5953] mt-1">
+          <p className="text-[12.5px] text-[#4E5953] mt-1">
             Choose whose Aamaal you want to view
           </p>
         </div>
@@ -98,10 +83,10 @@ export default function FamilySelector({
                   )}
 
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-serif text-[17.5px] font-bold text-[#14261C] leading-snug truncate">
+                    <h3 className="font-serif text-[17px] font-bold text-[#14261C] leading-snug truncate">
                       {member.name}
                     </h3>
-                    <p className="text-[12.5px] text-[#55615A] mt-0.5 truncate">
+                    <p className="text-[12px] text-[#55615A] mt-0.5 truncate">
                       {subtitleParts.join(' • ')}
                     </p>
                   </div>
@@ -166,7 +151,7 @@ export default function FamilySelector({
       </div>
 
       {/* Bottom Continue CTA */}
-      <footer className="relative z-10 w-full max-w-[380px] mx-auto pt-6 pb-1 shrink-0">
+      <footer className="relative z-10 w-full pt-6 pb-1 shrink-0">
         <button
           type="button"
           onClick={handleContinue}
@@ -190,12 +175,11 @@ export default function FamilySelector({
           </linearGradient>
         </defs>
         <rect width="400" height="90" fill="url(#familySkylineGlow)" />
-        {/* Center Mosque Dome & Minarets */}
         <path
           d="M0 90V64h18V36l3-12 3 12v28h14c3-14 12-22 22-22s19 8 22 22h18V46l2.5-9 2.5 9v18h36V38l3-11 3 11v26h14c4-18 17-30 31-30s27 12 31 30h14V38l3-11 3 11v26h36V46l2.5-9 2.5 9v18h18c3-14 12-22 22-22s19 8 22 22h14V36l3-12 3 12v28h18v26H0z"
           fill="#7D9B84"
         />
       </svg>
-    </section>
+    </div>
   );
 }
