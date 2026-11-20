@@ -1,15 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Authentication() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [showLoginForm, setShowLoginForm] = useState(false);
 
-  const finishOnboarding = (exitAction = 'Get Started') => {
+  // Detect whether this user has visited/onboarded before
+  const isReturningUser = useMemo(() => {
     try {
-      if (navigator.vibrate) navigator.vibrate(25);
+      return Boolean(
+        localStorage.getItem('aamaal_onboarded') ||
+          localStorage.getItem('aamaal_user_email') ||
+          localStorage.getItem('aamaal_onboarding_meta')
+      );
+    } catch (_) {
+      return false;
+    }
+  }, []);
+
+  const [identifier, setIdentifier] = useState(() => {
+    try {
+      return localStorage.getItem('aamaal_user_email') || '';
+    } catch (_) {
+      return '';
+    }
+  });
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [showHelpModal, setShowHelpModal] = useState(false);
+
+  const finishAuth = (exitAction = 'Sign In') => {
+    try {
+      if (navigator.vibrate) navigator.vibrate(20);
       localStorage.setItem('aamaal_onboarded', 'true');
+      if (rememberMe && identifier.trim()) {
+        localStorage.setItem('aamaal_user_email', identifier.trim());
+      }
       localStorage.setItem(
         'aamaal_onboarding_meta',
         JSON.stringify({
@@ -21,157 +47,316 @@ export default function Authentication() {
     navigate('/home', { replace: true });
   };
 
-  const handleQuickLogin = (e) => {
+  const handleSignIn = (e) => {
     e.preventDefault();
-    if (email.trim()) {
-      localStorage.setItem('aamaal_user_email', email.trim());
-    }
-    finishOnboarding('Logged In');
+    finishAuth('Sign In');
   };
 
   return (
-    <section className="screen-section no-scrollbar px-5 pt-6 pb-6 flex flex-col justify-between">
-      <div>
-        {/* Top Brand Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <img
-              src="./img/logo.png"
-              alt="Aamaal"
-              onError={(e) => { e.currentTarget.style.display = 'none'; }}
-              className="w-9 h-8 object-contain"
-            />
-            <div>
-              <p className="text-[9.5px] font-bold uppercase tracking-[0.14em] text-gold leading-none">
-                Islaah Foundation’s
-              </p>
-              <p className="font-serif text-[14px] font-semibold text-primary leading-tight">
-                Aamaal Circle
-              </p>
-            </div>
-          </div>
-          <span className="badge-pill">Assalamu Alaikum</span>
-        </div>
-
-        {/* Welcome Back Heading */}
-        <div className="text-center mt-4">
-          <h1 className="font-serif text-[30px] font-semibold text-primary">
-            Welcome Back
-          </h1>
-          <p className="text-[12.5px] text-secondary mt-1 max-w-[310px] mx-auto">
-            Ready to continue your spiritual journey? Jump straight into your dashboard or sync your cloud backup.
-          </p>
-        </div>
-
-        {/* Center Preview Card */}
-        <div className="card-progress p-4 mt-5 text-center">
-          <span className="inline-block px-2.5 py-0.5 rounded-full bg-white/15 text-[#F0D58C] text-[9.5px] font-bold uppercase tracking-wider">
-            Your Daily Companion
-          </span>
-          <h3 className="font-serif text-[19px] font-semibold text-white mt-1.5">
-            313 Durood • Surah Mulk • 100 Istighfar
-          </h3>
-          <p className="text-[11.5px] text-white/80 mt-1">
-            Your streaks, saved duas, and Tasbih counts are saved automatically on your device.
-          </p>
-
-          <button
-            type="button"
-            onClick={() => finishOnboarding('Go to Home Card')}
-            className="mt-3.5 px-5 py-2 rounded-full bg-[#DFB75A] text-[#07361D] text-[12.5px] font-bold shadow-md"
+    <section className="screen-section relative overflow-hidden bg-[#FAF8F2] px-5 pt-3.5 pb-4 flex flex-col justify-between min-h-[100dvh] select-none">
+      {/* Top Navigation Bar */}
+      <div className="relative z-10 flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          aria-label="Go Back"
+          className="w-9 h-9 -ml-1.5 rounded-full flex items-center justify-center text-[#0D4A2E] active:scale-95 transition"
+        >
+          <svg
+            className="w-5 h-5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            Go to Home Dashboard ›
-          </button>
-        </div>
+            <path d="M19 12H5" />
+            <path d="M12 19l-7-7 7-7" />
+          </svg>
+        </button>
 
-        {/* Optional Sign-In Box when Log In is toggled */}
-        {showLoginForm && (
-          <form onSubmit={handleQuickLogin} className="card-soft mt-3.5 p-3.5 space-y-2">
-            <label className="block text-[10.5px] font-bold uppercase tracking-wider text-primary">
-              Sync with Email (Optional)
-            </label>
-            <div className="flex space-x-2">
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="flex-1 bg-[#F5F2E8] text-[12.5px]"
-              />
-              <button type="submit" className="btn-primary px-4 py-1.5 text-[12px]">
-                Sync
-              </button>
-            </div>
-          </form>
-        )}
+        <button
+          type="button"
+          onClick={() => setShowHelpModal(true)}
+          className="text-[13.5px] font-semibold text-[#0D4A2E] hover:opacity-80 transition px-1"
+        >
+          Help
+        </button>
       </div>
 
-      {/* Action Stack & Bottom Controls */}
-      <footer className="space-y-2.5 pt-4 shrink-0">
-        <button
-          type="button"
-          onClick={() => finishOnboarding('Get Started')}
-          className="btn-primary w-full py-3.5 text-[14px] font-semibold shadow-md"
-        >
-          <span>Get Started</span>
-          <span>›</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => finishOnboarding('Skip Intro & Go to App')}
-          className="btn-secondary w-full py-3 text-[13px] font-semibold"
-        >
-          Skip Intro &amp; Go to App
-        </button>
-
-        <div className="text-center pt-1">
-          <button
-            type="button"
-            onClick={() => navigate('/welcome')}
-            className="text-[12px] font-semibold text-primary underline"
-          >
-            Take the Intro Tour
-          </button>
+      {/* Main Centered Content */}
+      <div className="relative z-10 w-full max-w-[360px] mx-auto my-auto py-1">
+        {/* Larger Brand Logo & Tagline */}
+        <div className="flex flex-col items-center text-center">
+          <img
+            src="./img/logo.png"
+            alt="Aamaal"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+            className="w-36 h-28 object-contain mb-1.5"
+          />
+          <h2 className="font-serif text-[42px] font-bold text-[#0D4A2E] leading-none tracking-tight">
+            Aamaal
+          </h2>
+          <p className="text-[15.5px] font-medium text-[#1F3528] mt-1.5">
+            Live with Purpose
+          </p>
         </div>
 
-        {/* Bottom Bar: [Log In | Restore] · Dots · Bypass */}
-        <div className="pt-2 flex items-center justify-between">
-          <div className="inline-flex rounded-full p-0.5 bg-[#EAE8D7] border border-[#D5D2BE]">
+        {/* Dynamic Greeting */}
+        <div className="text-center mt-4 mb-3.5">
+          <h1 className="font-serif text-[26px] font-bold text-[#14261C] leading-tight">
+            {isReturningUser ? 'Welcome Back' : 'Welcome'}
+          </h1>
+          <p className="text-[13px] text-[#4E5953] mt-0.5">
+            Sign in to continue
+          </p>
+        </div>
+
+        {/* Sign-In Form */}
+        <form onSubmit={handleSignIn} className="space-y-2.5">
+          {/* Email or Phone Input */}
+          <div className="relative flex items-center">
+            <span className="absolute left-3.5 text-[#4E5953] pointer-events-none">
+              <svg
+                className="w-[18px] h-[18px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="Email or Phone Number"
+              className="w-full h-[45px] pl-11 pr-4 rounded-[14px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13.5px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition"
+            />
+          </div>
+
+          {/* Password Input */}
+          <div className="relative flex items-center">
+            <span className="absolute left-3.5 text-[#4E5953] pointer-events-none">
+              <svg
+                className="w-[18px] h-[18px]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </span>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full h-[45px] pl-11 pr-11 rounded-[14px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13.5px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition"
+            />
             <button
               type="button"
-              onClick={() => setShowLoginForm(!showLoginForm)}
-              className={`px-3 py-1 rounded-full text-[11px] font-semibold transition ${
-                showLoginForm ? 'bg-[#0D4A2E] text-white' : 'text-primary'
-              }`}
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              className="absolute right-3 text-[#4E5953] p-1"
             >
-              Log In
+              {showPassword ? (
+                <svg
+                  className="w-[18px] h-[18px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              ) : (
+                <svg
+                  className="w-[18px] h-[18px]"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              )}
             </button>
+          </div>
+
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between pt-0.5 pb-1">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={rememberMe}
+                onClick={() => setRememberMe((prev) => !prev)}
+                className={`w-[18px] h-[18px] rounded-[5px] flex items-center justify-center border transition ${
+                  rememberMe
+                    ? 'bg-[#0D4A2E] border-[#0D4A2E] text-white'
+                    : 'bg-white border-[#C9C5B4]'
+                }`}
+              >
+                {rememberMe && (
+                  <svg
+                    className="w-3 h-3"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </button>
+              <span className="text-[12.5px] font-medium text-[#1F3528]">
+                Remember me
+              </span>
+            </label>
+
             <button
               type="button"
               onClick={() => navigate('/onboarding/recovery')}
-              className="px-3 py-1 rounded-full text-[11px] font-medium text-secondary hover:text-primary transition"
+              className="text-[12.5px] font-semibold text-[#0D4A2E] hover:underline"
             >
-              Restore
+              Forgot Password?
             </button>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#C9CDAC]" />
-            <span className="w-5 h-2 rounded-full bg-[#0D4A2E]" />
-            <span className="w-2 h-2 rounded-full bg-[#C9CDAC]" />
-          </div>
+          {/* Primary Sign In Button */}
+          <button
+            type="submit"
+            className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#0B462B] via-[#135B39] to-[#083B23] text-white text-[15px] font-semibold shadow-md active:scale-[0.98] transition"
+          >
+            Sign In
+          </button>
+        </form>
 
+        {/* OR Divider */}
+        <div className="flex items-center my-3">
+          <div className="flex-1 h-[1px] bg-[#E2DEC9]" />
+          <span className="px-3 text-[12px] font-medium text-[#4E5953]">or</span>
+          <div className="flex-1 h-[1px] bg-[#E2DEC9]" />
+        </div>
+
+        {/* Continue with Google Button */}
+        <button
+          type="button"
+          onClick={() => finishAuth('Continue with Google')}
+          className="w-full h-[45px] rounded-full bg-[#FDFCF8] border border-[#DDD9C8] shadow-sm flex items-center justify-center space-x-2.5 text-[13.5px] font-semibold text-[#14261C] active:scale-[0.98] transition"
+        >
+          <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24">
+            <path
+              fill="#4285F4"
+              d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"
+            />
+            <path
+              fill="#34A853"
+              d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.565 24 12.255 24z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.69 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"
+            />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+      </div>
+
+      {/* Bottom Register Link */}
+      <footer className="relative z-10 text-center pb-2.5 pt-2">
+        <p className="text-[12.5px] text-[#4E5953]">
+          Don&apos;t have an account?{' '}
           <button
             type="button"
-            onClick={() => finishOnboarding('Bypass')}
-            className="text-[12.5px] font-medium text-muted hover:text-primary px-1"
+            onClick={() => finishAuth('Register')}
+            className="font-semibold text-[#0D4A2E] underline underline-offset-2"
           >
-            Bypass
+            Register
           </button>
-        </div>
+        </p>
       </footer>
+
+      {/* Subtle Bottom Mosque Skyline Silhouette */}
+      <svg
+        className="pointer-events-none absolute inset-x-0 bottom-0 w-full h-16 opacity-30"
+        viewBox="0 0 400 70"
+        preserveAspectRatio="none"
+        fill="none"
+      >
+        <defs>
+          <linearGradient id="skylineGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#E6D5A7" stopOpacity="0" />
+            <stop offset="100%" stopColor="#E6D5A7" stopOpacity="0.65" />
+          </linearGradient>
+        </defs>
+        <rect width="400" height="70" fill="url(#skylineGlow)" />
+        {/* Left Mosque & Minarets */}
+        <path
+          d="M0 70V52h16V26l3-10 3 10v26h8c2-12 10-18 16-18s14 6 16 18h10V36l2-7 2 7v16h18v18H0z"
+          fill="#7D9B84"
+        />
+        {/* Right Mosque & Minarets */}
+        <path
+          d="M400 70V52h-16V26l-3-10-3 10v26h-8c-2-12-10-18-16-18s-14 6-16 18h-10V36l-2-7-2 7v16h-18v18h94z"
+          fill="#7D9B84"
+        />
+      </svg>
+
+      {/* Help Modal */}
+      {showHelpModal && (
+        <div className="fixed inset-0 z-50 bg-black/45 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-xs rounded-[22px] bg-[#FAF8F2] border border-[#D5D2BE] shadow-xl p-5 space-y-3 text-center">
+            <h3 className="font-serif text-[18px] font-bold text-[#0D4A2E]">
+              Need Help?
+            </h3>
+            <p className="text-[12.5px] text-[#4E5953] leading-relaxed">
+              Sign in to sync your daily Aamaal, streaks, and saved Duas, or continue directly to the app.
+            </p>
+            <div className="flex flex-col space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => finishAuth('Guest Continue')}
+                className="w-full py-2.5 rounded-full bg-[#0D4A2E] text-white text-[13px] font-semibold"
+              >
+                Continue as Guest
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(false)}
+                className="w-full py-2 rounded-full bg-[#EAE8D7] text-[#0D4A2E] text-[12.5px] font-semibold"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
