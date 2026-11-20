@@ -1,6 +1,10 @@
 //Renders the 4 primary quick-action cards (Daily Aamaal, Digital Tasbih, Heart Check-In, Duas Library) plus a "View All Shortcuts" button that opens AllShortcuts.jsx.
 
+// src/components/QuickActions.jsx
 import React from 'react';
+// Assuming the high-res custom hand-dua image is saved here. 
+// Use '/icons/dua-icon.png' directly in image src if you prefer public folder path.
+import duaIcon from '../assets/icons/dua-icon.webp'; 
 
 export default function QuickActions({
   onNavigateTab,
@@ -38,18 +42,11 @@ export default function QuickActions({
       label: 'Duas',
       onClick: () => onNavigateTab && onNavigateTab('duas'),
       icon: (
-        <svg
-          className="w-6 h-6 text-[#0D4A2E]"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.9"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M7 11v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5a4 4 0 0 1 4-4h1zm10 0v8a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-5a4 4 0 0 0-4-4h-1z" />
-          <path d="M7 13c2-2 3-5 3-8a1 1 0 0 1 2 0v6m5 2c-2-2-3-5-3-8a1 1 0 0 0-2 0v6" />
-        </svg>
+        <img
+          src={duaIcon}
+          alt="Duas"
+          className="w-6 h-6 object-contain mix-blend-multiply"
+        />
       ),
     },
     {
