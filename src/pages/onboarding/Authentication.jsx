@@ -95,7 +95,7 @@ export default function Authentication() {
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
-            className="w-36 h-28 object-contain mb-1.5"
+            className="w-60 h-44 -mb-9 object-contain -mb-7"
           />
           <h2 className="font-serif text-[42px] font-bold text-[#0D4A2E] leading-none tracking-tight">
             Aamaal
