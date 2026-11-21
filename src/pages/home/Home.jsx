@@ -14,6 +14,7 @@ import FeaturedDua from './FeaturedDua';
 import ContinueReading from './ContinueReading';
 import ReminderDetails from './ReminderDetails';
 import NotificationCenter from '../notifications/NotificationCenter';
+import headerBg from '../../assets/backgrounds/header.png';
 
 const LOGS_STORAGE_KEY = 'aamaal_circle_logs_v1';
 const PROFILES_STORAGE_KEY = 'aamaal_circle_profiles_v1';
@@ -207,10 +208,10 @@ export default function Home({
         }}
       >
         <img
-          src="https://images.unsplash.com/photo-1564769625905-50e93615e769?auto=format&fit=crop&w=700&q=80"
-          alt=""
-          className="w-full h-full object-cover object-center scale-105"
-        />
+  src={headerBg}
+  alt=""
+  className="w-full h-full object-cover object-center scale-105"
+/>
       </div>
 
       {/* 1. Header Logo + Assalamu Alaikum / Your Spiritual Journey */}

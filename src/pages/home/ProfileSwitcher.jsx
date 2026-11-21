@@ -125,18 +125,18 @@ export default function ProfileSwitcher({
       <div className="relative z-10">
         {/* Full-width greeting row so family names never get clipped */}
         <button
-          type="button"
-          onClick={() => setOpenMenu(!openMenu)}
-          className="inline-flex items-center flex-wrap gap-x-1.5 max-w-full text-left text-[13.5px] font-medium text-[#0D4A2E] mb-1 px-2.5 py-0.5 -ml-2.5 rounded-full bg-[#F5F2E8]/80 backdrop-blur-[2px]"
-        >
-          <span className="leading-snug">
-            Assalamu Alaikum
-            {displayName ? `, ${displayName}` : ''}
-          </span>
-          {profiles.length > 1 && (
-            <span className="text-[10px] text-[#C99E4C] shrink-0">▾</span>
-          )}
-        </button>
+  type="button"
+  onClick={() => setOpenMenu(!openMenu)}
+  className="inline-flex items-center flex-wrap gap-x-1.5 max-w-full text-left text-[13.5px] font-medium text-[#0D4A2E] mb-1 bg-transparent"
+>
+  <span className="leading-snug">
+    Assalamu Alaikum
+    {displayName ? `, ${displayName}` : ''}
+  </span>
+  {profiles.length > 1 && (
+    <span className="text-[10px] text-[#C99E4C] shrink-0">▾</span>
+  )}
+</button>
 
         <div className="pr-24">
           <h1 className="font-serif text-[29px] font-bold text-[#0D4A2E] leading-[1.12] tracking-tight">
