@@ -174,7 +174,6 @@ function MoreMenuDirectory({ state, onNavigateTab, onGoBack, onStartTour }) {
       subtitle: 'Members, Aamaal catalog, reports, leaderboard & settings',
       badge: 'Admin',
       icon: '👑',
-      highlight: true,
     },
     {
       id: 'settings',
@@ -220,73 +219,47 @@ function MoreMenuDirectory({ state, onNavigateTab, onGoBack, onStartTour }) {
 
       {/* Feature List */}
       <div className="space-y-2.5">
-        {MORE_PAGES.map((page) => (
-          <button
-            key={page.id}
-            type="button"
-            onClick={() => onNavigateTab?.(page.id)}
-            className={`w-full text-left rounded-[18px] p-3.5 border shadow-[0_2px_10px_rgba(20,38,28,0.04)] flex items-center space-x-3 active:scale-[0.99] transition ${
-              page.highlight
-                ? 'bg-[#0D4A2E] border-[#C99E4C]/70 text-white'
-                : 'bg-[#FCFBF7] border-[#E6E2D5] text-[#14261C]'
-            }`}
-          >
-            <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 text-[18px] ${
-                page.highlight
-                  ? 'bg-white/15 text-[#F0D58C]'
-                  : 'bg-[#E6F1E8] text-[#0D4A2E]'
-              }`}
-            >
-              {page.icon}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2">
-                <h3
-                  className={`font-serif text-[15px] font-bold truncate ${
-                    page.highlight ? 'text-white' : 'text-[#14261C]'
-                  }`}
-                >
-                  {page.title}
-                </h3>
-                {page.badge && (
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[9.5px] font-bold uppercase shrink-0 ${
-                      page.highlight
-                        ? 'bg-[#DFB75A] text-[#07361D]'
-                        : 'bg-[#E0F3E5] text-[#15693B]'
-                    }`}
-                  >
-                    {page.badge}
-                  </span>
-                )}
-              </div>
-              <p
-                className={`text-[11.5px] truncate mt-0.5 ${
-                  page.highlight ? 'text-white/80' : 'text-[#55615A]'
-                }`}
-              >
-                {page.subtitle}
-              </p>
-            </div>
-
-            <svg
-              className={`w-4 h-4 shrink-0 ${
-                page.highlight ? 'text-[#F0D58C]' : 'text-[#7A827D]'
-              }`}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <polyline points="9 18 15 12 9 6" />
-            </svg>
-          </button>
-        ))}
+  {MORE_PAGES.map((page) => (
+    <button
+      key={page.id}
+      type="button"
+      onClick={() => onNavigateTab?.(page.id)}
+      className="w-full text-left rounded-[18px] p-3.5 bg-[#FCFBF7] border border-[#E6E2D5] text-[#14261C] shadow-[0_2px_10px_rgba(20,38,28,0.04)] flex items-center space-x-3 active:scale-[0.99] transition"
+    >
+      <div className="w-10 h-10 rounded-xl bg-[#E6F1E8] text-[#0D4A2E] flex items-center justify-center shrink-0 text-[18px]">
+        {page.icon}
       </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center space-x-2">
+          <h3 className="font-serif text-[15px] font-bold text-[#14261C] truncate">
+            {page.title}
+          </h3>
+          {page.badge && (
+            <span className="px-2 py-0.5 rounded-full bg-[#E0F3E5] text-[#15693B] text-[9.5px] font-bold uppercase shrink-0">
+              {page.badge}
+            </span>
+          )}
+        </div>
+        <p className="text-[11.5px] text-[#55615A] truncate mt-0.5">
+          {page.subtitle}
+        </p>
+      </div>
+
+      <svg
+        className="w-4 h-4 text-[#7A827D] shrink-0"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </button>
+  ))}
+</div>
 
       {/* Onboarding Replay Link */}
       <div className="mt-5 pt-3 border-t border-[#E6E2D5] text-center">
