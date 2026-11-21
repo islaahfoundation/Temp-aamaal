@@ -12,7 +12,6 @@ import CountryStatistics from './CountryStatistics';
 import Leaderboard from './Leaderboard';
 import AamaalManagement from './AamaalManagement';
 import MemberDirectory from './MemberDirectory';
-import AdminManagement from './AdminManagement';
 
 const AAMAAL_STORAGE_KEY = 'aamaal_circle_catalog_v1';
 const LOGS_STORAGE_KEY = 'aamaal_circle_logs_v1';
@@ -21,7 +20,6 @@ const BROADCASTS_STORAGE_KEY = 'aamaal_broadcast_alerts_v1';
 const JAMAAT_REQUESTS_KEY = 'aamaal_jamaat_change_requests_v1';
 const MASJIDS_STORAGE_KEY = 'aamaal_masjids_directory_v1';
 
-// CMS Storage Keys
 const CMS_KEYS = {
   feelings: 'aamaal_admin_cms_feelings_v1',
   duas: 'aamaal_admin_cms_duas_v1',
@@ -102,19 +100,17 @@ export default function AdminDashboard({
 }) {
   const isAdmin = checkIsCurrentUserAdmin(state);
 
-  // Active module: null | 'inspector' | 'monthly' | 'aamaal' | 'members' | 'stats' | 'jamaat_requests' | 'cms' | 'broadcast'
+  // Active module: null | 'more_tools' | 'inspector' | 'monthly' | 'aamaal' | 'members' | 'stats' | 'jamaat_requests' | 'cms' | 'broadcast'
   const [activePopup, setActivePopup] = useState(null);
 
   const [inspectorDate, setInspectorDate] = useState(getLocalDateString());
   const [inspectorAamaalId, setInspectorAamaalId] = useState('durood_313');
 
-  // Selected Month for Overview Stats
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
   });
 
-  // 1. Aamaal Catalog State
   const [aamaalList, setAamaalList] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(AAMAAL_STORAGE_KEY) || 'null');
@@ -123,7 +119,6 @@ export default function AdminDashboard({
     return DEFAULT_AAMAAL_LIST;
   });
 
-  // 2. Circle & Family Members State
   const [allMembers, setAllMembers] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(PROFILES_STORAGE_KEY) || 'null');
@@ -144,7 +139,6 @@ export default function AdminDashboard({
     ];
   });
 
-  // 3. All Recitation Logs State
   const [allLogs, setAllLogs] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(LOGS_STORAGE_KEY) || 'null');
@@ -153,7 +147,6 @@ export default function AdminDashboard({
     return [];
   });
 
-  // 4. Jamaat Time Change Requests State
   const [jamaatRequests, setJamaatRequests] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(JAMAAT_REQUESTS_KEY) || '[]');
@@ -163,11 +156,9 @@ export default function AdminDashboard({
     }
   });
 
-  // 5. Broadcast State
   const [broadcastTitle, setBroadcastTitle] = useState('');
   const [broadcastBody, setBroadcastBody] = useState('');
 
-  // 6. Full Multi-Module CMS State
   const [cmsModule, setCmsModule] = useState('feelings');
   const [cmsForm, setCmsForm] = useState({
     title: '',
@@ -204,7 +195,6 @@ export default function AdminDashboard({
     } catch (_) {}
   }, [jamaatRequests]);
 
-  // Month Navigation
   const shiftMonth = (delta) => {
     try {
       if (navigator.vibrate) navigator.vibrate(8);
@@ -215,7 +205,6 @@ export default function AdminDashboard({
     });
   };
 
-  // Monthly Computed KPIs
   const monthlyStats = useMemo(() => {
     const currPrefix = `${selectedMonth.year}-${String(
       selectedMonth.month + 1
@@ -265,7 +254,6 @@ export default function AdminDashboard({
     };
   }, [allLogs, allMembers, selectedMonth]);
 
-  // Recent Activity Feed (Logs + New Member Joins)
   const recentActivities = useMemo(() => {
     const memberMap = new Map(allMembers.map((m) => [m.id, m]));
     const aamaalMap = new Map(aamaalList.map((a) => [a.id, a]));
@@ -304,10 +292,9 @@ export default function AdminDashboard({
       .slice(0, 4);
   }, [allLogs, allMembers, aamaalList]);
 
-  // Restrict access to Admins only
   if (!isAdmin) {
     return (
-      <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#F5F2E8] px-5 pt-10 pb-6 text-center space-y-3">
+      <section className="screen-section no-scrollbar px-5 pt-10 pb-6 text-center space-y-3">
         <div className="w-14 h-14 rounded-full bg-[#EAE8D7] flex items-center justify-center text-[24px] mx-auto">
           🔒
         </div>
@@ -330,7 +317,6 @@ export default function AdminDashboard({
     );
   }
 
-  // Handlers
   const handleUpsertMemberLog = (memberId, aamaalId, dateKey, newCount) => {
     const logId = `${dateKey}_${aamaalId}_${memberId}`;
     setAllLogs((prev) => {
@@ -564,138 +550,43 @@ export default function AdminDashboard({
     (r) => r.status === 'pending'
   ).length;
 
-  const ADMIN_TOOLS = [
-    {
-      id: 'members',
-      label: 'Members',
-      modalTitle: 'Members & Admin Roles',
-      icon: (
-        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-        </svg>
-      ),
-    },
-    {
-      id: 'aamaal',
-      label: 'Aamaal',
-      modalTitle: 'Manage Aamaal',
-      icon: (
-        <svg
-          className="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.1"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <line x1="8" y1="13" x2="15" y2="13" />
-          <line x1="8" y1="17" x2="12.5" y2="17" />
-        </svg>
-      ),
-    },
-    {
-      id: 'monthly',
-      label: 'Reports',
-      modalTitle: 'Monthly Report',
-      icon: (
-        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-5 15H7v-4h2v4zm4 0h-2v-7h2v7zm4 0h-2v-2h2v2zm-3-9V3.5L18.5 8H14z" />
-        </svg>
-      ),
-    },
+  // Remaining tools shown inside "More"
+  const MORE_TOOLS = [
     {
       id: 'inspector',
-      label: 'Inspector',
-      modalTitle: 'Daily Inspector',
-      icon: (
-        <svg
-          className="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.1"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-          <rect x="9" y="3" width="6" height="4" rx="1" />
-          <path d="M9 14l2 2 4-4" />
-        </svg>
-      ),
+      icon: '📋',
+      title: 'Daily Inspector',
+      subtitle: 'Person-wise daily count editor & circle summary',
+      badge: 'Excel Export',
     },
     {
       id: 'jamaat_requests',
-      label: 'Jamaat',
-      modalTitle: 'Jamaat Time Requests',
-      badgeCount: pendingJamaatCount,
-      icon: (
-        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2.5c-.6 0-1 .5-1 1v1.2C8.3 5.5 6.5 7.9 6.5 10.5V12h11v-1.5c0-2.6-1.8-5-4.5-5.8V3.5c0-.5-.4-1-1-1zM5 13.5V20h4.5v-3.5a2.5 2.5 0 0 1 5 0V20H19v-6.5H5z" />
-        </svg>
-      ),
+      icon: '🕌',
+      title: 'Jamaat Time Requests',
+      subtitle: 'Review member clock photos & approve timetable updates',
+      badge: pendingJamaatCount > 0 ? `${pendingJamaatCount} Pending` : '0 Pending',
+      highlight: pendingJamaatCount > 0,
     },
     {
       id: 'stats',
-      label: 'Stats',
-      modalTitle: 'Circle & Country Stats',
-      icon: (
-        <svg
-          className="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="9" />
-          <line x1="3.6" y1="9" x2="20.4" y2="9" />
-          <line x1="3.6" y1="15" x2="20.4" y2="15" />
-          <path d="M12 3a14.5 14.5 0 0 0 0 18 14.5 14.5 0 0 0 0-18z" />
-        </svg>
-      ),
+      icon: '🌍',
+      title: 'Circle & Country Stats',
+      subtitle: 'Worldwide leaderboard & country-wise totals',
+      badge: 'Excel Export',
     },
     {
       id: 'cms',
-      label: 'CMS',
-      modalTitle: 'Content Manager (CMS)',
-      icon: (
-        <svg
-          className="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.1"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M12 20h9" />
-          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-        </svg>
-      ),
+      icon: '✍️',
+      title: 'Content Manager (CMS)',
+      subtitle: 'Add Heart & Soul, Duas, Stories, Learning, Quiz & Masjids',
+      badge: '6 Modules',
     },
     {
       id: 'broadcast',
-      label: 'Broadcast',
-      modalTitle: 'Broadcast Alert',
-      icon: (
-        <svg
-          className="w-6 h-6"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.1"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z" />
-          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-        </svg>
-      ),
+      icon: '📢',
+      title: 'Broadcast Alert',
+      subtitle: 'Send instant announcements to every member’s inbox',
+      badge: 'Notify All',
     },
   ];
 
@@ -706,45 +597,60 @@ export default function AdminDashboard({
     setActivePopup(moduleId);
   };
 
-  const activeTool = ADMIN_TOOLS.find((t) => t.id === activePopup);
+  const activeModalInfo =
+    activePopup === 'more_tools'
+      ? { icon: '🛡️', title: 'More Admin Tools' }
+      : MORE_TOOLS.find((t) => t.id === activePopup);
 
-  // FULL-SCREEN MONTHLY REPORT PAGE (Hides Bottom Footer)
+  // FULL-SCREEN PAGE 1: MONTHLY REPORT
   if (activePopup === 'monthly') {
     return (
-      <div className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#F5F2E8]">
-        <AdminMonthlyReports
-          aamaalList={aamaalList}
-          allMembers={allMembers}
-          allLogs={allLogs}
-          onBack={() => setActivePopup(null)}
-          onShowToast={onShowToast}
-          onSelectDateInInspector={(clickedDate, aamaalId) => {
-            setInspectorDate(clickedDate);
-            setInspectorAamaalId(aamaalId);
-            setActivePopup('inspector');
-          }}
-        />
-      </div>
+      <AdminMonthlyReports
+        aamaalList={aamaalList}
+        allMembers={allMembers}
+        allLogs={allLogs}
+        onBack={() => setActivePopup(null)}
+        onShowToast={onShowToast}
+        onSelectDateInInspector={(clickedDate, aamaalId) => {
+          setInspectorDate(clickedDate);
+          setInspectorAamaalId(aamaalId);
+          setActivePopup('inspector');
+        }}
+      />
     );
   }
 
-  // FULL-SCREEN PAGE-LIKE VIEW FOR MANAGE AAMAAL & MEMBERS (Hides Bottom Footer)
-  if (activePopup === 'aamaal' || activePopup === 'members') {
+  // FULL-SCREEN PAGE 2: MEMBER DIRECTORY
+  if (activePopup === 'members') {
     return (
-      <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#F5F2E8] flex flex-col pb-6 select-none">
-        {/* Sticky Full-Screen Page Header */}
-        <header className="sticky top-0 z-30 bg-[#F5F2E8]/95 backdrop-blur-md border-b border-[#E6E2D3] px-4 py-3 flex items-center justify-between">
+      <MemberDirectory
+        allMembers={allMembers}
+        aamaalList={aamaalList}
+        allLogs={allLogs}
+        onAddMember={handleAddMember}
+        onUpdateMember={handleUpdateMember}
+        onResetMemberLogs={handleResetMemberLogs}
+        onRemoveMember={handleRemoveMember}
+        onDeleteSingleLog={(logId) => {
+          setAllLogs((prev) => prev.filter((l) => l.id !== logId));
+          if (onShowToast) onShowToast('Log entry deleted');
+        }}
+        onBack={() => setActivePopup(null)}
+      />
+    );
+  }
+
+  // FULL-SCREEN PAGE 3: MANAGE AAMAAL
+  if (activePopup === 'aamaal') {
+    return (
+      <section className="screen-section no-scrollbar bg-[#F5F2E8] flex flex-col min-h-[100dvh] pb-24 select-none">
+        <header className="sticky top-0 z-30 bg-[#F5F2E8]/95 backdrop-blur-md border-b border-[#DCD8C6] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-3 min-w-0">
             <button
               type="button"
-              onClick={() => {
-                try {
-                  if (navigator.vibrate) navigator.vibrate(8);
-                } catch (_) {}
-                setActivePopup(null);
-              }}
+              onClick={() => setActivePopup(null)}
               aria-label="Back to Admin Overview"
-              className="w-9 h-9 rounded-full bg-[#EAE8D7] border border-[#D5D2BE] flex items-center justify-center text-[#0D4A2E] active:scale-95 transition shrink-0"
+              className="w-9 h-9 rounded-full bg-[#E8E6D5] border border-[#DCD8C6] flex items-center justify-center text-[#0D4A2E] active:scale-95 transition shrink-0"
             >
               <svg
                 className="w-5 h-5"
@@ -765,76 +671,32 @@ export default function AdminDashboard({
                 Admin Management
               </p>
               <h2 className="font-serif text-[20px] font-bold text-[#0D4A2E] leading-tight truncate mt-0.5">
-                {activeTool?.modalTitle}
+                Manage Aamaal
               </h2>
             </div>
           </div>
 
           <span className="px-3 py-1 rounded-full bg-[#E6F1E8] text-[#0D4A2E] text-[11px] font-bold shrink-0">
-            {activePopup === 'aamaal'
-              ? `${aamaalList.length} Items`
-              : `${allMembers.length} Members`}
+            {aamaalList.length} Items
           </span>
         </header>
 
-        {/* Full-Screen Scrollable Content */}
-        <div className="flex-1 px-4 pt-4 space-y-4">
-          {activePopup === 'aamaal' && (
-            <AamaalManagement
-              aamaalList={aamaalList}
-              onAddAamaal={handleAddAamaal}
-              onUpdateAamaal={handleUpdateAamaal}
-              onDeleteAamaal={handleDeleteAamaal}
-            />
-          )}
-
-          {activePopup === 'members' && (
-            <>
-              <AdminDataExport
-                aamaalList={aamaalList}
-                allMembers={allMembers}
-                allLogs={allLogs}
-                onWipeAllLogs={() => {
-                  setAllLogs([]);
-                  if (onShowToast) onShowToast('All circle logs cleared');
-                }}
-              />
-              <MemberDirectory
-                allMembers={allMembers}
-                aamaalList={aamaalList}
-                allLogs={allLogs}
-                onAddMember={handleAddMember}
-                onUpdateMember={handleUpdateMember}
-                onResetMemberLogs={handleResetMemberLogs}
-                onRemoveMember={handleRemoveMember}
-                onDeleteSingleLog={(logId) => {
-                  setAllLogs((prev) => prev.filter((l) => l.id !== logId));
-                  if (onShowToast) onShowToast('Log entry deleted');
-                }}
-              />
-              <AdminManagement
-                allMembers={allMembers}
-                onToggleAdminRole={(memberId) => {
-                  const found = allMembers.find((m) => m.id === memberId);
-                  if (found) {
-                    handleUpdateMember(memberId, {
-                      role: found.role === 'admin' ? 'member' : 'admin',
-                    });
-                  }
-                }}
-              />
-            </>
-          )}
+        <div className="flex-1 px-4 pt-4">
+          <AamaalManagement
+            aamaalList={aamaalList}
+            onAddAamaal={handleAddAamaal}
+            onUpdateAamaal={handleUpdateAamaal}
+            onDeleteAamaal={handleDeleteAamaal}
+          />
         </div>
       </section>
     );
   }
 
   return (
-    <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar  pb-5 select-none">
+    <section className="screen-section no-scrollbar bg-[#F5F2E8] min-h-[100dvh] pb-24 select-none">
       {/* HERO HEADER WITH SCENIC MOSQUE BACKDROP */}
       <div className="relative overflow-hidden bg-gradient-to-b from-[#F5F2E8] via-[#F7E8C8] to-[#568274] pt-3 pb-10 px-4">
-        {/* Optional Scenic Banner Image (falls back cleanly to SVG landscape below) */}
         <img
           src="/img/admin-banner.jpg"
           alt=""
@@ -863,7 +725,6 @@ export default function AdminDashboard({
             </linearGradient>
           </defs>
           <rect width="400" height="180" fill="url(#adminSunrise)" />
-          {/* Distant Mosque Silhouette */}
           <path
             d="M190 125V92h14V55l3-14 3 14v37h14c4-22 18-36 34-36s30 14 34 36h16V35l4-18 4 18v57h18V56l3-13 3 13v36h16c3-14 12-22 22-22s18 8 22 22h10v33H190z"
             fill="#8DB39B"
@@ -874,44 +735,36 @@ export default function AdminDashboard({
             fill="#1D7A56"
             opacity="0.75"
           />
-          {/* Left Foliage Silhouette */}
           <path
             d="M0 125V82c12-12 28-14 40-4 10-14 30-14 42 0 12-8 26-4 34 8 14-6 30 2 38 14 10-6 22-2 28 8v17H0z"
             fill="#1E5238"
             opacity="0.85"
           />
-          {/* Reflective Lake */}
           <rect y="124" width="400" height="56" fill="url(#adminWater)" />
         </svg>
 
-        {/* Bottom Scrim for Greeting Contrast */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0D3824]/85 via-[#0D3824]/45 to-transparent" />
 
-        {/* Top Bar: Back Button / Brand / Static Admin Badge */}
+        {/* Top Bar: Back / Brand / Static Admin Badge */}
         <div className="relative z-10 flex items-start justify-between">
           {onBack ? (
             <button
               type="button"
-              onClick={() => {
-                try {
-                  if (navigator.vibrate) navigator.vibrate(8);
-                } catch (_) {}
-                onBack();
-              }}
+              onClick={onBack}
               aria-label="Go Back"
-              className="w-9 h-9 rounded-full bg-white/75 backdrop-blur-sm border border-white/80 shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition"
+              className="w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-[#14261C] active:scale-95 transition"
             >
               <svg
-                className="w-5 h-5"
+                className="w-6 h-6"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.3"
+                strokeWidth="2.2"
                 strokeLinecap="round"
-                strokeLinejoin="round"
               >
-                <path d="M19 12H5" />
-                <path d="M12 19l-7-7 7-7" />
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
               </svg>
             </button>
           ) : (
@@ -927,14 +780,13 @@ export default function AdminDashboard({
             </p>
           </div>
 
-          {/* Static Admin Badge (Not a Button) */}
           <span className="px-3.5 py-1 rounded-full bg-[#1C8549] text-white text-[12px] font-semibold shadow-sm pointer-events-none">
             Admin
           </span>
         </div>
 
         {/* Hero Greeting */}
-        <div className="relative z-10 mt-10">
+        <div className="relative z-10 mt-9">
           <h2 className="font-serif text-[27px] font-bold text-white leading-[1.15] drop-shadow-sm">
             Assalamu Alaikum,
             <br />
@@ -1056,9 +908,60 @@ export default function AdminDashboard({
           </div>
         </div>
 
-        {/* Admin Tools Circular Icon Grid (Buttons) */}
-        <div className="grid grid-cols-4 gap-y-4 gap-x-2 pt-2 pb-1">
-          {ADMIN_TOOLS.map((tool) => (
+        {/* 1-Line 4-Column Quick Actions (Members, Aamaal, Reports, More) */}
+        <div className="grid grid-cols-4 gap-2 pt-1.5 pb-1">
+          {[
+            {
+              id: 'members',
+              label: 'Members',
+              icon: (
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                </svg>
+              ),
+            },
+            {
+              id: 'aamaal',
+              label: 'Aamaal',
+              icon: (
+                <svg
+                  className="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="8" y1="13" x2="15" y2="13" />
+                  <line x1="8" y1="17" x2="12.5" y2="17" />
+                </svg>
+              ),
+            },
+            {
+              id: 'monthly',
+              label: 'Reports',
+              icon: (
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-5 15H7v-4h2v4zm4 0h-2v-7h2v7zm4 0h-2v-2h2v2zm-3-9V3.5L18.5 8H14z" />
+                </svg>
+              ),
+            },
+            {
+              id: 'more_tools',
+              label: 'More',
+              badgeCount: pendingJamaatCount,
+              icon: (
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="6" cy="12" r="2" />
+                  <circle cx="12" cy="12" r="2" />
+                  <circle cx="18" cy="12" r="2" />
+                </svg>
+              ),
+            },
+          ].map((tool) => (
             <button
               key={tool.id}
               type="button"
@@ -1080,9 +983,9 @@ export default function AdminDashboard({
           ))}
         </div>
 
-        {/* Recent Activity Section (Static Rows, View All Button) */}
-        <div className="pt-1">
-          <div className="flex items-center justify-between mb-2.5">
+        {/* Recent Activity Section (Shifted Up, Static Rows) */}
+        <div className="pt-0.5">
+          <div className="flex items-center justify-between mb-2">
             <h3 className="text-[16px] font-bold text-[#14261C]">
               Recent Activity
             </h3>
@@ -1141,7 +1044,7 @@ export default function AdminDashboard({
         </div>
       </div>
 
-      {/* CENTERED POPUP MODAL FOR OTHER ADMIN MODULES */}
+      {/* CENTERED POPUP MODAL FOR "MORE" & REMAINING ADMIN MODULES */}
       {activePopup && (
         <div
           onClick={() => setActivePopup(null)}
@@ -1153,12 +1056,10 @@ export default function AdminDashboard({
           >
             {/* Popup Top Bar */}
             <div className="px-4 py-3 bg-[#0F4C2B] text-white flex items-center justify-between shrink-0 border-b border-[#C99E4C]/30">
-              <div className="flex items-center space-x-2.5 min-w-0">
-                <span className="text-[#F0D58C] shrink-0">
-                  {activeTool?.icon}
-                </span>
+              <div className="flex items-center space-x-2 min-w-0">
+                <span className="text-[18px]">{activeModalInfo?.icon}</span>
                 <h3 className="font-serif text-[17px] font-semibold truncate text-white">
-                  {activeTool?.modalTitle}
+                  {activeModalInfo?.title}
                 </h3>
               </div>
               <button
@@ -1173,7 +1074,75 @@ export default function AdminDashboard({
 
             {/* Popup Scrollable Body */}
             <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar p-4 space-y-3.5">
-              {/* Tab-Specific Excel Export (ONLY on Inspector & Stats) */}
+              {/* MORE TOOLS LIST (Inspector -> Broadcast) */}
+              {activePopup === 'more_tools' && (
+                <div className="space-y-2.5">
+                  {MORE_TOOLS.map((item) => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => openModule(item.id)}
+                      className={`w-full text-left rounded-[18px] p-3.5 border flex items-center space-x-3 active:scale-[0.99] transition shadow-soft-card ${
+                        item.highlight
+                          ? 'bg-[#0F4C2B] text-white border-[#C99E4C]'
+                          : 'bg-[#E8E6D5] text-primary border-[#DCD8C6]'
+                      }`}
+                    >
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center text-[18px] shrink-0 ${
+                          item.highlight
+                            ? 'bg-white/15 text-[#F0D58C]'
+                            : 'bg-[#0D4A2E] text-[#F0D58C]'
+                        }`}
+                      >
+                        {item.icon}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <h4
+                            className="font-serif text-[15px] font-semibold truncate"
+                            style={{ color: item.highlight ? '#FFFFFF' : '#0D4A2E' }}
+                          >
+                            {item.title}
+                          </h4>
+                          {item.badge && (
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[9.5px] font-bold uppercase shrink-0 ${
+                                item.highlight
+                                  ? 'bg-[#DFB75A] text-[#07361D]'
+                                  : 'bg-[#DCE3C8] text-[#0D4A2E]'
+                              }`}
+                            >
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p
+                          className="text-[11.5px] truncate mt-0.5"
+                          style={{
+                            color: item.highlight
+                              ? 'rgba(255,255,255,0.85)'
+                              : '#4E5953',
+                          }}
+                        >
+                          {item.subtitle}
+                        </p>
+                      </div>
+
+                      <span
+                        className={`font-bold text-[16px] pr-1 ${
+                          item.highlight ? 'text-[#F0D58C]' : 'text-primary'
+                        }`}
+                      >
+                        ›
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Tab-Specific Excel Export (Inspector & Stats) */}
               {['inspector', 'stats'].includes(activePopup) && (
                 <AdminDataExport
                   aamaalList={aamaalList}
@@ -1186,7 +1155,7 @@ export default function AdminDashboard({
                 />
               )}
 
-              {/* POPUP 1: JAMAAT TIME REQUESTS */}
+              {/* JAMAAT TIME REQUESTS */}
               {activePopup === 'jamaat_requests' && (
                 <div className="space-y-3">
                   {jamaatRequests.length === 0 ? (
@@ -1203,7 +1172,7 @@ export default function AdminDashboard({
                     jamaatRequests.map((req) => (
                       <div
                         key={req.id}
-                        className="card rounded-[20px] p-4 bg-[#FFFDF9] border border-[#D5D2BE] space-y-2.5"
+                        className="card rounded-[20px] p-4 bg-[#E8E6D5] border border-[#D5D2BE] space-y-2.5"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div>
@@ -1268,7 +1237,7 @@ export default function AdminDashboard({
                 </div>
               )}
 
-              {/* POPUP 2: DAILY INSPECTOR */}
+              {/* DAILY INSPECTOR */}
               {activePopup === 'inspector' && (
                 <div className="space-y-3.5">
                   <AdminActivityLog
@@ -1289,7 +1258,7 @@ export default function AdminDashboard({
                 </div>
               )}
 
-              {/* POPUP 3: CIRCLE & COUNTRY STATS */}
+              {/* CIRCLE & COUNTRY STATS */}
               {activePopup === 'stats' && (
                 <div className="space-y-3.5">
                   <CircleStatistics
@@ -1310,11 +1279,11 @@ export default function AdminDashboard({
                 </div>
               )}
 
-              {/* POPUP 4: FULL MULTI-MODULE CMS */}
+              {/* FULL MULTI-MODULE CMS */}
               {activePopup === 'cms' && (
                 <form
                   onSubmit={handleSaveCmsEntry}
-                  className="space-y-3 bg-[#EAE8D7] p-4 rounded-[20px] border border-[#0D4A2E]/25"
+                  className="space-y-3 bg-[#E8E6D5] p-4 rounded-[20px] border border-[#0D4A2E]/25"
                 >
                   <div>
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-secondary mb-1">
@@ -1495,11 +1464,11 @@ export default function AdminDashboard({
                 </form>
               )}
 
-              {/* POPUP 5: BROADCAST ALERT */}
+              {/* BROADCAST ALERT */}
               {activePopup === 'broadcast' && (
                 <form
                   onSubmit={handleSendBroadcast}
-                  className="card rounded-[20px] p-4 space-y-3 bg-[#FFFDF9] border border-[#D5D2BE]"
+                  className="card rounded-[20px] p-4 space-y-3 bg-[#E8E6D5] border border-[#D5D2BE]"
                 >
                   <span className="badge-pill">Global Member Alert</span>
                   <h4 className="font-serif text-[17.5px] font-semibold text-primary">
