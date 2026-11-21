@@ -17,6 +17,7 @@ import NotificationCenter from '../notifications/NotificationCenter';
 
 const LOGS_STORAGE_KEY = 'aamaal_circle_logs_v1';
 const PROFILES_STORAGE_KEY = 'aamaal_circle_profiles_v1';
+const ACTIVE_PROFILE_KEY = 'aamaal_active_profile_id';
 const REMINDERS_STORAGE_KEY = 'aamaal_reminders_list_v1';
 const BROADCASTS_STORAGE_KEY = 'aamaal_broadcast_alerts_v1';
 
@@ -51,9 +52,29 @@ export default function Home({
     ];
   });
 
-  const [activeProfileId, setActiveProfileId] = useState('primary_member');
+  const [activeProfileId, setActiveProfileId] = useState(() => {
+    try {
+      return (
+        localStorage.getItem(ACTIVE_PROFILE_KEY) ||
+        state?.activeProfileId ||
+        'primary_member'
+      );
+    } catch (_) {
+      return state?.activeProfileId || 'primary_member';
+    }
+  });
+
+  useEffect(() => {
+    if (
+      state?.activeProfileId &&
+      String(state.activeProfileId) !== String(activeProfileId)
+    ) {
+      setActiveProfileId(state.activeProfileId);
+    }
+  }, [state?.activeProfileId]);
+
   const activeProfile =
-    profiles.find((p) => p.id === activeProfileId) || profiles[0];
+    profiles.find((p) => String(p.id) === String(activeProfileId)) || profiles[0];
 
   const [allLogs, setAllLogs] = useState(() => {
     try {
@@ -106,11 +127,16 @@ export default function Home({
   const weekKeys = new Set(getLocalDaysList(7).map((d) => d.dateKey));
 
   const todayMemberLogs = allLogs.filter(
-    (l) => l.memberId === activeProfile.id && l.dateKey === todayKey
+    (l) =>
+      String(l.memberId) === String(activeProfile.id) && l.dateKey === todayKey
   );
 
   const weekTotalCount = allLogs
-    .filter((l) => l.memberId === activeProfile.id && weekKeys.has(l.dateKey))
+    .filter(
+      (l) =>
+        String(l.memberId) === String(activeProfile.id) &&
+        weekKeys.has(l.dateKey)
+    )
     .reduce((sum, l) => sum + Number(l.count || 0), 0);
 
   const handleQuickLogAamaal = (aamaalObj, newCount) => {
@@ -195,7 +221,16 @@ export default function Home({
           unreadAlertsCount={unreadAlertsCount}
           onSelectProfile={(id) => {
             setActiveProfileId(id);
-            const found = profiles.find((p) => p.id === id);
+            const found = profiles.find((p) => String(p.id) === String(id));
+            try {
+              localStorage.setItem(ACTIVE_PROFILE_KEY, String(id));
+            } catch (_) {}
+            if (updateState) {
+              updateState({
+                activeProfileId: id,
+                activeProfileName: found?.name || '',
+              });
+            }
             if (found && onShowToast) {
               onShowToast(`Active profile: ${found.name}`);
             }
