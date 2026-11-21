@@ -831,7 +831,7 @@ export default function AdminDashboard({
   }
 
   return (
-    <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar  pb-6 select-none">
+    <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar  pb-5 select-none">
       {/* HERO HEADER WITH SCENIC MOSQUE BACKDROP */}
       <div className="relative overflow-hidden bg-gradient-to-b from-[#F5F2E8] via-[#F7E8C8] to-[#568274] pt-3 pb-10 px-4">
         {/* Optional Scenic Banner Image (falls back cleanly to SVG landscape below) */}
@@ -947,14 +947,14 @@ export default function AdminDashboard({
       </div>
 
       {/* MAIN CONTENT BODY */}
-      <div className="px-4 -mt-5 relative z-20 space-y-3.5">
+      <div className="px-4 -mt-5 relative z-10 space-y-3.5">
         {/* Month Selector Pill */}
-        <div className="rounded-[18px] bg-[#FDFCF8] border border-white shadow-[0_6px_18px_rgba(13,74,46,0.08)] px-4 py-3 flex items-center justify-between">
+        <div className="rounded-[18px] bg-[#E8E6D5] border border-[#DCD8C6] shadow-[0_6px_18px_rgba(13,74,46,0.08)] px-4 py-3 flex items-center justify-between">
           <button
             type="button"
             onClick={() => shiftMonth(-1)}
             aria-label="Previous Month"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-[#14261C] hover:bg-[#EAE8D7] active:scale-90 transition"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#14261C] hover:bg-[#DCD8C6] active:scale-90 transition"
           >
             <svg
               className="w-5 h-5"
@@ -977,7 +977,7 @@ export default function AdminDashboard({
             type="button"
             onClick={() => shiftMonth(1)}
             aria-label="Next Month"
-            className="w-8 h-8 rounded-full flex items-center justify-center text-[#14261C] hover:bg-[#EAE8D7] active:scale-90 transition"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#14261C] hover:bg-[#DCD8C6] active:scale-90 transition"
           >
             <svg
               className="w-5 h-5"
@@ -993,56 +993,40 @@ export default function AdminDashboard({
           </button>
         </div>
 
-        {/* 3-Column KPI Stat Cards */}
+        {/* 3-Column KPI Stat Cards (Static) */}
         <div className="grid grid-cols-3 gap-2.5">
-          <button
-            type="button"
-            onClick={() => openModule('members')}
-            className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center active:scale-[0.98] transition"
-          >
+          <div className="rounded-[18px] bg-[#E8E6D5] border border-[#DCD8C6] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center">
             <p className="text-[26px] font-bold text-[#14261C] leading-none">
               {monthlyStats.totalMembers}
             </p>
             <p className="text-[11px] font-medium text-[#4E5953] mt-1.5">
               Total Members
             </p>
-          </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => openModule('stats')}
-            className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center active:scale-[0.98] transition"
-          >
+          <div className="rounded-[18px] bg-[#E8E6D5] border border-[#DCD8C6] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center">
             <p className="text-[26px] font-bold text-[#14261C] leading-none">
               {monthlyStats.activeMembers}
             </p>
             <p className="text-[11px] font-medium text-[#4E5953] mt-1.5">
               Active Members
             </p>
-          </button>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => openModule('members')}
-            className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center active:scale-[0.98] transition"
-          >
+          <div className="rounded-[18px] bg-[#E8E6D5] border border-[#DCD8C6] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center">
             <p className="text-[26px] font-bold text-[#14261C] leading-none">
               {monthlyStats.adminsCount}
             </p>
             <p className="text-[11px] font-medium text-[#4E5953] mt-1.5">
               Admins
             </p>
-          </button>
+          </div>
         </div>
 
-        {/* Total Recitations Highlight Card */}
-        <button
-          type="button"
-          onClick={() => openModule('monthly')}
-          className="w-full rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] px-4 py-3.5 flex items-center justify-between text-left active:scale-[0.99] transition"
-        >
+        {/* Total Recitations Highlight Card (Static) */}
+        <div className="w-full rounded-[18px] bg-[#E8E6D5] border border-[#DCD8C6] shadow-[0_3px_12px_rgba(20,38,28,0.04)] px-4 py-3.5 flex items-center justify-between text-left">
           <div className="flex items-center space-x-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-[#E9F3EC] text-[#0D4A2E] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-[#DCE8DF] text-[#0D4A2E] flex items-center justify-center shrink-0">
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2.5c-.6 0-1 .5-1 1v1.2C8.3 5.5 6.5 7.9 6.5 10.5V12h11v-1.5c0-2.6-1.8-5-4.5-5.8V3.5c0-.5-.4-1-1-1zM5 13.5V20h4.5v-3.5a2.5 2.5 0 0 1 5 0V20H19v-6.5H5z" />
               </svg>
@@ -1070,9 +1054,9 @@ export default function AdminDashboard({
               vs. previous month
             </p>
           </div>
-        </button>
+        </div>
 
-        {/* Admin Tools Circular Icon Grid (2 Rows × 4 Columns) */}
+        {/* Admin Tools Circular Icon Grid (Buttons) */}
         <div className="grid grid-cols-4 gap-y-4 gap-x-2 pt-2 pb-1">
           {ADMIN_TOOLS.map((tool) => (
             <button
@@ -1096,7 +1080,7 @@ export default function AdminDashboard({
           ))}
         </div>
 
-        {/* Recent Activity Section */}
+        {/* Recent Activity Section (Static Rows, View All Button) */}
         <div className="pt-1">
           <div className="flex items-center justify-between mb-2.5">
             <h3 className="text-[16px] font-bold text-[#14261C]">
@@ -1112,20 +1096,16 @@ export default function AdminDashboard({
             </button>
           </div>
 
-          <div className="rounded-[20px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] divide-y divide-[#F0EDE2] overflow-hidden">
+          <div className="rounded-[20px] bg-[#E8E6D5] border border-[#DCD8C6] shadow-[0_3px_12px_rgba(20,38,28,0.04)] divide-y divide-[#DCD8C6] overflow-hidden">
             {recentActivities.length === 0 ? (
               <div className="p-5 text-center text-[12.5px] text-[#55615A]">
                 No recent circle activity yet. Logs and new member joins will appear here.
               </div>
             ) : (
               recentActivities.map((item) => (
-                <button
+                <div
                   key={item.id}
-                  type="button"
-                  onClick={() =>
-                    openModule(item.type === 'join' ? 'members' : 'inspector')
-                  }
-                  className="w-full px-3.5 py-3 flex items-center space-x-3 text-left hover:bg-[#F7F5EC] transition"
+                  className="w-full px-3.5 py-3 flex items-center space-x-3 text-left"
                 >
                   {item.avatar ? (
                     <img
@@ -1137,8 +1117,8 @@ export default function AdminDashboard({
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center font-serif font-bold text-[15px] shrink-0 ${
                         item.type === 'join'
-                          ? 'bg-[#E3EEF7] text-[#1D5B8C]'
-                          : 'bg-[#E2EFE5] text-[#0D4A2E]'
+                          ? 'bg-[#DCE8F2] text-[#1D5B8C]'
+                          : 'bg-[#DCE8DF] text-[#0D4A2E]'
                       }`}
                     >
                       {item.name.trim()[0]?.toUpperCase() || 'A'}
@@ -1154,7 +1134,7 @@ export default function AdminDashboard({
                       {formatRelativeTime(item.timestamp)}
                     </p>
                   </div>
-                </button>
+                </div>
               ))
             )}
           </div>
