@@ -305,7 +305,7 @@ export default function AdminMonthlyReports({
 
       <div className="px-4 space-y-4 flex-1">
         {/* Centered Month Switcher Pill */}
-        <div className="max-w-[270px] mx-auto rounded-full bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_10px_rgba(20,38,28,0.05)] px-3 py-2 flex items-center justify-between">
+        <div className="max-w-[270px] mx-auto rounded-full bg-[#E8E6D5] border border-[#ECE9DC] shadow-[0_3px_10px_rgba(20,38,28,0.05)] px-3 py-2 flex items-center justify-between">
           <button
             type="button"
             onClick={() => shiftMonth(-1)}
@@ -333,7 +333,7 @@ export default function AdminMonthlyReports({
 
         {/* 3-Column Summary KPI Cards */}
         <div className="grid grid-cols-3 gap-2.5">
-          <div className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center flex flex-col items-center">
+          <div className="rounded-[18px] bg-[#E8E6D5] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center flex flex-col items-center">
             <svg className="w-6 h-6 text-[#0D4A2E] mb-1.5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M2 5.5A2.5 2.5 0 0 1 4.5 3H11v16H4.5A2.5 2.5 0 0 1 2 16.5v-11zm11-2.5h6.5A2.5 2.5 0 0 1 22 5.5v11a2.5 2.5 0 0 1-2.5 2.5H13V3z" />
             </svg>
@@ -345,7 +345,7 @@ export default function AdminMonthlyReports({
             </p>
           </div>
 
-          <div className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center flex flex-col items-center">
+          <div className="rounded-[18px] bg-[#E8E6D5] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center flex flex-col items-center">
             <svg className="w-6 h-6 text-[#0D4A2E] mb-1.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="2" />
               <line x1="16" y1="2" x2="16" y2="6" />
@@ -360,7 +360,7 @@ export default function AdminMonthlyReports({
             </p>
           </div>
 
-          <div className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center flex flex-col items-center">
+          <div className="rounded-[18px] bg-[#E8E6D5] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center flex flex-col items-center">
             <svg className="w-6 h-6 text-[#0D4A2E] mb-1.5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
             </svg>
@@ -473,7 +473,7 @@ export default function AdminMonthlyReports({
           <button
             type="button"
             onClick={handleShareReport}
-            className="h-[44px] rounded-full bg-[#FDFCF8] border-[1.5px] border-[#0D4A2E] text-[#14261C] text-[13.5px] font-semibold flex items-center justify-center space-x-2 active:scale-[0.98] transition"
+            className="h-[44px] rounded-full bg-[#E8E6D5] border-[1.5px] border-[#0D4A2E] text-[#14261C] text-[13.5px] font-semibold flex items-center justify-center space-x-2 active:scale-[0.98] transition"
           >
             <svg className="w-4 h-4 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="18" cy="5" r="3" />
@@ -488,7 +488,7 @@ export default function AdminMonthlyReports({
           <button
             type="button"
             onClick={handleExportCsv}
-            className="h-[44px] rounded-full bg-[#FDFCF8] border-[1.5px] border-[#0D4A2E] text-[#14261C] text-[13.5px] font-semibold flex items-center justify-center space-x-2 active:scale-[0.98] transition"
+            className="h-[44px] rounded-full bg-[#E8E6D5] border-[1.5px] border-[#0D4A2E] text-[#14261C] text-[13.5px] font-semibold flex items-center justify-center space-x-2 active:scale-[0.98] transition"
           >
             <svg className="w-4 h-4 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />

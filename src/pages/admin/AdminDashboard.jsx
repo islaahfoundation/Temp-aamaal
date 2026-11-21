@@ -307,7 +307,7 @@ export default function AdminDashboard({
   // Restrict access to Admins only
   if (!isAdmin) {
     return (
-      <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#FAF8F2] px-5 pt-10 pb-6 text-center space-y-3">
+      <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#F5F2E8] px-5 pt-10 pb-6 text-center space-y-3">
         <div className="w-14 h-14 rounded-full bg-[#EAE8D7] flex items-center justify-center text-[24px] mx-auto">
           🔒
         </div>
@@ -711,7 +711,7 @@ export default function AdminDashboard({
   // FULL-SCREEN MONTHLY REPORT PAGE (Hides Bottom Footer)
   if (activePopup === 'monthly') {
     return (
-      <div className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#FAF8F2]">
+      <div className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#F5F2E8]">
         <AdminMonthlyReports
           aamaalList={aamaalList}
           allMembers={allMembers}
@@ -731,9 +731,9 @@ export default function AdminDashboard({
   // FULL-SCREEN PAGE-LIKE VIEW FOR MANAGE AAMAAL & MEMBERS (Hides Bottom Footer)
   if (activePopup === 'aamaal' || activePopup === 'members') {
     return (
-      <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#FAF8F2] flex flex-col pb-6 select-none">
+      <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#F5F2E8] flex flex-col pb-6 select-none">
         {/* Sticky Full-Screen Page Header */}
-        <header className="sticky top-0 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#E6E2D3] px-4 py-3 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-[#F5F2E8]/95 backdrop-blur-md border-b border-[#E6E2D3] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-3 min-w-0">
             <button
               type="button"
@@ -831,9 +831,9 @@ export default function AdminDashboard({
   }
 
   return (
-    <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#FAF8F2] pb-6 select-none">
+    <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar  pb-6 select-none">
       {/* HERO HEADER WITH SCENIC MOSQUE BACKDROP */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-[#FAF8F2] via-[#F7E8C8] to-[#568274] pt-3 pb-10 px-4">
+      <div className="relative overflow-hidden bg-gradient-to-b from-[#F5F2E8] via-[#F7E8C8] to-[#568274] pt-3 pb-10 px-4">
         {/* Optional Scenic Banner Image (falls back cleanly to SVG landscape below) */}
         <img
           src="/img/admin-banner.jpg"
