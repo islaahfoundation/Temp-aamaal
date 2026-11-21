@@ -35,11 +35,18 @@ export default function AdminMonthlyReports({
   });
 
   const [showMemberInspector, setShowMemberInspector] = useState(false);
-  const [selectedMemberId, setSelectedMemberId] = useState(allMembers[0]?.id || 'primary_member');
-  const [selectedAamaalId, setSelectedAamaalId] = useState(aamaalList[0]?.id || 'durood_313');
+  const [selectedMemberId, setSelectedMemberId] = useState(
+    allMembers[0]?.id || 'primary_member'
+  );
+  const [selectedAamaalId, setSelectedAamaalId] = useState(
+    aamaalList[0]?.id || 'durood_313'
+  );
   const breakdownRef = useRef(null);
+  const inspectorSectionRef = useRef(null);
 
-  const selectedMonthStr = `${selectedMonthObj.year}-${String(selectedMonthObj.month + 1).padStart(2, '0')}`;
+  const selectedMonthStr = `${selectedMonthObj.year}-${String(
+    selectedMonthObj.month + 1
+  ).padStart(2, '0')}`;
 
   const shiftMonth = (delta) => {
     setSelectedMonthObj((prev) => {
@@ -49,11 +56,20 @@ export default function AdminMonthlyReports({
   };
 
   const reportData = useMemo(() => {
-    const daysInMonth = new Date(selectedMonthObj.year, selectedMonthObj.month + 1, 0).getDate();
+    const daysInMonth = new Date(
+      selectedMonthObj.year,
+      selectedMonthObj.month + 1,
+      0
+    ).getDate();
     const monthLogs = allLogs.filter(
-      (l) => String(l.dateKey || '').startsWith(selectedMonthStr) && Number(l.count || 0) > 0
+      (l) =>
+        String(l.dateKey || '').startsWith(selectedMonthStr) &&
+        Number(l.count || 0) > 0
     );
-    const totalCount = monthLogs.reduce((sum, l) => sum + Number(l.count || 0), 0);
+    const totalCount = monthLogs.reduce(
+      (sum, l) => sum + Number(l.count || 0),
+      0
+    );
 
     const memberDaysMap = new Map();
     const dailyTotals = Array.from({ length: daysInMonth }, (_, idx) => ({
@@ -66,31 +82,50 @@ export default function AdminMonthlyReports({
     monthLogs.forEach((log) => {
       const count = Number(log.count || 0);
       const dayNum = Number(String(log.dateKey || '').slice(8, 10));
-      if (dayNum >= 1 && dayNum <= daysInMonth) dailyTotals[dayNum - 1].total += count;
-      if (!memberDaysMap.has(log.memberId)) memberDaysMap.set(log.memberId, new Set());
+      if (dayNum >= 1 && dayNum <= daysInMonth) {
+        dailyTotals[dayNum - 1].total += count;
+      }
+      if (!memberDaysMap.has(log.memberId)) {
+        memberDaysMap.set(log.memberId, new Set());
+      }
       memberDaysMap.get(log.memberId).add(log.dateKey);
-      aamaalTotalsMap.set(log.aamaalId, (aamaalTotalsMap.get(log.aamaalId) || 0) + count);
+      aamaalTotalsMap.set(
+        log.aamaalId,
+        (aamaalTotalsMap.get(log.aamaalId) || 0) + count
+      );
     });
 
     const activeMembers = memberDaysMap.size;
     let avgActiveDays = 0;
     if (activeMembers > 0) {
       let sumDays = 0;
-      memberDaysMap.forEach((set) => { sumDays += set.size; });
+      memberDaysMap.forEach((set) => {
+        sumDays += set.size;
+      });
       avgActiveDays = Math.round(sumDays / activeMembers);
     }
 
     const maxDaily = Math.max(...dailyTotals.map((d) => d.total), 10);
     const yAxisMax = Math.ceil(maxDaily / 200) * 200 || 200;
 
-    const visibleAamaals = aamaalList.filter((a) => resolveAamaalStatus(a) !== 'deleted');
+    const visibleAamaals = aamaalList.filter(
+      (a) => resolveAamaalStatus(a) !== 'deleted'
+    );
     const breakdown = visibleAamaals.map((item) => {
       const count = aamaalTotalsMap.get(item.id) || 0;
       const pct = totalCount > 0 ? Math.round((count / totalCount) * 100) : 0;
       return { ...item, count, pct };
     });
 
-    return { daysInMonth, totalCount, avgActiveDays, activeMembers, dailyTotals, yAxisMax, breakdown };
+    return {
+      daysInMonth,
+      totalCount,
+      avgActiveDays,
+      activeMembers,
+      dailyTotals,
+      yAxisMax,
+      breakdown,
+    };
   }, [allLogs, aamaalList, selectedMonthObj, selectedMonthStr]);
 
   const handleExportCsv = () => {
@@ -112,27 +147,57 @@ export default function AdminMonthlyReports({
     onShowToast?.('Monthly report CSV downloaded');
   };
 
-  const chosenMember = allMembers.find((m) => m.id === selectedMemberId) || allMembers[0] || { id: 'primary_member', name: 'Member', country: 'India' };
-  const chosenAamaal = aamaalList.find((a) => a.id === selectedAamaalId) || aamaalList[0] || { id: 'durood_313', name: 'Durood Shareef', target: 313 };
+  const handleToggleInspector = () => {
+    setShowMemberInspector((prev) => {
+      const next = !prev;
+      if (next) {
+        setTimeout(() => {
+          inspectorSectionRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }, 60);
+      }
+      return next;
+    });
+  };
+
+  const chosenMember =
+    allMembers.find((m) => m.id === selectedMemberId) ||
+    allMembers[0] || { id: 'primary_member', name: 'Member', country: 'India' };
+  const chosenAamaal =
+    aamaalList.find((a) => a.id === selectedAamaalId) ||
+    aamaalList[0] || { id: 'durood_313', name: 'Durood Shareef', target: 313 };
   const mInfo = getMonthDetails(selectedMonthStr);
   const prettyMonth = formatMonthYearPretty(selectedMonthStr);
 
   const dayCountMap = {};
   allLogs.forEach((log) => {
-    if (log.memberId === chosenMember.id && log.aamaalId === chosenAamaal.id && (log.dateKey || '').startsWith(selectedMonthStr)) {
+    if (
+      log.memberId === chosenMember.id &&
+      log.aamaalId === chosenAamaal.id &&
+      (log.dateKey || '').startsWith(selectedMonthStr)
+    ) {
       dayCountMap[log.dateKey] = Number(log.count || 0);
     }
   });
 
-  const yTicks = [1, 0.8, 0.6, 0.4, 0.2, 0].map((ratio) => Math.round(reportData.yAxisMax * ratio));
+  const yTicks = [1, 0.8, 0.6, 0.4, 0.2, 0].map((ratio) =>
+    Math.round(reportData.yAxisMax * ratio)
+  );
   const xLabelDays = [1, 5, 10, 15, 20, 25, reportData.daysInMonth];
 
   return (
-    <div className="bg-[#F7F5EE] min-h-[100dvh] flex flex-col select-none pb-20">
+    <div className="h-full min-h-0 bg-[#F7F5EE] flex flex-col overflow-hidden select-none">
       <ScreenHeader title="Monthly Report" onBack={onBack} />
 
-      <div className="px-4 space-y-4 flex-1">
-        <MonthSwitcher year={selectedMonthObj.year} month={selectedMonthObj.month} onShift={shiftMonth} compact />
+      <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 pt-1 pb-28 space-y-4">
+        <MonthSwitcher
+          year={selectedMonthObj.year}
+          month={selectedMonthObj.month}
+          onShift={shiftMonth}
+          compact
+        />
 
         {/* 3 Summary KPI Cards */}
         <div className="grid grid-cols-3 gap-2.5">
@@ -140,23 +205,45 @@ export default function AdminMonthlyReports({
             {
               value: reportData.totalCount.toLocaleString(),
               label: 'Total Count',
-              icon: <svg className="w-6 h-6 text-[#0D4A2E]" viewBox="0 0 24 24" fill="currentColor"><path d="M2 5.5A2.5 2.5 0 0 1 4.5 3H11v16H4.5A2.5 2.5 0 0 1 2 16.5v-11zm11-2.5h6.5A2.5 2.5 0 0 1 22 5.5v11a2.5 2.5 0 0 1-2.5 2.5H13V3z" /></svg>,
+              icon: (
+                <svg className="w-6 h-6 text-[#0D4A2E]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M2 5.5A2.5 2.5 0 0 1 4.5 3H11v16H4.5A2.5 2.5 0 0 1 2 16.5v-11zm11-2.5h6.5A2.5 2.5 0 0 1 22 5.5v11a2.5 2.5 0 0 1-2.5 2.5H13V3z" />
+                </svg>
+              ),
             },
             {
               value: reportData.avgActiveDays,
               label: 'Avg. Active Days',
-              icon: <svg className="w-6 h-6 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>,
+              icon: (
+                <svg className="w-6 h-6 text-[#0D4A2E]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              ),
             },
             {
               value: reportData.activeMembers,
               label: 'Active Members',
-              icon: <svg className="w-6 h-6 text-[#0D4A2E]" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" /></svg>,
+              icon: (
+                <svg className="w-6 h-6 text-[#0D4A2E]" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                </svg>
+              ),
             },
           ].map((kpi) => (
-            <div key={kpi.label} className="rounded-[18px] bg-[#FCFBF7] border border-[#E6E2D5] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center flex flex-col items-center">
+            <div
+              key={kpi.label}
+              className="rounded-[18px] bg-[#FCFBF7] border border-[#E6E2D5] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center flex flex-col items-center"
+            >
               <div className="mb-1.5">{kpi.icon}</div>
-              <p className="text-[22px] font-bold text-[#14261C] leading-none">{kpi.value}</p>
-              <p className="text-[11px] font-medium text-[#55615A] mt-1">{kpi.label}</p>
+              <p className="text-[22px] font-bold text-[#14261C] leading-none">
+                {kpi.value}
+              </p>
+              <p className="text-[11px] font-medium text-[#55615A] mt-1">
+                {kpi.label}
+              </p>
             </div>
           ))}
         </div>
@@ -164,24 +251,37 @@ export default function AdminMonthlyReports({
         {/* 31-Day Bar Chart */}
         <div className="flex items-end space-x-2 pt-1">
           <div className="h-[148px] flex flex-col justify-between text-right text-[10px] font-medium text-[#6B7670] pr-1 shrink-0">
-            {yTicks.map((tick, i) => <span key={i} className="leading-none">{tick.toLocaleString()}</span>)}
+            {yTicks.map((tick, i) => (
+              <span key={i} className="leading-none">
+                {tick.toLocaleString()}
+              </span>
+            ))}
           </div>
           <div className="flex-1 min-w-0">
             <div className="h-[148px] border-l border-b border-[#E6E2D3] px-1 pt-2 flex items-end justify-between gap-[2px]">
               {reportData.dailyTotals.map((d) => {
-                const pctHeight = Math.min(100, Math.round((d.total / reportData.yAxisMax) * 100));
+                const pctHeight = Math.min(
+                  100,
+                  Math.round((d.total / reportData.yAxisMax) * 100)
+                );
                 return (
                   <button
                     key={d.dateKey}
                     type="button"
                     title={`${d.dateKey}: ${d.total.toLocaleString()}`}
-                    onClick={() => onSelectDateInInspector?.(d.dateKey, chosenAamaal.id)}
+                    onClick={() =>
+                      onSelectDateInInspector?.(d.dateKey, chosenAamaal.id)
+                    }
                     className="flex-1 h-full flex items-end group"
                   >
                     <div
-                      style={{ height: `${Math.max(pctHeight, d.total > 0 ? 5 : 2)}%` }}
+                      style={{
+                        height: `${Math.max(pctHeight, d.total > 0 ? 5 : 2)}%`,
+                      }}
                       className={`w-full rounded-t-[3px] transition-all ${
-                        d.total > 0 ? 'bg-gradient-to-t from-[#0D4A2E] via-[#1B8A52] to-[#34B570]' : 'bg-[#E6E3D5]'
+                        d.total > 0
+                          ? 'bg-gradient-to-t from-[#0D4A2E] via-[#1B8A52] to-[#34B570]'
+                          : 'bg-[#E6E3D5]'
                       }`}
                     />
                   </button>
@@ -189,25 +289,40 @@ export default function AdminMonthlyReports({
               })}
             </div>
             <div className="flex items-center justify-between text-[10.5px] font-medium text-[#55615A] mt-1.5 px-0.5">
-              {xLabelDays.map((day) => <span key={day}>{day}</span>)}
+              {xLabelDays.map((day) => (
+                <span key={day}>{day}</span>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Aamaal Breakdown */}
         <div className="pt-1 space-y-3">
-          <h3 className="font-serif text-[18px] font-bold text-[#14261C]">Aamaal Breakdown</h3>
+          <h3 className="font-serif text-[18px] font-bold text-[#14261C]">
+            Aamaal Breakdown
+          </h3>
           <div className="space-y-3">
             {reportData.breakdown.map((item) => (
               <div key={item.id} className="flex items-center space-x-3">
                 <AamaalIcon aamaal={item} className="w-6 h-6 shrink-0" />
-                <span className="text-[13.5px] font-semibold text-[#14261C] w-[112px] truncate shrink-0">{item.name}</span>
+                <span className="text-[13.5px] font-semibold text-[#14261C] w-[112px] truncate shrink-0">
+                  {item.name}
+                </span>
                 <div className="flex-1 h-[7px] rounded-full bg-[#EAE7DA] overflow-hidden">
-                  <div style={{ width: `${Math.max(item.pct, item.count > 0 ? 6 : 0)}%` }} className="h-full rounded-full bg-gradient-to-r from-[#0D4A2E] to-[#1F8F55]" />
+                  <div
+                    style={{
+                      width: `${Math.max(item.pct, item.count > 0 ? 6 : 0)}%`,
+                    }}
+                    className="h-full rounded-full bg-gradient-to-r from-[#0D4A2E] to-[#1F8F55]"
+                  />
                 </div>
                 <div className="flex items-center space-x-2 shrink-0 text-right">
-                  <span className="text-[13.5px] font-bold text-[#14261C] min-w-[42px]">{item.count.toLocaleString()}</span>
-                  <span className="text-[12px] font-medium text-[#6B7670] min-w-[30px]">{item.pct}%</span>
+                  <span className="text-[13.5px] font-bold text-[#14261C] min-w-[42px]">
+                    {item.count.toLocaleString()}
+                  </span>
+                  <span className="text-[12px] font-medium text-[#6B7670] min-w-[30px]">
+                    {item.pct}%
+                  </span>
                 </div>
               </div>
             ))}
@@ -246,10 +361,13 @@ export default function AdminMonthlyReports({
         </div>
 
         {/* Collapsible Individual Member Inspector */}
-        <div className="pt-2 border-t border-[#E6E2D3]">
+        <div
+          ref={inspectorSectionRef}
+          className="pt-2 border-t border-[#E6E2D3]"
+        >
           <button
             type="button"
-            onClick={() => setShowMemberInspector((prev) => !prev)}
+            onClick={handleToggleInspector}
             className="w-full py-2 flex items-center justify-between text-[13px] font-semibold text-[#0D4A2E]"
           >
             <span>Inspect Individual Member vs. Target</span>
@@ -259,33 +377,67 @@ export default function AdminMonthlyReports({
           {showMemberInspector && (
             <div className="mt-2 rounded-[20px] bg-[#FCFBF7] border border-[#E6E2D5] p-4 space-y-3">
               <div className="grid grid-cols-2 gap-2.5">
-                <select value={chosenMember.id} onChange={(e) => setSelectedMemberId(e.target.value)} className="w-full bg-[#F7F5EE] text-[#14261C] text-[12px] font-semibold py-2 px-2.5 rounded-xl border border-[#E6E2D5]">
-                  {[...allMembers].sort((a, b) => (a.name || '').localeCompare(b.name || '')).map((m) => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
-                  ))}
+                <select
+                  value={chosenMember.id}
+                  onChange={(e) => setSelectedMemberId(e.target.value)}
+                  className="w-full bg-[#F7F5EE] text-[#14261C] text-[12px] font-semibold py-2 px-2.5 rounded-xl border border-[#E6E2D5]"
+                >
+                  {[...allMembers]
+                    .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+                    .map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
                 </select>
-                <select value={chosenAamaal.id} onChange={(e) => setSelectedAamaalId(e.target.value)} className="w-full bg-[#F7F5EE] text-[#14261C] text-[12px] font-semibold py-2 px-2.5 rounded-xl border border-[#E6E2D5]">
-                  {aamaalList.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+                <select
+                  value={chosenAamaal.id}
+                  onChange={(e) => setSelectedAamaalId(e.target.value)}
+                  className="w-full bg-[#F7F5EE] text-[#14261C] text-[12px] font-semibold py-2 px-2.5 rounded-xl border border-[#E6E2D5]"
+                >
+                  {aamaalList.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              <ExportReport member={chosenMember} aamaal={chosenAamaal} monthStr={selectedMonthStr} dayCountMap={dayCountMap} reportElementRef={breakdownRef} />
+              <ExportReport
+                member={chosenMember}
+                aamaal={chosenAamaal}
+                monthStr={selectedMonthStr}
+                dayCountMap={dayCountMap}
+                reportElementRef={breakdownRef}
+              />
 
               <div ref={breakdownRef} className="space-y-2.5 pt-1">
                 <div className="rounded-[14px] bg-[#0D4A2E] text-white px-3.5 py-2.5 flex items-center justify-between text-[12px]">
                   <div className="flex items-center space-x-2">
-                    <CountryFlag country={chosenMember.country || 'India'} size={16} />
-                    <span><strong className="text-[#F0D58C]">{chosenMember.name}</strong> • {prettyMonth}</span>
+                    <CountryFlag
+                      country={chosenMember.country || 'India'}
+                      size={16}
+                    />
+                    <span>
+                      <strong className="text-[#F0D58C]">
+                        {chosenMember.name}
+                      </strong>{' '}
+                      • {prettyMonth}
+                    </span>
                   </div>
                   <span className="text-[11px] text-white/85">
-                    {mInfo.isCurrentMonth ? `Day ${mInfo.elapsedDays}/${mInfo.totalDaysInMonth}` : `${mInfo.totalDaysInMonth} Days`}
+                    {mInfo.isCurrentMonth
+                      ? `Day ${mInfo.elapsedDays}/${mInfo.totalDaysInMonth}`
+                      : `${mInfo.totalDaysInMonth} Days`}
                   </span>
                 </div>
                 <MissedDays
                   monthStr={selectedMonthStr}
                   aamaal={chosenAamaal}
                   dayCountMap={dayCountMap}
-                  onSelectDateToLog={(clickedDate) => onSelectDateInInspector?.(clickedDate, chosenAamaal.id)}
+                  onSelectDateToLog={(clickedDate) =>
+                    onSelectDateInInspector?.(clickedDate, chosenAamaal.id)
+                  }
                 />
               </div>
             </div>
