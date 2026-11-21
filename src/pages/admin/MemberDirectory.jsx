@@ -68,7 +68,7 @@ export default function MemberDirectory({
       : [];
 
     return (
-      <div className="bg-[#F5F2E8] min-h-[100dvh] px-4 pt-4 pb-24">
+      <div className="h-full w-full bg-[#F5F2E8] overflow-hidden flex flex-col">
         <MemberDetails
           member={inspectedMember}
           parentMember={parent}
