@@ -1,7 +1,7 @@
 //The master controller for src/pages/admin/ that unites all 20 Admin Panel files with clean sub-navigation tabs (All-in-One Inspector, Monthly Reports, Manage Aamaal, Members & Roles, and Analytics) and persists changes across localStorage so your AamaalDashboard and AccountDashboard stay 100% synchronized.
 
 // src/pages/admin/AdminDashboard.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { DEFAULT_AAMAAL_LIST } from '../aamaal/AamaalCategories';
 import { getLocalDateString } from '../aamaal/DateSelector';
 import AdminDataExport from './AdminDataExport';
@@ -30,6 +30,34 @@ const CMS_KEYS = {
   quiz: 'aamaal_admin_cms_quiz_v1',
   masjids: MASJIDS_STORAGE_KEY,
 };
+
+const MONTH_NAMES = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+function formatRelativeTime(timestamp) {
+  if (!timestamp) return 'Recently';
+  const diffMs = Math.max(0, Date.now() - Number(timestamp));
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return `${mins} min${mins === 1 ? '' : 's'} ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`;
+  return new Date(timestamp).toLocaleDateString();
+}
 
 export function checkIsCurrentUserAdmin(state) {
   try {
@@ -74,11 +102,17 @@ export default function AdminDashboard({
 }) {
   const isAdmin = checkIsCurrentUserAdmin(state);
 
-  // Popup modal state: null | 'inspector' | 'monthly' | 'aamaal' | 'members' | 'stats' | 'jamaat_requests' | 'cms' | 'broadcast'
+  // Active module: null | 'inspector' | 'monthly' | 'aamaal' | 'members' | 'stats' | 'jamaat_requests' | 'cms' | 'broadcast'
   const [activePopup, setActivePopup] = useState(null);
 
   const [inspectorDate, setInspectorDate] = useState(getLocalDateString());
   const [inspectorAamaalId, setInspectorAamaalId] = useState('durood_313');
+
+  // Selected Month for Overview Stats
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return { year: now.getFullYear(), month: now.getMonth() };
+  });
 
   // 1. Aamaal Catalog State
   const [aamaalList, setAamaalList] = useState(() => {
@@ -169,6 +203,106 @@ export default function AdminDashboard({
       localStorage.setItem(JAMAAT_REQUESTS_KEY, JSON.stringify(jamaatRequests));
     } catch (_) {}
   }, [jamaatRequests]);
+
+  // Month Navigation
+  const shiftMonth = (delta) => {
+    try {
+      if (navigator.vibrate) navigator.vibrate(8);
+    } catch (_) {}
+    setSelectedMonth((prev) => {
+      const nextDate = new Date(prev.year, prev.month + delta, 1);
+      return { year: nextDate.getFullYear(), month: nextDate.getMonth() };
+    });
+  };
+
+  // Monthly Computed KPIs
+  const monthlyStats = useMemo(() => {
+    const currPrefix = `${selectedMonth.year}-${String(
+      selectedMonth.month + 1
+    ).padStart(2, '0')}`;
+    const prevDate = new Date(selectedMonth.year, selectedMonth.month - 1, 1);
+    const prevPrefix = `${prevDate.getFullYear()}-${String(
+      prevDate.getMonth() + 1
+    ).padStart(2, '0')}`;
+
+    const currLogs = allLogs.filter((l) =>
+      String(l.dateKey || '').startsWith(currPrefix)
+    );
+    const prevLogs = allLogs.filter((l) =>
+      String(l.dateKey || '').startsWith(prevPrefix)
+    );
+
+    const totalRecitations = currLogs.reduce(
+      (sum, l) => sum + Number(l.count || 0),
+      0
+    );
+    const prevRecitations = prevLogs.reduce(
+      (sum, l) => sum + Number(l.count || 0),
+      0
+    );
+
+    const activeMemberIds = new Set(
+      currLogs.filter((l) => Number(l.count || 0) > 0).map((l) => l.memberId)
+    );
+
+    const adminsCount = allMembers.filter((m) => m.role === 'admin').length;
+
+    let pctChange = 0;
+    if (prevRecitations > 0) {
+      pctChange = Math.round(
+        ((totalRecitations - prevRecitations) / prevRecitations) * 100
+      );
+    } else if (totalRecitations > 0) {
+      pctChange = 100;
+    }
+
+    return {
+      totalMembers: allMembers.length,
+      activeMembers: activeMemberIds.size,
+      adminsCount: adminsCount || 1,
+      totalRecitations,
+      pctChange,
+    };
+  }, [allLogs, allMembers, selectedMonth]);
+
+  // Recent Activity Feed (Logs + New Member Joins)
+  const recentActivities = useMemo(() => {
+    const memberMap = new Map(allMembers.map((m) => [m.id, m]));
+    const aamaalMap = new Map(aamaalList.map((a) => [a.id, a]));
+
+    const logEvents = allLogs
+      .filter((l) => Number(l.count || 0) > 0)
+      .map((l) => {
+        const member = memberMap.get(l.memberId);
+        const aamaal = aamaalMap.get(l.aamaalId);
+        const aamaalLabel = aamaal?.name || l.aamaalId || 'Aamaal';
+        return {
+          id: `log_${l.id}`,
+          type: 'log',
+          name: member?.name || 'Circle Member',
+          avatar: member?.avatar || null,
+          actionText: `completed ${
+            Number(l.count) > 1 ? `${l.count} ` : ''
+          }${aamaalLabel}`,
+          timestamp: l.updatedAt || Date.parse(l.dateKey) || 0,
+        };
+      });
+
+    const joinEvents = allMembers
+      .filter((m) => m.createdAt)
+      .map((m) => ({
+        id: `join_${m.id}`,
+        type: 'join',
+        name: m.name || 'New member',
+        avatar: m.avatar || null,
+        actionText: 'joined the circle',
+        timestamp: Number(m.createdAt) || 0,
+      }));
+
+    return [...logEvents, ...joinEvents]
+      .sort((a, b) => b.timestamp - a.timestamp)
+      .slice(0, 4);
+  }, [allLogs, allMembers, aamaalList]);
 
   // Restrict access to Admins only
   if (!isAdmin) {
@@ -269,7 +403,6 @@ export default function AdminDashboard({
     if (onShowToast) onShowToast('Member and logs removed');
   };
 
-  // Approve or Reject Jamaat Time Change Request
   const handleApproveJamaatRequest = (req) => {
     try {
       const masjids = JSON.parse(localStorage.getItem(MASJIDS_STORAGE_KEY) || '[]');
@@ -293,7 +426,9 @@ export default function AdminDashboard({
       prev.map((r) => (r.id === req.id ? { ...r, status: 'approved' } : r))
     );
     if (onShowToast) {
-      onShowToast(`✓ Approved! Updated ${req.masjidName} (${req.prayerKey}) to ${req.proposedJamat}`);
+      onShowToast(
+        `✓ Approved! Updated ${req.masjidName} (${req.prayerKey}) to ${req.proposedJamat}`
+      );
     }
   };
 
@@ -304,7 +439,6 @@ export default function AdminDashboard({
     if (onShowToast) onShowToast('Request rejected');
   };
 
-  // Send Broadcast to All Members' Alert Inbox + PWA Notification
   const handleSendBroadcast = (e) => {
     e.preventDefault();
     if (!broadcastBody.trim()) return;
@@ -341,7 +475,6 @@ export default function AdminDashboard({
     }
   };
 
-  // Save New CMS Entry to Selected Module
   const handleSaveCmsEntry = (e) => {
     e.preventDefault();
     if (!cmsForm.title.trim()) return;
@@ -431,164 +564,597 @@ export default function AdminDashboard({
     (r) => r.status === 'pending'
   ).length;
 
-  const ADMIN_MENU_ITEMS = [
+  const ADMIN_TOOLS = [
     {
-      id: 'jamaat_requests',
-      icon: '🕌',
-      title: 'Jamaat Time Requests',
-      subtitle: 'Review member clock photos & approve timetable updates',
-      badge: pendingJamaatCount > 0 ? `${pendingJamaatCount} Pending` : '0 Pending',
-      highlight: pendingJamaatCount > 0,
-    },
-    {
-      id: 'inspector',
-      icon: '📋',
-      title: 'Daily Inspector',
-      subtitle: 'Person-wise daily count editor & circle summary',
-      badge: 'Excel Export',
-    },
-    {
-      id: 'monthly',
-      icon: '📅',
-      title: 'Monthly vs Target',
-      subtitle: 'Track member monthly progress against circle goals',
-      badge: 'Excel Export',
+      id: 'members',
+      label: 'Members',
+      modalTitle: 'Members & Admin Roles',
+      icon: (
+        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+        </svg>
+      ),
     },
     {
       id: 'aamaal',
-      icon: '📿',
-      title: 'Manage Aamaal',
-      subtitle: 'Add, edit, or reorder daily Aamaal items & targets',
-      badge: `${aamaalList.length} Items`,
+      label: 'Aamaal',
+      modalTitle: 'Manage Aamaal',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="8" y1="13" x2="15" y2="13" />
+          <line x1="8" y1="17" x2="12.5" y2="17" />
+        </svg>
+      ),
     },
     {
-      id: 'members',
-      icon: '👥',
-      title: 'Members & Admin Roles',
-      subtitle: 'Directory, family profiles & promote/revoke admins',
-      badge: `${allMembers.length} Members`,
+      id: 'monthly',
+      label: 'Reports',
+      modalTitle: 'Monthly Report',
+      icon: (
+        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-5 15H7v-4h2v4zm4 0h-2v-7h2v7zm4 0h-2v-2h2v2zm-3-9V3.5L18.5 8H14z" />
+        </svg>
+      ),
+    },
+    {
+      id: 'inspector',
+      label: 'Inspector',
+      modalTitle: 'Daily Inspector',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+          <rect x="9" y="3" width="6" height="4" rx="1" />
+          <path d="M9 14l2 2 4-4" />
+        </svg>
+      ),
+    },
+    {
+      id: 'jamaat_requests',
+      label: 'Jamaat',
+      modalTitle: 'Jamaat Time Requests',
+      badgeCount: pendingJamaatCount,
+      icon: (
+        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2.5c-.6 0-1 .5-1 1v1.2C8.3 5.5 6.5 7.9 6.5 10.5V12h11v-1.5c0-2.6-1.8-5-4.5-5.8V3.5c0-.5-.4-1-1-1zM5 13.5V20h4.5v-3.5a2.5 2.5 0 0 1 5 0V20H19v-6.5H5z" />
+        </svg>
+      ),
     },
     {
       id: 'stats',
-      icon: '🌍',
-      title: 'Circle & Country Stats',
-      subtitle: 'Worldwide leaderboard & country-wise totals',
-      badge: 'Excel Export',
+      label: 'Stats',
+      modalTitle: 'Circle & Country Stats',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <circle cx="12" cy="12" r="9" />
+          <line x1="3.6" y1="9" x2="20.4" y2="9" />
+          <line x1="3.6" y1="15" x2="20.4" y2="15" />
+          <path d="M12 3a14.5 14.5 0 0 0 0 18 14.5 14.5 0 0 0 0-18z" />
+        </svg>
+      ),
     },
     {
       id: 'cms',
-      icon: '✍️',
-      title: 'Content Manager (CMS)',
-      subtitle: 'Add Heart & Soul, Duas, Stories, Learning, Quiz & Masjids',
-      badge: '6 Modules',
+      label: 'CMS',
+      modalTitle: 'Content Manager (CMS)',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+        </svg>
+      ),
     },
     {
       id: 'broadcast',
-      icon: '📢',
-      title: 'Broadcast Alert',
-      subtitle: 'Send instant announcements to every member’s inbox',
-      badge: 'Notify All',
+      label: 'Broadcast',
+      modalTitle: 'Broadcast Alert',
+      icon: (
+        <svg
+          className="w-6 h-6"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.1"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z" />
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+        </svg>
+      ),
     },
   ];
 
-  const activeMenuItem = ADMIN_MENU_ITEMS.find((i) => i.id === activePopup);
+  const openModule = (moduleId) => {
+    try {
+      if (navigator.vibrate) navigator.vibrate(10);
+    } catch (_) {}
+    setActivePopup(moduleId);
+  };
+
+  const activeTool = ADMIN_TOOLS.find((t) => t.id === activePopup);
+
+  // FULL-SCREEN MONTHLY REPORT PAGE
+  if (activePopup === 'monthly') {
+    return (
+      <AdminMonthlyReports
+        aamaalList={aamaalList}
+        allMembers={allMembers}
+        allLogs={allLogs}
+        onBack={() => setActivePopup(null)}
+        onShowToast={onShowToast}
+        onSelectDateInInspector={(clickedDate, aamaalId) => {
+          setInspectorDate(clickedDate);
+          setInspectorAamaalId(aamaalId);
+          setActivePopup('inspector');
+        }}
+      />
+    );
+  }
+
+  // FULL-SCREEN PAGE-LIKE VIEW FOR MANAGE AAMAAL & MEMBERS
+  if (activePopup === 'aamaal' || activePopup === 'members') {
+    return (
+      <section className="screen-section no-scrollbar bg-[#FAF8F2] flex flex-col min-h-[100dvh] pb-6 select-none">
+        {/* Sticky Full-Screen Page Header */}
+        <header className="sticky top-0 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#E6E2D3] px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center space-x-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  if (navigator.vibrate) navigator.vibrate(8);
+                } catch (_) {}
+                setActivePopup(null);
+              }}
+              aria-label="Back to Admin Overview"
+              className="w-9 h-9 rounded-full bg-[#EAE8D7] border border-[#D5D2BE] flex items-center justify-center text-[#0D4A2E] active:scale-95 transition shrink-0"
+            >
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <div className="min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#C99E4C] leading-none">
+                Admin Management
+              </p>
+              <h2 className="font-serif text-[20px] font-bold text-[#0D4A2E] leading-tight truncate mt-0.5">
+                {activeTool?.modalTitle}
+              </h2>
+            </div>
+          </div>
+
+          <span className="px-3 py-1 rounded-full bg-[#E6F1E8] text-[#0D4A2E] text-[11px] font-bold shrink-0">
+            {activePopup === 'aamaal'
+              ? `${aamaalList.length} Items`
+              : `${allMembers.length} Members`}
+          </span>
+        </header>
+
+        {/* Full-Screen Scrollable Content */}
+        <div className="flex-1 px-4 pt-4 space-y-4">
+          {activePopup === 'aamaal' && (
+            <AamaalManagement
+              aamaalList={aamaalList}
+              onAddAamaal={handleAddAamaal}
+              onUpdateAamaal={handleUpdateAamaal}
+              onDeleteAamaal={handleDeleteAamaal}
+            />
+          )}
+
+          {activePopup === 'members' && (
+            <>
+              <AdminDataExport
+                aamaalList={aamaalList}
+                allMembers={allMembers}
+                allLogs={allLogs}
+                onWipeAllLogs={() => {
+                  setAllLogs([]);
+                  if (onShowToast) onShowToast('All circle logs cleared');
+                }}
+              />
+              <MemberDirectory
+                allMembers={allMembers}
+                aamaalList={aamaalList}
+                allLogs={allLogs}
+                onAddMember={handleAddMember}
+                onUpdateMember={handleUpdateMember}
+                onResetMemberLogs={handleResetMemberLogs}
+                onRemoveMember={handleRemoveMember}
+                onDeleteSingleLog={(logId) => {
+                  setAllLogs((prev) => prev.filter((l) => l.id !== logId));
+                  if (onShowToast) onShowToast('Log entry deleted');
+                }}
+              />
+              <AdminManagement
+                allMembers={allMembers}
+                onToggleAdminRole={(memberId) => {
+                  const found = allMembers.find((m) => m.id === memberId);
+                  if (found) {
+                    handleUpdateMember(memberId, {
+                      role: found.role === 'admin' ? 'member' : 'admin',
+                    });
+                  }
+                }}
+              />
+            </>
+          )}
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="screen-section no-scrollbar px-4 pt-4 pb-6">
-      {/* Top Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2.5">
-          {onBack && (
+    <section className="screen-section no-scrollbar bg-[#FAF8F2] pb-6 select-none">
+      {/* HERO HEADER WITH SCENIC MOSQUE BACKDROP */}
+      <div className="relative overflow-hidden bg-gradient-to-b from-[#FAF8F2] via-[#F7E8C8] to-[#568274] pt-3 pb-10 px-4">
+        {/* Optional Scenic Banner Image (falls back cleanly to SVG landscape below) */}
+        <img
+          src="/img/admin-banner.jpg"
+          alt=""
+          onError={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+          className="pointer-events-none absolute inset-0 w-full h-full object-cover opacity-90"
+        />
+
+        {/* Built-in Sunrise Mosque & Lake Vector Landscape Fallback */}
+        <svg
+          className="pointer-events-none absolute inset-x-0 bottom-0 w-full h-44"
+          viewBox="0 0 400 180"
+          preserveAspectRatio="none"
+          fill="none"
+        >
+          <defs>
+            <radialGradient id="adminSunrise" cx="42%" cy="38%" r="48%">
+              <stop offset="0%" stopColor="#FFF7DC" stopOpacity="0.95" />
+              <stop offset="55%" stopColor="#F5D998" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#E6D5A7" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="adminWater" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#6D9B8B" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#3B6B5C" stopOpacity="0.9" />
+            </linearGradient>
+          </defs>
+          <rect width="400" height="180" fill="url(#adminSunrise)" />
+          {/* Distant Mosque Silhouette */}
+          <path
+            d="M190 125V92h14V55l3-14 3 14v37h14c4-22 18-36 34-36s30 14 34 36h16V35l4-18 4 18v57h18V56l3-13 3 13v36h16c3-14 12-22 22-22s18 8 22 22h10v33H190z"
+            fill="#8DB39B"
+            opacity="0.85"
+          />
+          <path
+            d="M224 92c4-20 17-33 34-33s30 13 34 33h-68z"
+            fill="#1D7A56"
+            opacity="0.75"
+          />
+          {/* Left Foliage Silhouette */}
+          <path
+            d="M0 125V82c12-12 28-14 40-4 10-14 30-14 42 0 12-8 26-4 34 8 14-6 30 2 38 14 10-6 22-2 28 8v17H0z"
+            fill="#1E5238"
+            opacity="0.85"
+          />
+          {/* Reflective Lake */}
+          <rect y="124" width="400" height="56" fill="url(#adminWater)" />
+        </svg>
+
+        {/* Bottom Scrim for Greeting Contrast */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0D3824]/85 via-[#0D3824]/45 to-transparent" />
+
+        {/* Top Bar: Back / Brand / Static Admin Badge */}
+        <div className="relative z-10 flex items-start justify-between">
+          {onBack ? (
             <button
               type="button"
               onClick={onBack}
-              className="btn-secondary px-3 py-1 text-[11.5px]"
+              aria-label="Go Back"
+              className="w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-[#14261C] active:scale-95 transition"
             >
-              ‹ Back
+              <svg
+                className="w-6 h-6"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              >
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
             </button>
+          ) : (
+            <div className="w-9 h-9" />
           )}
-          <div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-gold block">
-              Islaah Foundation Governance
-            </span>
-            <h2 className="font-serif text-[22px] font-semibold text-primary leading-tight">
-              🛡️ Circle Admin Panel
-            </h2>
+
+          <div className="text-center leading-tight">
+            <h1 className="font-serif text-[25px] font-bold text-[#0D4A2E] tracking-tight">
+              Aamaal
+            </h1>
+            <p className="text-[11px] font-medium text-[#1F3528] -mt-0.5">
+              Live with Purpose
+            </p>
           </div>
+
+          {/* Static Admin Badge (Not a Button) */}
+          <span className="px-3.5 py-1 rounded-full bg-[#1C8549] text-white text-[12px] font-semibold shadow-sm pointer-events-none">
+            Admin
+          </span>
         </div>
-        <span className="badge-pill">{allMembers.length} Members</span>
+
+        {/* Hero Greeting */}
+        <div className="relative z-10 mt-10">
+          <h2 className="font-serif text-[27px] font-bold text-white leading-[1.15] drop-shadow-sm">
+            Assalamu Alaikum,
+            <br />
+            Admin
+          </h2>
+          <p className="text-[13.5px] text-white/95 font-medium mt-1 drop-shadow-sm">
+            Manage your Aamaal Circle
+          </p>
+        </div>
       </div>
 
-      {/* Vertical Admin Menu List */}
-      <div className="space-y-2.5">
-        {ADMIN_MENU_ITEMS.map((item) => (
+      {/* MAIN CONTENT BODY */}
+      <div className="px-4 -mt-5 relative z-20 space-y-3.5">
+        {/* Month Selector Pill */}
+        <div className="rounded-[18px] bg-[#FDFCF8] border border-white shadow-[0_6px_18px_rgba(13,74,46,0.08)] px-4 py-3 flex items-center justify-between">
           <button
-            key={item.id}
             type="button"
-            onClick={() => {
-              try {
-                if (navigator.vibrate) navigator.vibrate(10);
-              } catch (_) {}
-              setActivePopup(item.id);
-            }}
-            className={`w-full text-left rounded-[18px] p-3.5 border flex items-center space-x-3 active:scale-[0.99] transition shadow-soft-card ${
-              item.highlight
-                ? 'bg-[#0F4C2B] text-white border-[#C99E4C]'
-                : 'bg-[#F3EFE2] text-primary border-white/90'
-            }`}
+            onClick={() => shiftMonth(-1)}
+            aria-label="Previous Month"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#14261C] hover:bg-[#EAE8D7] active:scale-90 transition"
           >
-            <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center text-[18px] shrink-0 ${
-                item.highlight
-                  ? 'bg-white/15 text-[#F0D58C]'
-                  : 'bg-[#0D4A2E] text-[#F0D58C]'
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+
+          <span className="text-[15.5px] font-bold text-[#14261C] tracking-tight">
+            {MONTH_NAMES[selectedMonth.month]} {selectedMonth.year}
+          </span>
+
+          <button
+            type="button"
+            onClick={() => shiftMonth(1)}
+            aria-label="Next Month"
+            className="w-8 h-8 rounded-full flex items-center justify-center text-[#14261C] hover:bg-[#EAE8D7] active:scale-90 transition"
+          >
+            <svg
+              className="w-5 h-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+
+        {/* 3-Column KPI Stat Cards */}
+        <div className="grid grid-cols-3 gap-2.5">
+          <button
+            type="button"
+            onClick={() => openModule('members')}
+            className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center active:scale-[0.98] transition"
+          >
+            <p className="text-[26px] font-bold text-[#14261C] leading-none">
+              {monthlyStats.totalMembers}
+            </p>
+            <p className="text-[11px] font-medium text-[#4E5953] mt-1.5">
+              Total Members
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openModule('stats')}
+            className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center active:scale-[0.98] transition"
+          >
+            <p className="text-[26px] font-bold text-[#14261C] leading-none">
+              {monthlyStats.activeMembers}
+            </p>
+            <p className="text-[11px] font-medium text-[#4E5953] mt-1.5">
+              Active Members
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openModule('members')}
+            className="rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] py-3.5 px-2 text-center active:scale-[0.98] transition"
+          >
+            <p className="text-[26px] font-bold text-[#14261C] leading-none">
+              {monthlyStats.adminsCount}
+            </p>
+            <p className="text-[11px] font-medium text-[#4E5953] mt-1.5">
+              Admins
+            </p>
+          </button>
+        </div>
+
+        {/* Total Recitations Highlight Card */}
+        <button
+          type="button"
+          onClick={() => openModule('monthly')}
+          className="w-full rounded-[18px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] px-4 py-3.5 flex items-center justify-between text-left active:scale-[0.99] transition"
+        >
+          <div className="flex items-center space-x-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-[#E9F3EC] text-[#0D4A2E] flex items-center justify-center shrink-0">
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2.5c-.6 0-1 .5-1 1v1.2C8.3 5.5 6.5 7.9 6.5 10.5V12h11v-1.5c0-2.6-1.8-5-4.5-5.8V3.5c0-.5-.4-1-1-1zM5 13.5V20h4.5v-3.5a2.5 2.5 0 0 1 5 0V20H19v-6.5H5z" />
+              </svg>
+            </div>
+            <div className="flex items-baseline space-x-2 min-w-0">
+              <span className="text-[26px] font-bold text-[#14261C] leading-none">
+                {monthlyStats.totalRecitations.toLocaleString()}
+              </span>
+              <span className="text-[12.5px] font-semibold text-[#3C4B42] truncate">
+                Total Recitations
+              </span>
+            </div>
+          </div>
+
+          <div className="text-right shrink-0 ml-2">
+            <p
+              className={`text-[13px] font-bold leading-tight ${
+                monthlyStats.pctChange >= 0 ? 'text-[#1C8549]' : 'text-[#B93A32]'
               }`}
             >
-              {item.icon}
-            </div>
+              {monthlyStats.pctChange >= 0 ? '↑' : '↓'}{' '}
+              {Math.abs(monthlyStats.pctChange)}%
+            </p>
+            <p className="text-[10.5px] text-[#66736B] mt-0.5">
+              vs. previous month
+            </p>
+          </div>
+        </button>
 
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2">
-                <h3
-                  className="font-serif text-[15.5px] font-semibold truncate"
-                  style={{ color: item.highlight ? '#FFFFFF' : '#0D4A2E' }}
-                >
-                  {item.title}
-                </h3>
-                {item.badge && (
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-[9.5px] font-bold uppercase shrink-0 ${
-                      item.highlight
-                        ? 'bg-[#DFB75A] text-[#07361D]'
-                        : 'bg-[#DCE3C8] text-[#0D4A2E]'
-                    }`}
-                  >
-                    {item.badge}
+        {/* Admin Tools Circular Icon Grid (2 Rows × 4 Columns) */}
+        <div className="grid grid-cols-4 gap-y-4 gap-x-2 pt-2 pb-1">
+          {ADMIN_TOOLS.map((tool) => (
+            <button
+              key={tool.id}
+              type="button"
+              onClick={() => openModule(tool.id)}
+              className="flex flex-col items-center space-y-1.5 active:scale-95 transition"
+            >
+              <div className="relative w-14 h-14 rounded-full bg-[#E6F1E8] text-[#0D4A2E] flex items-center justify-center shadow-[0_2px_8px_rgba(13,74,46,0.06)] border border-[#D4E6D8]">
+                {tool.icon}
+                {tool.badgeCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#DFB75A] text-[#07361D] text-[10px] font-bold flex items-center justify-center shadow">
+                    {tool.badgeCount}
                   </span>
                 )}
               </div>
-              <p
-                className="text-[11.5px] truncate mt-0.5"
-                style={{
-                  color: item.highlight ? 'rgba(255,255,255,0.85)' : '#4E5953',
-                }}
-              >
-                {item.subtitle}
-              </p>
-            </div>
+              <span className="text-[12px] font-semibold text-[#1F3528] leading-tight">
+                {tool.label}
+              </span>
+            </button>
+          ))}
+        </div>
 
-            <span
-              className={`font-bold text-[16px] pr-1 ${
-                item.highlight ? 'text-[#F0D58C]' : 'text-primary'
-              }`}
+        {/* Recent Activity Section */}
+        <div className="pt-1">
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-[16px] font-bold text-[#14261C]">
+              Recent Activity
+            </h3>
+            <button
+              type="button"
+              onClick={() => openModule('inspector')}
+              className="text-[12.5px] font-semibold text-[#0D4A2E] flex items-center space-x-1 hover:opacity-80"
             >
-              ›
-            </span>
-          </button>
-        ))}
+              <span>View All</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <div className="rounded-[20px] bg-[#FDFCF8] border border-[#ECE9DC] shadow-[0_3px_12px_rgba(20,38,28,0.04)] divide-y divide-[#F0EDE2] overflow-hidden">
+            {recentActivities.length === 0 ? (
+              <div className="p-5 text-center text-[12.5px] text-[#55615A]">
+                No recent circle activity yet. Logs and new member joins will appear here.
+              </div>
+            ) : (
+              recentActivities.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() =>
+                    openModule(item.type === 'join' ? 'members' : 'inspector')
+                  }
+                  className="w-full px-3.5 py-3 flex items-center space-x-3 text-left hover:bg-[#F7F5EC] transition"
+                >
+                  {item.avatar ? (
+                    <img
+                      src={item.avatar}
+                      alt={item.name}
+                      className="w-10 h-10 rounded-full object-cover bg-[#DCE5DD] shrink-0"
+                    />
+                  ) : (
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-serif font-bold text-[15px] shrink-0 ${
+                        item.type === 'join'
+                          ? 'bg-[#E3EEF7] text-[#1D5B8C]'
+                          : 'bg-[#E2EFE5] text-[#0D4A2E]'
+                      }`}
+                    >
+                      {item.name.trim()[0]?.toUpperCase() || 'A'}
+                    </div>
+                  )}
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] text-[#14261C] leading-snug truncate">
+                      <span className="font-bold">{item.name}</span>{' '}
+                      <span className="text-[#3C4B42]">{item.actionText}</span>
+                    </p>
+                    <p className="text-[11px] text-[#6E7A72] mt-0.5">
+                      {formatRelativeTime(item.timestamp)}
+                    </p>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* CENTERED POPUP MODAL PAGE FOR SELECTED ADMIN MODULE */}
+      {/* CENTERED POPUP MODAL FOR OTHER ADMIN MODULES */}
       {activePopup && (
         <div
           onClick={() => setActivePopup(null)}
@@ -596,14 +1162,16 @@ export default function AdminDashboard({
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md max-h-[80dvh] rounded-[24px] bg-[#F5F2E8] border-2 border-[#C99E4C] shadow-2xl flex flex-col overflow-hidden"
+            className="w-full max-w-md max-h-[82dvh] rounded-[24px] bg-[#F5F2E8] border-2 border-[#C99E4C] shadow-2xl flex flex-col overflow-hidden"
           >
-            {/* Popup Top Bar (Always Visible) */}
+            {/* Popup Top Bar */}
             <div className="px-4 py-3 bg-[#0F4C2B] text-white flex items-center justify-between shrink-0 border-b border-[#C99E4C]/30">
-              <div className="flex items-center space-x-2 min-w-0">
-                <span className="text-[18px]">{activeMenuItem?.icon}</span>
+              <div className="flex items-center space-x-2.5 min-w-0">
+                <span className="text-[#F0D58C] shrink-0">
+                  {activeTool?.icon}
+                </span>
                 <h3 className="font-serif text-[17px] font-semibold truncate text-white">
-                  {activeMenuItem?.title}
+                  {activeTool?.modalTitle}
                 </h3>
               </div>
               <button
@@ -618,10 +1186,8 @@ export default function AdminDashboard({
 
             {/* Popup Scrollable Body */}
             <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar p-4 space-y-3.5">
-              {/* Tab-Specific Excel Export (ONLY on Inspector, Monthly, Members, Stats) */}
-              {['inspector', 'monthly', 'members', 'stats'].includes(
-                activePopup
-              ) && (
+              {/* Tab-Specific Excel Export (ONLY on Inspector & Stats) */}
+              {['inspector', 'stats'].includes(activePopup) && (
                 <AdminDataExport
                   aamaalList={aamaalList}
                   allMembers={allMembers}
@@ -736,61 +1302,7 @@ export default function AdminDashboard({
                 </div>
               )}
 
-              {/* POPUP 3: MONTHLY VS TARGET */}
-              {activePopup === 'monthly' && (
-                <AdminMonthlyReports
-                  aamaalList={aamaalList}
-                  allMembers={allMembers}
-                  allLogs={allLogs}
-                  onSelectDateInInspector={(clickedDate, aamaalId) => {
-                    setInspectorDate(clickedDate);
-                    setInspectorAamaalId(aamaalId);
-                    setActivePopup('inspector');
-                  }}
-                />
-              )}
-
-              {/* POPUP 4: MANAGE AAMAAL */}
-              {activePopup === 'aamaal' && (
-                <AamaalManagement
-                  aamaalList={aamaalList}
-                  onAddAamaal={handleAddAamaal}
-                  onUpdateAamaal={handleUpdateAamaal}
-                  onDeleteAamaal={handleDeleteAamaal}
-                />
-              )}
-
-              {/* POPUP 5: MEMBERS & ROLES */}
-              {activePopup === 'members' && (
-                <div className="space-y-3.5">
-                  <MemberDirectory
-                    allMembers={allMembers}
-                    aamaalList={aamaalList}
-                    allLogs={allLogs}
-                    onAddMember={handleAddMember}
-                    onUpdateMember={handleUpdateMember}
-                    onResetMemberLogs={handleResetMemberLogs}
-                    onRemoveMember={handleRemoveMember}
-                    onDeleteSingleLog={(logId) => {
-                      setAllLogs((prev) => prev.filter((l) => l.id !== logId));
-                      if (onShowToast) onShowToast('Log entry deleted');
-                    }}
-                  />
-                  <AdminManagement
-                    allMembers={allMembers}
-                    onToggleAdminRole={(memberId) => {
-                      const found = allMembers.find((m) => m.id === memberId);
-                      if (found) {
-                        handleUpdateMember(memberId, {
-                          role: found.role === 'admin' ? 'member' : 'admin',
-                        });
-                      }
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* POPUP 6: CIRCLE & COUNTRY STATS */}
+              {/* POPUP 3: CIRCLE & COUNTRY STATS */}
               {activePopup === 'stats' && (
                 <div className="space-y-3.5">
                   <CircleStatistics
@@ -811,7 +1323,7 @@ export default function AdminDashboard({
                 </div>
               )}
 
-              {/* POPUP 7: FULL MULTI-MODULE CMS (NO EXCEL EXPORT) */}
+              {/* POPUP 4: FULL MULTI-MODULE CMS */}
               {activePopup === 'cms' && (
                 <form
                   onSubmit={handleSaveCmsEntry}
@@ -996,7 +1508,7 @@ export default function AdminDashboard({
                 </form>
               )}
 
-              {/* POPUP 8: BROADCAST ALERT (NO EXCEL EXPORT) */}
+              {/* POPUP 5: BROADCAST ALERT */}
               {activePopup === 'broadcast' && (
                 <form
                   onSubmit={handleSendBroadcast}
