@@ -759,12 +759,12 @@ export default function AdminDashboard({
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.2"
+                strokeWidth="2.3"
                 strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <line x1="4" y1="7" x2="20" y2="7" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="17" x2="20" y2="17" />
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
               </svg>
             </button>
           ) : (

@@ -155,7 +155,7 @@ export default function App() {
         />
       </div>
 
-      {activeTab !== 'onboarding' && (
+      {activeTab !== 'onboarding' && activeTab !== 'admin' && (
         <BottomNavigation activeTab={activeTab} onChangeTab={handleNavigateTab} />
       )}
 

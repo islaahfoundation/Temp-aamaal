@@ -189,7 +189,7 @@ function MoreMenuDirectory({ state, onNavigateTab, onOpenSubPage, onStartTour })
       subtitle: 'Person-wise daily count inspector, WhatsApp & CSV tools',
       badge: 'Admin',
       icon: '👑',
-      action: () => onOpenSubPage('admin'),
+      action: () => onNavigateTab('admin'),
     },
     {
       id: 'settings',
