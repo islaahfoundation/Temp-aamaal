@@ -307,7 +307,7 @@ export default function AdminDashboard({
   // Restrict access to Admins only
   if (!isAdmin) {
     return (
-      <section className="screen-section no-scrollbar px-5 pt-10 pb-6 text-center space-y-3">
+      <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#FAF8F2] px-5 pt-10 pb-6 text-center space-y-3">
         <div className="w-14 h-14 rounded-full bg-[#EAE8D7] flex items-center justify-center text-[24px] mx-auto">
           🔒
         </div>
@@ -708,28 +708,30 @@ export default function AdminDashboard({
 
   const activeTool = ADMIN_TOOLS.find((t) => t.id === activePopup);
 
-  // FULL-SCREEN MONTHLY REPORT PAGE
+  // FULL-SCREEN MONTHLY REPORT PAGE (Hides Bottom Footer)
   if (activePopup === 'monthly') {
     return (
-      <AdminMonthlyReports
-        aamaalList={aamaalList}
-        allMembers={allMembers}
-        allLogs={allLogs}
-        onBack={() => setActivePopup(null)}
-        onShowToast={onShowToast}
-        onSelectDateInInspector={(clickedDate, aamaalId) => {
-          setInspectorDate(clickedDate);
-          setInspectorAamaalId(aamaalId);
-          setActivePopup('inspector');
-        }}
-      />
+      <div className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#FAF8F2]">
+        <AdminMonthlyReports
+          aamaalList={aamaalList}
+          allMembers={allMembers}
+          allLogs={allLogs}
+          onBack={() => setActivePopup(null)}
+          onShowToast={onShowToast}
+          onSelectDateInInspector={(clickedDate, aamaalId) => {
+            setInspectorDate(clickedDate);
+            setInspectorAamaalId(aamaalId);
+            setActivePopup('inspector');
+          }}
+        />
+      </div>
     );
   }
 
-  // FULL-SCREEN PAGE-LIKE VIEW FOR MANAGE AAMAAL & MEMBERS
+  // FULL-SCREEN PAGE-LIKE VIEW FOR MANAGE AAMAAL & MEMBERS (Hides Bottom Footer)
   if (activePopup === 'aamaal' || activePopup === 'members') {
     return (
-      <section className="screen-section no-scrollbar bg-[#FAF8F2] flex flex-col min-h-[100dvh] pb-6 select-none">
+      <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#FAF8F2] flex flex-col pb-6 select-none">
         {/* Sticky Full-Screen Page Header */}
         <header className="sticky top-0 z-30 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-[#E6E2D3] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-3 min-w-0">
@@ -829,7 +831,7 @@ export default function AdminDashboard({
   }
 
   return (
-    <section className="screen-section no-scrollbar bg-[#FAF8F2] pb-6 select-none">
+    <section className="fixed inset-0 z-[60] overflow-y-auto no-scrollbar bg-[#FAF8F2] pb-6 select-none">
       {/* HERO HEADER WITH SCENIC MOSQUE BACKDROP */}
       <div className="relative overflow-hidden bg-gradient-to-b from-[#FAF8F2] via-[#F7E8C8] to-[#568274] pt-3 pb-10 px-4">
         {/* Optional Scenic Banner Image (falls back cleanly to SVG landscape below) */}
@@ -885,26 +887,31 @@ export default function AdminDashboard({
         {/* Bottom Scrim for Greeting Contrast */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#0D3824]/85 via-[#0D3824]/45 to-transparent" />
 
-        {/* Top Bar: Back / Brand / Static Admin Badge */}
+        {/* Top Bar: Back Button / Brand / Static Admin Badge */}
         <div className="relative z-10 flex items-start justify-between">
           {onBack ? (
             <button
               type="button"
-              onClick={onBack}
+              onClick={() => {
+                try {
+                  if (navigator.vibrate) navigator.vibrate(8);
+                } catch (_) {}
+                onBack();
+              }}
               aria-label="Go Back"
-              className="w-9 h-9 -ml-1 rounded-full flex items-center justify-center text-[#14261C] active:scale-95 transition"
+              className="w-9 h-9 rounded-full bg-white/75 backdrop-blur-sm border border-white/80 shadow-sm flex items-center justify-center text-[#0D4A2E] active:scale-95 transition"
             >
               <svg
-                className="w-6 h-6"
+                className="w-5 h-5"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2.2"
+                strokeWidth="2.3"
                 strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                <line x1="4" y1="7" x2="20" y2="7" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="17" x2="20" y2="17" />
+                <path d="M19 12H5" />
+                <path d="M12 19l-7-7 7-7" />
               </svg>
             </button>
           ) : (
