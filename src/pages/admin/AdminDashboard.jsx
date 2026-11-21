@@ -1,16 +1,16 @@
 //The master controller for src/pages/admin/ that unites all 20 Admin Panel files with clean sub-navigation tabs (All-in-One Inspector, Monthly Reports, Manage Aamaal, Members & Roles, and Analytics) and persists changes across localStorage so your AamaalDashboard and AccountDashboard stay 100% synchronized.
 
 // src/pages/admin/AdminDashboard.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { DEFAULT_AAMAAL_LIST } from '../aamaal/AamaalCategories';
 import { getLocalDateString } from '../aamaal/DateSelector';
 import {
-  STORAGE_KEYS,
   DEFAULT_CIRCLE_SETTINGS,
   MonthSwitcher,
   MemberAvatar,
   formatRelativeTime,
 } from './adminShared';
+import { appDb, powerSyncDb, isCloudConfigured } from '../../lib/powersync';
 import MemberDirectory from './MemberDirectory';
 import AamaalManagement from './AamaalManagement';
 import Leaderboard from './Leaderboard';
@@ -18,34 +18,12 @@ import CountryStatistics from './CountryStatistics';
 import AdminMonthlyReports from './AdminMonthlyReports';
 import AdminDataExport from './AdminDataExport';
 import AdminSettings from './AdminSettings';
+import AdminCmsManager from './AdminCmsManager';
 import AdminActivityLog from './AdminActivityLog';
 import CircleStatistics from './CircleStatistics';
-import AdminCmsManager from './AdminCmsManager';
-
-const CMS_KEYS = {
-  feelings: 'aamaal_admin_cms_feelings_v1',
-  duas: 'aamaal_admin_cms_duas_v1',
-  stories: 'aamaal_admin_cms_stories_v1',
-  learning: 'aamaal_admin_cms_learning_v1',
-  quiz: 'aamaal_admin_cms_quiz_v1',
-  masjids: STORAGE_KEYS.MASJIDS,
-};
-
-export function checkIsCurrentUserAdmin(state) {
-  try {
-    const profiles = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROFILES) || '[]');
-    if (Array.isArray(profiles) && profiles.length > 0) {
-      const primary = profiles.find((p) => p.isPrimary) || profiles[0];
-      if (primary?.role === 'admin') return true;
-    }
-  } catch (_) {}
-  return (state?.userName || '').toLowerCase().includes('ubaid');
-}
 
 async function triggerBroadcastPwaNotification(title, body) {
-  try {
-    if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
-  } catch (_) {}
+  try { if (navigator.vibrate) navigator.vibrate([150, 80, 150]); } catch (_) {}
   if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') return;
   try {
     if ('serviceWorker' in navigator) {
@@ -64,19 +42,7 @@ async function triggerBroadcastPwaNotification(title, body) {
   } catch (_) {}
 }
 
-function readStorage(key, fallback) {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(key) || 'null');
-    if (parsed !== null) return parsed;
-  } catch (_) {}
-  return fallback;
-}
-
 export default function AdminDashboard({ state, updateState, onShowToast, onBack }) {
-  const isAdmin = checkIsCurrentUserAdmin(state);
-
-  // Full-screen routes: null | 'members' | 'aamaal' | 'monthly' | 'leaderboard' | 'country_stats' | 'export' | 'settings'
-  // Modal routes: 'more_tools' | 'inspector' | 'jamaat_requests' | 'cms' | 'broadcast'
   const [activeView, setActiveView] = useState(null);
   const [inspectorDate, setInspectorDate] = useState(getLocalDateString());
   const [inspectorAamaalId, setInspectorAamaalId] = useState('durood_313');
@@ -86,57 +52,66 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
     return { year: now.getFullYear(), month: now.getMonth() };
   });
 
-  const [aamaalList, setAamaalList] = useState(() => {
-    const saved = readStorage(STORAGE_KEYS.AAMAAL, null);
-    return Array.isArray(saved) && saved.length > 0 ? saved : DEFAULT_AAMAAL_LIST;
-  });
-
-  const [allMembers, setAllMembers] = useState(() => {
-    const saved = readStorage(STORAGE_KEYS.PROFILES, null);
-    if (Array.isArray(saved) && saved.length > 0) return saved;
-    return [
-      {
-        id: 'primary_member',
-        parentUid: 'primary_member',
-        name: state?.userName?.trim() || 'Ubaid',
-        country: 'India',
-        flag: '🇮🇳',
-        privacy: 'public',
-        role: 'admin',
-        isPrimary: true,
-        createdAt: Date.now(),
-      },
-    ];
-  });
-
-  const [allLogs, setAllLogs] = useState(() => {
-    const saved = readStorage(STORAGE_KEYS.LOGS, []);
-    return Array.isArray(saved) ? saved : [];
-  });
-
-  const [jamaatRequests, setJamaatRequests] = useState(() => {
-    const saved = readStorage(STORAGE_KEYS.JAMAAT_REQUESTS, []);
-    return Array.isArray(saved) ? saved : [];
-  });
-
-  const [circleSettings, setCircleSettings] = useState(() => ({
-    ...DEFAULT_CIRCLE_SETTINGS,
-    ...readStorage(STORAGE_KEYS.SETTINGS, {}),
-  }));
+  const [loadingDb, setLoadingDb] = useState(true);
+  const [syncState, setSyncState] = useState(isCloudConfigured ? 'syncing' : 'local');
+  const [aamaalList, setAamaalList] = useState(DEFAULT_AAMAAL_LIST);
+  const [allMembers, setAllMembers] = useState([]);
+  const [allLogs, setAllLogs] = useState([]);
+  const [jamaatRequests, setJamaatRequests] = useState([]);
+  const [circleSettings, setCircleSettings] = useState(DEFAULT_CIRCLE_SETTINGS);
 
   const [broadcastTitle, setBroadcastTitle] = useState('');
   const [broadcastBody, setBroadcastBody] = useState('');
-  const [cmsModule, setCmsModule] = useState('feelings');
-  const [cmsForm, setCmsForm] = useState({
-    title: '', category: '', keywords: '', arabic: '',
-    translation: '', quranStory: '', sunnahStory: '', extraField: '',
-  });
 
-  useEffect(() => { try { localStorage.setItem(STORAGE_KEYS.AAMAAL, JSON.stringify(aamaalList)); } catch (_) {} }, [aamaalList]);
-  useEffect(() => { try { localStorage.setItem(STORAGE_KEYS.PROFILES, JSON.stringify(allMembers)); } catch (_) {} }, [allMembers]);
-  useEffect(() => { try { localStorage.setItem(STORAGE_KEYS.LOGS, JSON.stringify(allLogs)); } catch (_) {} }, [allLogs]);
-  useEffect(() => { try { localStorage.setItem(STORAGE_KEYS.JAMAAT_REQUESTS, JSON.stringify(jamaatRequests)); } catch (_) {} }, [jamaatRequests]);
-  useEffect(() => { try { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(circleSettings)); } catch (_) {} }, [circleSettings]);
+  const refreshFromDb = useCallback(async () => {
+    try {
+      const snap = await appDb.loadDashboardSnapshot(
+        DEFAULT_AAMAAL_LIST,
+        state?.userName?.trim() || 'Ubaid'
+      );
+      setAllMembers(snap.members);
+      setAamaalList(snap.aamaalList.length > 0 ? snap.aamaalList : DEFAULT_AAMAAL_LIST);
+      setAllLogs(snap.logs);
+      setJamaatRequests(snap.jamaatRequests);
+      setCircleSettings(snap.settings);
+    } catch (err) {
+      console.error('PowerSync load error:', err);
+      onShowToast?.('Database sync error — check connection');
+    } finally {
+      setLoadingDb(false);
+    }
+  }, [state?.userName, onShowToast]);
+
+  useEffect(() => {
+    refreshFromDb();
+  }, [refreshFromDb]);
+
+  // Live PowerSync status + auto-refresh whenever remote Supabase changes arrive
+  useEffect(() => {
+    if (!isCloudConfigured) {
+      setSyncState('local');
+      return;
+    }
+    const dispose = powerSyncDb.registerListener({
+      statusChanged: (status) => {
+        if (status.dataFlowStatus?.uploading || status.dataFlowStatus?.downloading) {
+          setSyncState('syncing');
+        } else if (status.connected) {
+          setSyncState('synced');
+          refreshFromDb();
+        } else {
+          setSyncState('offline');
+        }
+      },
+    });
+    return () => dispose?.();
+  }, [refreshFromDb]);
+
+  const isAdmin = useMemo(() => {
+    const primary = allMembers.find((m) => m.isPrimary) || allMembers[0];
+    if (primary?.role === 'admin') return true;
+    return (state?.userName || '').toLowerCase().includes('ubaid');
+  }, [allMembers, state?.userName]);
 
   const shiftMonth = (delta) => {
     try { if (navigator.vibrate) navigator.vibrate(8); } catch (_) {}
@@ -159,9 +134,12 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
     const activeMembers = new Set(currLogs.filter((l) => Number(l.count || 0) > 0).map((l) => l.memberId)).size;
     const adminsCount = allMembers.filter((m) => m.role === 'admin').length || 1;
 
-    const pctChange = prevRecitations > 0
-      ? Math.round(((totalRecitations - prevRecitations) / prevRecitations) * 100)
-      : totalRecitations > 0 ? 100 : 0;
+    const pctChange =
+      prevRecitations > 0
+        ? Math.round(((totalRecitations - prevRecitations) / prevRecitations) * 100)
+        : totalRecitations > 0
+        ? 100
+        : 0;
 
     return { totalMembers: allMembers.length, activeMembers, adminsCount, totalRecitations, pctChange };
   }, [allLogs, allMembers, selectedMonth]);
@@ -177,7 +155,6 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
         const aamaal = aamaalMap.get(l.aamaalId);
         return {
           id: `log_${l.id}`,
-          type: 'log',
           member,
           name: member?.name || 'Circle Member',
           actionText: `completed ${Number(l.count) > 1 ? `${l.count} ` : ''}${aamaal?.name || l.aamaalId || 'Aamaal'}`,
@@ -189,7 +166,6 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
       .filter((m) => m.createdAt)
       .map((m) => ({
         id: `join_${m.id}`,
-        type: 'join',
         member: m,
         name: m.name || 'New member',
         actionText: 'joined the circle',
@@ -200,6 +176,14 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
       .sort((a, b) => b.timestamp - a.timestamp)
       .slice(0, 4);
   }, [allLogs, allMembers, aamaalList]);
+
+  if (loadingDb) {
+    return (
+      <section className="screen-section bg-[#F7F5EE] min-h-[100dvh] flex items-center justify-center">
+        <p className="text-[13px] font-semibold text-[#55615A]">Loading circle database...</p>
+      </section>
+    );
+  }
 
   if (!isAdmin) {
     return (
@@ -216,151 +200,88 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
     );
   }
 
-  // CRUD Handlers
-  const handleUpsertMemberLog = (memberId, aamaalId, dateKey, newCount) => {
-    const logId = `${dateKey}_${aamaalId}_${memberId}`;
-    setAllLogs((prev) => {
-      const filtered = prev.filter((l) => l.id !== logId);
-      if (newCount <= 0) return filtered;
-      return [...filtered, { id: logId, aamaalId, memberId, dateKey, count: Number(newCount), updatedAt: Date.now() }];
-    });
-    onShowToast?.(newCount > 0 ? `Updated log (${newCount})` : 'Member log deleted');
+  // Supabase + PowerSync Mutation Handlers
+  const handleUpsertMemberLog = async (memberId, aamaalId, dateKey, newCount) => {
+    await appDb.upsertLog(memberId, aamaalId, dateKey, newCount);
+    await refreshFromDb();
+    onShowToast?.(newCount > 0 ? `Saved (${newCount}) — syncing` : 'Member log deleted');
   };
 
-  const handleAddAamaal = (newItem) => {
-    setAamaalList((prev) => [...prev, { ...newItem, order: prev.length + 1 }]);
+  const handleAddAamaal = async (newItem) => {
+    await appDb.addAamaal(newItem, aamaalList.length + 1);
+    await refreshFromDb();
     onShowToast?.(`Added "${newItem.name}"`);
   };
 
-  const handleUpdateAamaal = (id, updates) => {
-    setAamaalList((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)));
+  const handleUpdateAamaal = async (id, updates) => {
+    await appDb.updateAamaal(id, updates);
+    await refreshFromDb();
     onShowToast?.('Aamaal updated');
   };
 
-  const handleDeleteAamaal = (id, permanent = false) => {
-    if (permanent) {
-      setAamaalList((prev) => prev.filter((a) => a.id !== id));
-      onShowToast?.('Aamaal permanently deleted');
-    } else {
-      setAamaalList((prev) => prev.map((a) => (a.id === id ? { ...a, status: 'deleted', active: false } : a)));
-      onShowToast?.('Aamaal moved to Deleted');
-    }
+  const handleDeleteAamaal = async (id, permanent = false) => {
+    await appDb.deleteAamaal(id, permanent);
+    await refreshFromDb();
+    onShowToast?.(permanent ? 'Aamaal permanently deleted' : 'Aamaal moved to Deleted');
   };
 
-  const handleAddMember = (newMem) => {
-    setAllMembers((prev) => [...prev, newMem]);
+  const handleAddMember = async (newMem) => {
+    await appDb.addMember(newMem);
+    await refreshFromDb();
     onShowToast?.(`Added ${newMem.name}`);
   };
 
-  const handleUpdateMember = (id, updates) => {
-    setAllMembers((prev) => prev.map((m) => (m.id === id ? { ...m, ...updates } : m)));
+  const handleUpdateMember = async (id, updates) => {
+    await appDb.updateMember(id, updates);
     if (id === 'primary_member' && updates.name && updateState) updateState({ userName: updates.name });
+    await refreshFromDb();
     onShowToast?.('Member updated');
   };
 
-  const handleResetMemberLogs = (memberIds) => {
-    const idSet = new Set(Array.isArray(memberIds) ? memberIds : [memberIds]);
-    setAllLogs((prev) => prev.filter((l) => !idSet.has(l.memberId)));
-    onShowToast?.(idSet.size > 1 ? `Reset logs for ${idSet.size} members` : 'Member logs reset to 0');
+  const handleResetMemberLogs = async (memberIds) => {
+    await appDb.resetMemberLogs(memberIds);
+    await refreshFromDb();
+    const count = Array.isArray(memberIds) ? memberIds.length : 1;
+    onShowToast?.(count > 1 ? `Reset logs for ${count} members` : 'Member logs reset to 0');
   };
 
-  const handleRemoveMember = (memberId) => {
-    const target = allMembers.find((m) => m.id === memberId);
-    const dependentIds = target?.isPrimary
-      ? allMembers.filter((f) => !f.isPrimary && f.parentUid === memberId).map((f) => f.id)
-      : [];
-    const idsToRemove = new Set([memberId, ...dependentIds]);
-    setAllMembers((prev) => prev.filter((m) => !idsToRemove.has(m.id)));
-    setAllLogs((prev) => prev.filter((l) => !idsToRemove.has(l.memberId)));
+  const handleRemoveMember = async (memberId) => {
+    await appDb.removeMemberCascade(memberId);
+    await refreshFromDb();
     onShowToast?.('Member and logs removed');
   };
 
-  const handleApproveJamaatRequest = (req) => {
-    try {
-      const masjids = readStorage(STORAGE_KEYS.MASJIDS, []);
-      if (Array.isArray(masjids) && masjids.length > 0) {
-        const updated = masjids.map((m) =>
-          m.id !== req.masjidId
-            ? m
-            : { ...m, timings: { ...m.timings, [req.prayerKey]: { ...(m.timings?.[req.prayerKey] || {}), jamat: req.proposedJamat } } }
-        );
-        localStorage.setItem(STORAGE_KEYS.MASJIDS, JSON.stringify(updated));
-      }
-    } catch (_) {}
-    setJamaatRequests((prev) => prev.map((r) => (r.id === req.id ? { ...r, status: 'approved' } : r)));
-    onShowToast?.(`Approved ${req.masjidName} (${req.prayerKey})`);
+  const handleApproveJamaatRequest = async (req) => {
+    await appDb.approveJamaatRequest(req);
+    await refreshFromDb();
+    onShowToast?.(`Approved ${req.masjidName} (${req.prayerKey}) — timetable updated`);
   };
 
-  const handleSendBroadcast = (e) => {
+  const handleRejectJamaatRequest = async (reqId) => {
+    await appDb.rejectJamaatRequest(reqId);
+    await refreshFromDb();
+    onShowToast?.('Request rejected');
+  };
+
+  const handleSendBroadcast = async (e) => {
     e.preventDefault();
     if (!broadcastBody.trim()) return;
     const item = {
-      id: `bcast_${Date.now()}`,
       title: broadcastTitle.trim() || '📢 Circle Admin Announcement',
       category: 'Admin Broadcast',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       days: ['Announcement'],
       icon: '📢',
       translation: broadcastBody.trim(),
-      enabled: true,
-      read: false,
-      isBroadcast: true,
-      createdAt: Date.now(),
     };
-    try {
-      const existing = readStorage(STORAGE_KEYS.BROADCASTS, []);
-      localStorage.setItem(STORAGE_KEYS.BROADCASTS, JSON.stringify([item, ...(Array.isArray(existing) ? existing : [])]));
-    } catch (_) {}
+    await appDb.addBroadcast(item);
     triggerBroadcastPwaNotification(item.title, item.translation);
     setBroadcastTitle('');
     setBroadcastBody('');
-    onShowToast?.('Broadcast sent to every member’s inbox');
+    onShowToast?.('Broadcast saved & queued to Supabase');
   };
 
-  const handleSaveCmsEntry = (e) => {
-    e.preventDefault();
-    if (!cmsForm.title.trim()) return;
-    const storageKey = CMS_KEYS[cmsModule];
-    const payload =
-      cmsModule === 'feelings'
-        ? {
-            id: `cms_feel_${Date.now()}`, label: cmsForm.title.trim(), icon: '🌿',
-            keywords: cmsForm.keywords.split(',').map((k) => k.trim().toLowerCase()).filter(Boolean),
-            opening: 'Take comfort—Allah is always near to those who call upon Him.',
-            quranStory: cmsForm.quranStory.trim(), sunnahStory: cmsForm.sunnahStory.trim(),
-            arabic: cmsForm.arabic.trim(), translation: cmsForm.translation.trim(),
-          }
-        : cmsModule === 'duas'
-        ? {
-            id: `cms_dua_${Date.now()}`, category: cmsForm.category.trim() || 'Daily', badge: 'ADMIN ADDED',
-            title: cmsForm.title.trim(), arabic: cmsForm.arabic.trim(), translation: cmsForm.translation.trim(),
-            benefits: cmsForm.quranStory.trim(), reference: cmsForm.extraField.trim() || 'Authentic Source', repeatCount: 1,
-          }
-        : cmsModule === 'masjids'
-        ? {
-            id: `masjid_${Date.now()}`, name: cmsForm.title.trim(), area: cmsForm.category.trim() || 'Local Area',
-            address: cmsForm.extraField.trim(), facilities: ['Wudu Khana', 'Daily Jamaat'],
-            timings: {
-              fajr: { azan: '05:20 AM', jamat: '05:45 AM' }, dhuhr: { azan: '12:35 PM', jamat: '01:15 PM' },
-              asr: { azan: '04:10 PM', jamat: '04:35 PM' }, maghrib: { azan: '06:04 PM', jamat: '06:09 PM' },
-              isha: { azan: '07:45 PM', jamat: '08:15 PM' }, jumuah: { azan: '12:45 PM', jamat: '01:30 PM' },
-            },
-          }
-        : {
-            id: `cms_${cmsModule}_${Date.now()}`, title: cmsForm.title.trim(),
-            category: cmsForm.category.trim() || cmsModule, content: cmsForm.quranStory.trim(),
-            arabic: cmsForm.arabic.trim(), translation: cmsForm.translation.trim(),
-            extra: cmsForm.extraField.trim(), createdAt: Date.now(),
-          };
-    try {
-      const existing = readStorage(storageKey, []);
-      localStorage.setItem(storageKey, JSON.stringify([payload, ...(Array.isArray(existing) ? existing : [])]));
-    } catch (_) {}
-    setCmsForm({ title: '', category: '', keywords: '', arabic: '', translation: '', quranStory: '', sunnahStory: '', extraField: '' });
-    onShowToast?.(`Published new ${cmsModule.toUpperCase()} entry`);
-  };
-
-  // FULL-SCREEN ROUTES (Screens 2–10)
+  // FULL-SCREEN ROUTES
   if (activeView === 'members') {
     return (
       <MemberDirectory
@@ -371,8 +292,9 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
         onUpdateMember={handleUpdateMember}
         onResetMemberLogs={handleResetMemberLogs}
         onRemoveMember={handleRemoveMember}
-        onDeleteSingleLog={(logId) => {
-          setAllLogs((prev) => prev.filter((l) => l.id !== logId));
+        onDeleteSingleLog={async (logId) => {
+          await appDb.deleteSingleLog(logId);
+          await refreshFromDb();
           onShowToast?.('Log entry deleted');
         }}
         onBack={() => setActiveView(null)}
@@ -390,6 +312,10 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
         onBack={() => setActiveView(null)}
       />
     );
+  }
+
+  if (activeView === 'cms') {
+    return <AdminCmsManager onShowToast={onShowToast} onBack={() => setActiveView(null)} />;
   }
 
   if (activeView === 'leaderboard') {
@@ -458,20 +384,22 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
         allLogs={allLogs}
         aamaalList={aamaalList}
         circleSettings={circleSettings}
-        onUpdateSettings={(updates) => {
-          setCircleSettings((prev) => ({ ...prev, ...updates }));
-          onShowToast?.('Settings saved');
+        onUpdateSettings={async (updates) => {
+          const next = { ...circleSettings, ...updates };
+          await appDb.saveSettings(next);
+          await refreshFromDb();
+          onShowToast?.('Settings saved to Supabase');
         }}
         onUpdateMember={handleUpdateMember}
         onOpenExport={() => setActiveView('export')}
-        onWipeAllLogs={() => {
-          setAllLogs([]);
+        onWipeAllLogs={async () => {
+          await appDb.wipeAllLogs();
+          await refreshFromDb();
           onShowToast?.('All recitation logs cleared');
         }}
-        onResetCircle={() => {
-          setAllLogs([]);
-          setAamaalList(DEFAULT_AAMAAL_LIST);
-          setAllMembers((prev) => prev.filter((m) => m.id === 'primary_member'));
+        onResetCircle={async () => {
+          await appDb.resetCircleToDefaults(DEFAULT_AAMAAL_LIST);
+          await refreshFromDb();
           onShowToast?.('Circle reset to defaults');
         }}
         onBack={() => setActiveView(null)}
@@ -479,18 +407,10 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
     );
   }
 
-  if (activeView === 'cms') {
-  return (
-    <AdminCmsManager
-      onShowToast={onShowToast}
-      onBack={() => setActiveView(null)}
-    />
-  );
-}
-
   const pendingJamaatCount = jamaatRequests.filter((r) => r.status === 'pending').length;
 
   const MORE_TOOLS = [
+    { id: 'cms', icon: '✍️', title: 'Content CMS', subtitle: 'Add, edit & delete Duas, Feelings, Learning, Masjids, Quiz & Stories' },
     { id: 'leaderboard', icon: '🏆', title: 'Leaderboard', subtitle: 'Monthly Total Count, Consistency & Most Active rankings' },
     { id: 'country_stats', icon: '🌍', title: 'Country-wise Statistics', subtitle: 'Global map, top countries & member totals' },
     { id: 'export', icon: '📤', title: 'Export / Share Report', subtitle: 'WhatsApp, CSV, PDF & formatted monthly summary' },
@@ -502,14 +422,21 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
       badge: pendingJamaatCount > 0 ? `${pendingJamaatCount} Pending` : null,
       highlight: pendingJamaatCount > 0,
     },
-    { id: 'cms', icon: '✍️', title: 'Content Manager (CMS)', subtitle: 'Add Heart & Soul, Duas, Stories, Learning, Quiz & Masjids' },
     { id: 'broadcast', icon: '📢', title: 'Broadcast Alert', subtitle: 'Send instant announcements to every member’s inbox' },
   ];
 
-  const isModalOpen = ['more_tools', 'inspector', 'jamaat_requests', 'cms', 'broadcast'].includes(activeView);
-  const modalMeta = activeView === 'more_tools'
-    ? { icon: '🛡️', title: 'More Admin Tools' }
-    : MORE_TOOLS.find((t) => t.id === activeView);
+  const isModalOpen = ['more_tools', 'inspector', 'jamaat_requests', 'broadcast'].includes(activeView);
+  const modalMeta =
+    activeView === 'more_tools'
+      ? { icon: '🛡️', title: 'More Admin Tools' }
+      : MORE_TOOLS.find((t) => t.id === activeView);
+
+  const syncDot = {
+    synced: 'bg-[#25D366]',
+    syncing: 'bg-[#F0D58C] animate-pulse',
+    offline: 'bg-[#E57373]',
+    local: 'bg-white/70',
+  }[syncState];
 
   return (
     <section className="screen-section no-scrollbar bg-[#F7F5EE] min-h-[100dvh] pb-24 select-none">
@@ -522,7 +449,6 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
           className="pointer-events-none absolute inset-0 w-full h-full object-cover opacity-90"
         />
 
-        {/* Sunrise Mosque Fallback */}
         <svg className="pointer-events-none absolute inset-x-0 bottom-0 w-full h-44" viewBox="0 0 400 180" preserveAspectRatio="none" fill="none">
           <defs>
             <radialGradient id="adminSunrise" cx="42%" cy="38%" r="48%">
@@ -575,9 +501,11 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
           <button
             type="button"
             onClick={() => setActiveView('settings')}
-            className="px-3.5 py-1 rounded-full bg-[#1C8549] text-white text-[12px] font-semibold shadow-sm active:scale-95 transition"
+            title={`Database: ${syncState}`}
+            className="px-3 py-1 rounded-full bg-[#1C8549] text-white text-[12px] font-semibold shadow-sm active:scale-95 transition flex items-center space-x-1.5"
           >
-            Admin
+            <span className={`w-2 h-2 rounded-full ${syncDot}`} />
+            <span>Admin</span>
           </button>
         </div>
 
@@ -801,7 +729,7 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
                           <button type="button" onClick={() => handleApproveJamaatRequest(req)} className="btn-primary flex-1 py-2 text-[12px] font-bold">
                             Approve
                           </button>
-                          <button type="button" onClick={() => setJamaatRequests((p) => p.map((r) => (r.id === req.id ? { ...r, status: 'rejected' } : r)))} className="px-3.5 py-2 rounded-full bg-red-100 text-red-700 text-[12px] font-bold">
+                          <button type="button" onClick={() => handleRejectJamaatRequest(req.id)} className="px-3.5 py-2 rounded-full bg-red-100 text-red-700 text-[12px] font-bold">
                             Reject
                           </button>
                         </div>
@@ -809,31 +737,6 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
                     </div>
                   ))
                 )
-              )}
-
-              {activeView === 'cms' && (
-                <form onSubmit={handleSaveCmsEntry} className="space-y-3 bg-[#FCFBF7] p-4 rounded-[18px] border border-[#E6E2D5]">
-                  <select value={cmsModule} onChange={(e) => setCmsModule(e.target.value)} className="w-full bg-[#F7F5EE] text-[#14261C] text-[12.5px] font-bold py-2 px-3 rounded-xl border border-[#DCD8C6]">
-                    <option value="feelings">💚 Heart & Soul</option>
-                    <option value="duas">🤲 Duas & Adhkar</option>
-                    <option value="stories">📖 Stories & Seerah</option>
-                    <option value="learning">🎓 Islamic Learning Hub</option>
-                    <option value="quiz">❓ Islamic Knowledge Quiz</option>
-                    <option value="masjids">🕌 Masjid Details</option>
-                  </select>
-                  <input type="text" required value={cmsForm.title} onChange={(e) => setCmsForm({ ...cmsForm, title: e.target.value })} placeholder="Title / Name..." className="w-full bg-[#F7F5EE] text-[12.5px] py-2 px-3 rounded-xl border border-[#DCD8C6]" />
-                  <input type="text" value={cmsForm.category} onChange={(e) => setCmsForm({ ...cmsForm, category: e.target.value })} placeholder={cmsModule === 'masjids' ? 'Area / Neighborhood' : 'Category'} className="w-full bg-[#F7F5EE] text-[12px] py-2 px-3 rounded-xl border border-[#DCD8C6]" />
-                  {cmsModule !== 'masjids' && (
-                    <>
-                      <input type="text" dir="rtl" value={cmsForm.arabic} onChange={(e) => setCmsForm({ ...cmsForm, arabic: e.target.value })} placeholder="Arabic Text (Optional)" className="w-full bg-[#F7F5EE] font-arabic text-[17px] py-2 px-3 rounded-xl border border-[#DCD8C6]" />
-                      <textarea rows={2} value={cmsForm.translation} onChange={(e) => setCmsForm({ ...cmsForm, translation: e.target.value })} placeholder="Translation / Answer..." className="w-full bg-[#F7F5EE] text-[12px] p-2.5 rounded-xl border border-[#DCD8C6]" />
-                      <textarea rows={3} value={cmsForm.quranStory} onChange={(e) => setCmsForm({ ...cmsForm, quranStory: e.target.value })} placeholder="Main Content / Benefits..." className="w-full bg-[#F7F5EE] text-[12px] p-2.5 rounded-xl border border-[#DCD8C6]" />
-                    </>
-                  )}
-                  <button type="submit" className="w-full py-2.5 rounded-full bg-[#0D4A2E] text-white text-[13px] font-bold">
-                    Publish to {cmsModule.toUpperCase()}
-                  </button>
-                </form>
               )}
 
               {activeView === 'broadcast' && (
