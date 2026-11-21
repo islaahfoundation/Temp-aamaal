@@ -20,6 +20,7 @@ import AdminDataExport from './AdminDataExport';
 import AdminSettings from './AdminSettings';
 import AdminActivityLog from './AdminActivityLog';
 import CircleStatistics from './CircleStatistics';
+import AdminCmsManager from './AdminCmsManager';
 
 const CMS_KEYS = {
   feelings: 'aamaal_admin_cms_feelings_v1',
