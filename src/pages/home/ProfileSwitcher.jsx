@@ -1,4 +1,4 @@
-//Renders the top greeting bar (Assalamu Alaikum, Ubaid) with an interactive dropdown to switch between the primary user and any linked family profiles, or jump directly to AccountDashboard.
+// Renders the top greeting bar (Assalamu Alaikum, <Profile Name>) with an interactive dropdown to switch between the primary user and any linked family profiles, or jump directly to AccountDashboard.
 
 import React, { useState } from 'react';
 import { CountryFlag } from '../aamaal/WeeklySummary';
@@ -20,6 +20,10 @@ export default function ProfileSwitcher({
       name: 'Circle Member',
       country: 'India',
     };
+
+  const rawName = (current.name || '').trim();
+  const displayName =
+    rawName && rawName !== 'Circle Member' ? rawName : '';
 
   return (
     <div className="relative pt-1 pb-2">
@@ -118,38 +122,39 @@ export default function ProfileSwitcher({
       </div>
 
       {/* Hero Greeting & Spiritual Journey Headline */}
-      <div className="relative z-10 pr-24">
+      <div className="relative z-10">
+        {/* Full-width greeting row so family names never get clipped */}
         <button
           type="button"
           onClick={() => setOpenMenu(!openMenu)}
-          className="inline-flex items-center space-x-1.5 text-[14px] font-medium text-[#0D4A2E] mb-0.5"
+          className="inline-flex items-center flex-wrap gap-x-1.5 max-w-full text-left text-[13.5px] font-medium text-[#0D4A2E] mb-1 px-2.5 py-0.5 -ml-2.5 rounded-full bg-[#F5F2E8]/80 backdrop-blur-[2px]"
         >
-          <span>
+          <span className="leading-snug">
             Assalamu Alaikum
-            {current.name && current.name !== 'Circle Member'
-              ? `, ${current.name.split(/\s+/)[0]}`
-              : ''}
+            {displayName ? `, ${displayName}` : ''}
           </span>
           {profiles.length > 1 && (
-            <span className="text-[10px] text-[#C99E4C]">▼</span>
+            <span className="text-[10px] text-[#C99E4C] shrink-0">▾</span>
           )}
         </button>
 
-        <h1 className="font-serif text-[29px] font-bold text-[#0D4A2E] leading-[1.12] tracking-tight">
-          Your spiritual
-          <br />
-          journey
-        </h1>
+        <div className="pr-24">
+          <h1 className="font-serif text-[29px] font-bold text-[#0D4A2E] leading-[1.12] tracking-tight">
+            Your spiritual
+            <br />
+            journey
+          </h1>
 
-        <p className="text-[13px] font-medium text-[#1A3826] mt-1.5">
-          Take a step closer to Allah
-        </p>
+          <p className="text-[13px] font-medium text-[#1A3826] mt-1.5">
+            Take a step closer to Allah
+          </p>
 
-        {/* Gold Ornamental Diamond Divider */}
-        <div className="flex items-center space-x-2 mt-2 w-44">
-          <div className="h-[1.5px] flex-1 bg-gradient-to-r from-transparent via-[#C99E4C] to-[#C99E4C]" />
-          <span className="text-[#C99E4C] text-[11px] leading-none">◇</span>
-          <div className="h-[1.5px] flex-1 bg-gradient-to-l from-transparent via-[#C99E4C] to-[#C99E4C]" />
+          {/* Gold Ornamental Diamond Divider */}
+          <div className="flex items-center space-x-2 mt-2 w-44">
+            <div className="h-[1.5px] flex-1 bg-gradient-to-r from-transparent via-[#C99E4C] to-[#C99E4C]" />
+            <span className="text-[#C99E4C] text-[11px] leading-none">❖</span>
+            <div className="h-[1.5px] flex-1 bg-gradient-to-l from-transparent via-[#C99E4C] to-[#C99E4C]" />
+          </div>
         </div>
       </div>
 
@@ -160,7 +165,7 @@ export default function ProfileSwitcher({
             Active Circle Profile
           </div>
           {profiles.map((prof) => {
-            const isSelected = prof.id === current.id;
+            const isSelected = String(prof.id) === String(current.id);
             return (
               <button
                 key={prof.id}
