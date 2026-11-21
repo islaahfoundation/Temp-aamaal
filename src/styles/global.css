@@ -7,6 +7,18 @@
 @import "./components.css";
 @import "./animations.css";
 
+@font-face {
+  font-family: "IndoPak";
+  src: url("/fonts/indopak.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-arabic: "IndoPak", "Noorehuda", "PDMS_Saleem_QuranFont", serif;
+}
+
 /* 1. Reset */
 
 * {
@@ -131,8 +143,11 @@ p {
 }
 
 .font-arabic {
-  font-family: var(--font-arabic);
-  line-height: 1.8;
+  font-family: var(--font-arabic) !important;
+  font-weight: 400;
+  line-height: 2.15;
+  letter-spacing: 0;
+  word-spacing: 2px;
   direction: rtl;
 }
 
