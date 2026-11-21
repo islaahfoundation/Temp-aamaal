@@ -5,6 +5,7 @@ import AppRouter from './router';
 import BottomNavigation from './components/BottomNavigation';
 import { ReaderModal, ToastPill } from './components/ConfirmationDialog';
 import GlobalAlarmWatcher from './components/GlobalAlarmWatcher';
+import { initPowerSync } from './lib/powersync';
 
 const MAX_HISTORY_LENGTH = 25;
 
@@ -21,6 +22,11 @@ export default function App() {
   const tabHistoryRef = useRef([activeTab]);
   const activeTabRef = useRef(activeTab);
   const modalOpenRef = useRef(false);
+
+  // Inside App():
+useEffect(() => {
+  initPowerSync().catch((err) => console.error('PowerSync init failed:', err));
+}, []);
 
   useEffect(() => {
     activeTabRef.current = activeTab;
