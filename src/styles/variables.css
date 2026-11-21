@@ -58,7 +58,7 @@
   /* Typography */
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-heading: "Playfair Display", Georgia, serif;
-  --font-arabic: "Amiri", serif;
+  --font-arabic: "IndoPak", "Noorehuda", "PDMS_Saleem_QuranFont", "Amiri", serif;
 
   /* Spacing */
   --space-1: 4px;
