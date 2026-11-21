@@ -6,6 +6,8 @@ import BottomNavigation from './components/BottomNavigation';
 import { ReaderModal, ToastPill } from './components/ConfirmationDialog';
 import GlobalAlarmWatcher from './components/GlobalAlarmWatcher';
 
+const MAX_HISTORY_LENGTH = 25;
+
 export default function App() {
   const { state, updateState, resetAll } = useAamaalState();
   const [activeTab, setActiveTab] = useState(() =>
@@ -14,9 +16,8 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [modalContext, setModalContext] = useState(null);
   const [toastMessage, setToastMessage] = useState('');
-  const toastTimerRef = useRef(null);
 
-  // Navigation history stack for Mobile Back Button support
+  const toastTimerRef = useRef(null);
   const tabHistoryRef = useRef([activeTab]);
   const activeTabRef = useRef(activeTab);
   const modalOpenRef = useRef(false);
@@ -29,20 +30,25 @@ export default function App() {
     modalOpenRef.current = Boolean(modalContext);
   }, [modalContext]);
 
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
   const showToast = useCallback((msg) => {
     setToastMessage(msg);
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     toastTimerRef.current = setTimeout(() => setToastMessage(''), 2100);
   }, []);
 
-  // Push a history entry whenever navigating to a new tab
   const handleNavigateTab = useCallback(
     (tabName, optionalFilter = null) => {
       triggerHaptic(10);
       if (optionalFilter) updateState({ activeDuaFilter: optionalFilter });
 
       if (tabName !== activeTabRef.current) {
-        tabHistoryRef.current = [...tabHistoryRef.current, tabName];
+        tabHistoryRef.current = [...tabHistoryRef.current, tabName].slice(-MAX_HISTORY_LENGTH);
         try {
           window.history.pushState({ appTab: tabName }, '');
         } catch (_) {}
@@ -52,16 +58,90 @@ export default function App() {
     [updateState]
   );
 
+  // Unified step-back used by both in-app back buttons and hardware back navigation
+  const handleGoBack = useCallback(() => {
+    triggerHaptic(8);
+    if (tabHistoryRef.current.length > 1) {
+      tabHistoryRef.current = tabHistoryRef.current.slice(0, -1);
+      const prevTab = tabHistoryRef.current[tabHistoryRef.current.length - 1] || 'home';
+      setActiveTab(prevTab);
+      return true;
+    }
+
+    if (activeTabRef.current !== 'home' && activeTabRef.current !== 'onboarding') {
+      tabHistoryRef.current = ['home'];
+      setActiveTab('home');
+      return true;
+    }
+
+    return false;
+  }, []);
+
+  const handleToggleBookmark = useCallback(
+    (id) => {
+      updateState((prev) => ({
+        ...prev,
+        savedDuaIds: prev.savedDuaIds.includes(id)
+          ? prev.savedDuaIds.filter((x) => x !== id)
+          : [...prev.savedDuaIds, id],
+      }));
+      showToast('Bookmarks updated');
+    },
+    [updateState, showToast]
+  );
+
+  const handleSearchDuas = useCallback(
+    (q) => {
+      setSearchQuery(q);
+      updateState({ activeDuaFilter: 'all' });
+      handleNavigateTab('duas');
+    },
+    [updateState, handleNavigateTab]
+  );
+
+  const handleOpenModal = useCallback((item, type = 'dua') => {
+    triggerHaptic(15);
+    setModalContext({ item, type });
+    try {
+      window.history.pushState({ appModal: true }, '');
+    } catch (_) {}
+  }, []);
+
+  const handleCompleteSession = useCallback(
+    (ctx) => {
+      triggerHaptic([20, 40, 20]);
+      updateState((prev) => ({
+        ...prev,
+        sessionsCount: prev.sessionsCount + 1,
+        storyLesson:
+          ctx?.type === 'story'
+            ? prev.storyLesson < 6
+              ? prev.storyLesson + 1
+              : 1
+            : prev.storyLesson,
+      }));
+      setModalContext(null);
+      showToast('Session recorded! Progress updated');
+    },
+    [updateState, showToast]
+  );
+
+  const handleResetAll = useCallback(() => {
+    localStorage.removeItem('aamaal_onboarded');
+    resetAll();
+    tabHistoryRef.current = ['onboarding'];
+    setActiveTab('onboarding');
+    showToast('All data reset');
+  }, [resetAll, showToast]);
+
   // Intercept Mobile Hardware / Swipe Back Button
   useEffect(() => {
-    // Seed an initial buffer entry so the first back press never closes the app/preview
     try {
       window.history.replaceState({ appTab: activeTabRef.current, guard: true }, '');
       window.history.pushState({ appTab: activeTabRef.current }, '');
     } catch (_) {}
 
     const handlePopState = () => {
-      // 1. If a reader modal is open, close it first
       if (modalOpenRef.current) {
         setModalContext(null);
         try {
@@ -70,37 +150,17 @@ export default function App() {
         return;
       }
 
-      // 2. Step back to the previously visited tab/page
-      if (tabHistoryRef.current.length > 1) {
-        tabHistoryRef.current = tabHistoryRef.current.slice(0, -1);
-        const previousTab =
-          tabHistoryRef.current[tabHistoryRef.current.length - 1] || 'home';
-        setActiveTab(previousTab);
-        return;
-      }
-
-      // 3. If not on Home, go to Home instead of exiting
-      if (
-        activeTabRef.current !== 'home' &&
-        activeTabRef.current !== 'onboarding'
-      ) {
-        tabHistoryRef.current = ['home'];
-        setActiveTab('home');
+      const steppedBack = handleGoBack();
+      if (!steppedBack || activeTabRef.current === 'home') {
         try {
-          window.history.pushState({ appTab: 'home' }, '');
+          window.history.pushState({ appTab: activeTabRef.current }, '');
         } catch (_) {}
-        return;
       }
-
-      // 4. Already at Home: re-push guard state so the preview/PWA does not close
-      try {
-        window.history.pushState({ appTab: activeTabRef.current }, '');
-      } catch (_) {}
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [handleGoBack]);
 
   return (
     <div
@@ -117,40 +177,11 @@ export default function App() {
           searchQuery={searchQuery}
           updateState={updateState}
           onNavigateTab={handleNavigateTab}
-          onSearchDuas={(q) => {
-            setSearchQuery(q);
-            updateState({ activeDuaFilter: 'all' });
-            handleNavigateTab('duas');
-          }}
-          onOpenModal={(item, type = 'dua') => {
-            triggerHaptic(15);
-            setModalContext({ item, type });
-            try {
-              window.history.pushState({ appModal: true }, '');
-            } catch (_) {}
-          }}
-          onToggleBookmark={(id) => {
-            updateState((prev) => ({
-              ...prev,
-              savedDuaIds: prev.savedDuaIds.includes(id)
-                ? prev.savedDuaIds.filter((x) => x !== id)
-                : [...prev.savedDuaIds, id],
-            }));
-            showToast('Bookmarks updated');
-          }}
-          onToggleReminders={() => {
-            triggerHaptic(15);
-            const nextVal = state.remindersCount > 0 ? 0 : 1;
-            updateState({ remindersCount: nextVal });
-            showToast(nextVal ? 'Thursday Reminder Active' : 'Reminder Paused');
-          }}
-          onResetAll={() => {
-            localStorage.removeItem('aamaal_onboarded');
-            resetAll();
-            tabHistoryRef.current = ['onboarding'];
-            setActiveTab('onboarding');
-            showToast('All data reset');
-          }}
+          onGoBack={handleGoBack}
+          onSearchDuas={handleSearchDuas}
+          onOpenModal={handleOpenModal}
+          onToggleBookmark={handleToggleBookmark}
+          onResetAll={handleResetAll}
           onShowToast={showToast}
         />
       </div>
@@ -162,30 +193,8 @@ export default function App() {
       <ReaderModal
         context={modalContext}
         onClose={() => setModalContext(null)}
-        onCompleteSession={(ctx) => {
-          triggerHaptic([20, 40, 20]);
-          updateState((prev) => ({
-            ...prev,
-            sessionsCount: prev.sessionsCount + 1,
-            storyLesson:
-              ctx?.type === 'story'
-                ? prev.storyLesson < 6
-                  ? prev.storyLesson + 1
-                  : 1
-                : prev.storyLesson,
-          }));
-          setModalContext(null);
-          showToast('Session recorded! Progress updated');
-        }}
-        onToggleBookmark={(id) => {
-          updateState((prev) => ({
-            ...prev,
-            savedDuaIds: prev.savedDuaIds.includes(id)
-              ? prev.savedDuaIds.filter((x) => x !== id)
-              : [...prev.savedDuaIds, id],
-          }));
-          showToast('Bookmarks updated');
-        }}
+        onCompleteSession={handleCompleteSession}
+        onToggleBookmark={handleToggleBookmark}
       />
       <ToastPill message={toastMessage} />
       <GlobalAlarmWatcher onShowToast={showToast} />
