@@ -1,7 +1,7 @@
 // authentication.jsx
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from './supabaseClient'; // Update path if located in ../supabaseClient or ../lib/supabase
+import { supabase } from '../../supabaseClient'; // Update path if located in ../supabaseClient or ../lib/supabase
 
 function detectLocationFromTimezone() {
   const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase();
