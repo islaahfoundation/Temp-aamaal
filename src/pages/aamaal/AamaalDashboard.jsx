@@ -11,6 +11,7 @@ import PrivacySettings from './PrivacySettings';
 
 const LOGS_STORAGE_KEY = 'aamaal_circle_logs_v1';
 const PROFILES_STORAGE_KEY = 'aamaal_circle_profiles_v1';
+const ACTIVE_PROFILE_KEY = 'aamaal_active_profile_id';
 
 export default function AamaalDashboard({
   state,
@@ -44,9 +45,45 @@ export default function AamaalDashboard({
     ];
   });
 
-  const [activeProfileId, setActiveProfileId] = useState('primary_member');
+  // Read the selected profile from localStorage / global state instead of hardcoding primary_member
+  const [activeProfileId, setActiveProfileId] = useState(() => {
+    try {
+      return (
+        localStorage.getItem(ACTIVE_PROFILE_KEY) ||
+        state?.activeProfileId ||
+        'primary_member'
+      );
+    } catch (_) {
+      return state?.activeProfileId || 'primary_member';
+    }
+  });
+
+  // Keep synced if activeProfileId changes in global App state
+  useEffect(() => {
+    if (
+      state?.activeProfileId &&
+      String(state.activeProfileId) !== String(activeProfileId)
+    ) {
+      setActiveProfileId(state.activeProfileId);
+    }
+  }, [state?.activeProfileId]);
+
   const activeProfile =
-    profiles.find((p) => p.id === activeProfileId) || profiles[0];
+    profiles.find((p) => String(p.id) === String(activeProfileId)) || profiles[0];
+
+  const handleSwitchProfile = (member) => {
+    if (!member) return;
+    setActiveProfileId(member.id);
+    try {
+      localStorage.setItem(ACTIVE_PROFILE_KEY, String(member.id));
+    } catch (_) {}
+    if (updateState) {
+      updateState({
+        activeProfileId: member.id,
+        activeProfileName: member.name,
+      });
+    }
+  };
 
   // Recitation Logs State
   const [allLogs, setAllLogs] = useState(() => {
@@ -94,7 +131,9 @@ export default function AamaalDashboard({
 
   // Filter logs for current profile & current Aamaal
   const myAamaalLogs = allLogs.filter(
-    (l) => l.memberId === activeProfile.id && l.aamaalId === activeAamaal.id
+    (l) =>
+      String(l.memberId) === String(activeProfile.id) &&
+      l.aamaalId === activeAamaal.id
   );
 
   const logsByDate = {};
@@ -186,7 +225,7 @@ export default function AamaalDashboard({
             aria-label="Back"
             className="w-9 h-9 rounded-full bg-[#F3EFE2] border border-[#D5D2BE] shadow-soft-card flex items-center justify-center text-[#0D4A2E] font-bold text-[18px] active:scale-95 transition shrink-0"
           >
-            ←
+            ‹
           </button>
         ) : (
           <div className="w-9 h-9 shrink-0" aria-hidden="true" />
@@ -205,19 +244,19 @@ export default function AamaalDashboard({
                 : '🇮🇳'}{' '}
               {activeProfile.name}
             </span>
-            <span className="text-[10px]">▼</span>
+            <span className="text-[10px]">▾</span>
           </button>
 
           {showProfileMenu && (
             <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 w-52 rounded-[16px] bg-[#F5F2E8] border border-[#D5D2BE] shadow-xl p-1.5 z-40">
               {profiles.map((prof) => {
-                const isCurrent = prof.id === activeProfile.id;
+                const isCurrent = String(prof.id) === String(activeProfile.id);
                 return (
                   <button
                     key={prof.id}
                     type="button"
                     onClick={() => {
-                      setActiveProfileId(prof.id);
+                      handleSwitchProfile(prof);
                       setShowProfileMenu(false);
                     }}
                     className={`w-full px-3 py-2 rounded-xl text-left text-[12.5px] flex items-center justify-between ${
@@ -302,7 +341,7 @@ export default function AamaalDashboard({
         onClick={() => setCurrentView('monthly')}
         className="w-full rounded-full bg-gradient-to-r from-[#0F4C2B] to-[#165534] text-white px-4 py-3.5 flex items-center justify-between shadow-md mb-2.5 border border-[#C99E4C]/40"
       >
-        <span className="text-[15px]">📊</span>
+        <span className="text-[15px]">📅</span>
         <span className="text-[13px] font-bold text-[#F0D58C]">
           View My Monthly Report &amp; Missed Days
         </span>
@@ -346,13 +385,16 @@ export default function AamaalDashboard({
             id: `fam_${Date.now()}`,
             name: formattedName,
             country: activeProfile.country || 'India',
-            flag: activeProfile.flag && activeProfile.flag !== '????' ? activeProfile.flag : '🇮🇳',
+            flag:
+              activeProfile.flag && activeProfile.flag !== '????'
+                ? activeProfile.flag
+                : '🇮🇳',
             privacy: 'public',
             isPrimary: false,
             createdAt: Date.now(),
           };
           setProfiles((prev) => [...prev, newFam]);
-          setActiveProfileId(newFam.id);
+          handleSwitchProfile(newFam);
           if (onShowToast) onShowToast(`${formattedName} added to your circle!`);
         }}
       />
