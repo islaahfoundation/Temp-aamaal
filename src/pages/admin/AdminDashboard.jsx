@@ -479,6 +479,15 @@ export default function AdminDashboard({ state, updateState, onShowToast, onBack
     );
   }
 
+  if (activeView === 'cms') {
+  return (
+    <AdminCmsManager
+      onShowToast={onShowToast}
+      onBack={() => setActiveView(null)}
+    />
+  );
+}
+
   const pendingJamaatCount = jamaatRequests.filter((r) => r.status === 'pending').length;
 
   const MORE_TOOLS = [
