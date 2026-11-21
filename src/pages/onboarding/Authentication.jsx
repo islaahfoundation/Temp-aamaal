@@ -1,8 +1,41 @@
-import React, { useState, useMemo } from 'react';
+// authentication.jsx
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from './supabaseClient'; // Update path if located in ../supabaseClient or ../lib/supabase
+
+function detectLocationFromTimezone() {
+  const tz = (Intl.DateTimeFormat().resolvedOptions().timeZone || '').toLowerCase();
+  if (tz.includes('kolkata') || tz.includes('calcutta') || tz.includes('india')) {
+    return { country: 'India', flag: '🇮🇳' };
+  }
+  if (
+    tz.includes('toronto') ||
+    tz.includes('vancouver') ||
+    tz.includes('montreal') ||
+    tz.includes('edmonton') ||
+    tz.includes('winnipeg') ||
+    tz.includes('halifax')
+  ) {
+    return { country: 'Canada', flag: '🇨🇦' };
+  }
+  if (tz.startsWith('america/') || tz.startsWith('us/')) {
+    return { country: 'United States', flag: '🇺🇸' };
+  }
+  if (tz.includes('london') || tz.includes('europe/london') || tz.includes('belfast')) {
+    return { country: 'United Kingdom', flag: '🇬🇧' };
+  }
+  if (tz.includes('muscat')) return { country: 'Oman', flag: '🇴🇲' };
+  if (tz.includes('dubai')) return { country: 'United Arab Emirates', flag: '🇦🇪' };
+  if (tz.includes('riyadh')) return { country: 'Saudi Arabia', flag: '🇸🇦' };
+  if (tz.includes('qatar')) return { country: 'Qatar', flag: '🇶🇦' };
+  if (tz.includes('kuwait')) return { country: 'Kuwait', flag: '🇰🇼' };
+  if (tz.startsWith('australia/')) return { country: 'Australia', flag: '🇦🇺' };
+  return { country: 'India', flag: '🇮🇳' };
+}
 
 export default function Authentication() {
   const navigate = useNavigate();
+  const hasSyncedRef = useRef(false);
 
   // Detect whether this user has visited/onboarded before
   const isReturningUser = useMemo(() => {
@@ -17,6 +50,7 @@ export default function Authentication() {
     }
   }, []);
 
+  const [authMode, setAuthMode] = useState('signin'); // 'signin' | 'register'
   const [identifier, setIdentifier] = useState(() => {
     try {
       return localStorage.getItem('aamaal_user_email') || '';
@@ -28,14 +62,94 @@ export default function Authentication() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const finishAuth = (exitAction = 'Sign In') => {
+  // Save or sync the authenticated user into public.members
+  const syncMemberToSupabase = async (user) => {
+    const autoLoc = detectLocationFromTimezone();
+    const avatarUrl =
+      user.user_metadata?.avatar_url || user.user_metadata?.picture || '';
+
+    const { data: existing, error: fetchError } = await supabase
+      .from('members')
+      .select('id, country, flag, country_locked, avatar')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (fetchError) throw fetchError;
+
+    if (!existing) {
+      // Assign 'admin' only if public.members has no rows yet
+      const { count } = await supabase
+        .from('members')
+        .select('id', { count: 'exact', head: true });
+
+      const isFirstEver = count === 0;
+      const defaultName =
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
+        (user.email ? user.email.split('@')[0] : '') ||
+        user.phone ||
+        'Circle Member';
+
+      const { error: insertError } = await supabase.from('members').insert({
+        id: user.id,
+        parent_uid: user.id,
+        is_primary: true,
+        name: defaultName,
+        custom_name_locked: false,
+        country: autoLoc.country,
+        flag: autoLoc.flag,
+        country_locked: false,
+        phone: user.phone || '',
+        avatar: avatarUrl,
+        privacy: 'public',
+        role: isFirstEver ? 'admin' : 'member',
+      });
+
+      if (insertError) throw insertError;
+    } else {
+      const updates = {};
+
+      if (
+        !existing.country_locked &&
+        (existing.country !== autoLoc.country || existing.flag !== autoLoc.flag)
+      ) {
+        updates.country = autoLoc.country;
+        updates.flag = autoLoc.flag;
+      }
+
+      if (!existing.avatar && avatarUrl) {
+        updates.avatar = avatarUrl;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        updates.updated_at = new Date().toISOString();
+        const { error: updateError } = await supabase
+          .from('members')
+          .update(updates)
+          .eq('id', user.id);
+
+        if (updateError) throw updateError;
+      }
+    }
+  };
+
+  const finishAuth = (exitAction = 'Sign In', userObj = null) => {
     try {
       if (navigator.vibrate) navigator.vibrate(20);
       localStorage.setItem('aamaal_onboarded', 'true');
-      if (rememberMe && identifier.trim()) {
-        localStorage.setItem('aamaal_user_email', identifier.trim());
+
+      const savedEmail = userObj?.email || identifier.trim();
+      if (rememberMe && savedEmail) {
+        localStorage.setItem('aamaal_user_email', savedEmail);
       }
+      if (userObj?.id) {
+        localStorage.setItem('aamaal_user_uid', userObj.id);
+      }
+
       localStorage.setItem(
         'aamaal_onboarding_meta',
         JSON.stringify({
@@ -47,9 +161,119 @@ export default function Authentication() {
     navigate('/home', { replace: true });
   };
 
-  const handleSignIn = (e) => {
+  // Capture Google OAuth redirect & active session
+  useEffect(() => {
+    let mounted = true;
+
+    const handleSession = async (session, sourceLabel) => {
+      if (!session?.user || hasSyncedRef.current || !mounted) return;
+      hasSyncedRef.current = true;
+      setLoading(true);
+      setErrorMessage('');
+      setStatusMessage('Saving your profile...');
+
+      try {
+        await syncMemberToSupabase(session.user);
+        if (mounted) finishAuth(sourceLabel, session.user);
+      } catch (err) {
+        hasSyncedRef.current = false;
+        if (mounted) {
+          setErrorMessage(
+            err.message || 'Signed in, but failed to save profile to database.'
+          );
+          setStatusMessage('');
+          setLoading(false);
+        }
+      }
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) handleSession(session, 'Session Restored');
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        handleSession(session, 'Google / Auth Sign In');
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  // Email or Phone + Password Sign In / Register
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    finishAuth('Sign In');
+    setErrorMessage('');
+    setStatusMessage('');
+
+    const trimmed = identifier.trim();
+    if (!trimmed || !password) {
+      setErrorMessage('Please enter your email/phone and password.');
+      return;
+    }
+
+    const isEmail = trimmed.includes('@');
+    const credentials = isEmail
+      ? { email: trimmed, password }
+      : { phone: trimmed, password };
+
+    setLoading(true);
+    try {
+      if (authMode === 'register') {
+        const { data, error } = await supabase.auth.signUp(credentials);
+        if (error) throw error;
+
+        if (data?.session?.user) {
+          hasSyncedRef.current = true;
+          await syncMemberToSupabase(data.session.user);
+          finishAuth('Register', data.session.user);
+        } else {
+          setStatusMessage(
+            'Account created! Check your email to confirm, then sign in.'
+          );
+          setAuthMode('signin');
+        }
+      } else {
+        const { data, error } = await supabase.auth.signInWithPassword(credentials);
+        if (error) throw error;
+
+        if (data?.user) {
+          hasSyncedRef.current = true;
+          await syncMemberToSupabase(data.user);
+          finishAuth('Sign In', data.user);
+        }
+      }
+    } catch (err) {
+      setErrorMessage(err.message || 'Authentication failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Google OAuth Sign In
+  const handleGoogleSignIn = async () => {
+    setErrorMessage('');
+    setStatusMessage('Redirecting to Google...');
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.href,
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      setErrorMessage(err.message || 'Google Sign-In failed.');
+      setStatusMessage('');
+      setLoading(false);
+    }
   };
 
   return (
@@ -108,15 +332,33 @@ export default function Authentication() {
         {/* Dynamic Greeting */}
         <div className="text-center mt-3 mb-2.5">
           <h1 className="font-serif text-[24px] font-bold text-[#14261C] leading-tight">
-            {isReturningUser ? 'Welcome Back' : 'Welcome'}
+            {authMode === 'register'
+              ? 'Create Account'
+              : isReturningUser
+              ? 'Welcome Back'
+              : 'Welcome'}
           </h1>
           <p className="text-[12.5px] text-[#4E5953] mt-0.5">
-            Sign in to continue
+            {authMode === 'register'
+              ? 'Register to sync your daily Aamaal'
+              : 'Sign in to continue'}
           </p>
         </div>
 
-        {/* Sign-In Form */}
-        <form onSubmit={handleSignIn} className="space-y-2">
+        {/* Inline Error / Status Feedback */}
+        {errorMessage && (
+          <div className="mb-2 px-3 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-[11.5px] font-medium text-center">
+            {errorMessage}
+          </div>
+        )}
+        {statusMessage && !errorMessage && (
+          <div className="mb-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[#0D4A2E] text-[11.5px] font-medium text-center">
+            {statusMessage}
+          </div>
+        )}
+
+        {/* Sign-In / Register Form */}
+        <form onSubmit={handleSubmit} className="space-y-2">
           {/* Email or Phone Input */}
           <div className="relative flex items-center">
             <span className="absolute left-3.5 text-[#4E5953] pointer-events-none">
@@ -137,8 +379,9 @@ export default function Authentication() {
               type="text"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
+              disabled={loading}
               placeholder="Email or Phone Number"
-              className="w-full h-[42px] pl-10 pr-4 rounded-[13px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition"
+              className="w-full h-[42px] pl-10 pr-4 rounded-[13px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition disabled:opacity-60"
             />
           </div>
 
@@ -162,8 +405,9 @@ export default function Authentication() {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
               placeholder="Password"
-              className="w-full h-[42px] pl-10 pr-10 rounded-[13px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition"
+              className="w-full h-[42px] pl-10 pr-10 rounded-[13px] bg-[#FDFCF8] border border-[#DDD9C8] text-[13px] text-[#14261C] placeholder:text-[#7A827D] focus:outline-none focus:border-[#0D4A2E] transition disabled:opacity-60"
             />
             <button
               type="button"
@@ -244,12 +488,17 @@ export default function Authentication() {
             </button>
           </div>
 
-          {/* Primary Sign In Button */}
+          {/* Primary Sign In / Register Button */}
           <button
             type="submit"
-            className="w-full h-[44px] rounded-full bg-gradient-to-r from-[#0B462B] via-[#135B39] to-[#083B23] text-white text-[14.5px] font-semibold shadow-md active:scale-[0.98] transition"
+            disabled={loading}
+            className="w-full h-[44px] rounded-full bg-gradient-to-r from-[#0B462B] via-[#135B39] to-[#083B23] text-white text-[14.5px] font-semibold shadow-md active:scale-[0.98] transition disabled:opacity-60"
           >
-            Sign In
+            {loading
+              ? 'Please wait...'
+              : authMode === 'register'
+              ? 'Create Account'
+              : 'Sign In'}
           </button>
         </form>
 
@@ -263,8 +512,9 @@ export default function Authentication() {
         {/* Continue with Google Button */}
         <button
           type="button"
-          onClick={() => finishAuth('Continue with Google')}
-          className="w-full h-[42px] rounded-full bg-[#FDFCF8] border border-[#DDD9C8] shadow-sm flex items-center justify-center space-x-2.5 text-[13px] font-semibold text-[#14261C] active:scale-[0.98] transition"
+          disabled={loading}
+          onClick={handleGoogleSignIn}
+          className="w-full h-[42px] rounded-full bg-[#FDFCF8] border border-[#DDD9C8] shadow-sm flex items-center justify-center space-x-2.5 text-[13px] font-semibold text-[#14261C] active:scale-[0.98] transition disabled:opacity-60"
         >
           <svg className="w-[17px] h-[17px]" viewBox="0 0 24 24">
             <path
@@ -288,16 +538,21 @@ export default function Authentication() {
         </button>
       </div>
 
-      {/* Bottom Register Link */}
+      {/* Bottom Register / Sign In Switch Link */}
       <footer className="relative z-10 text-center pb-1.5 pt-1 shrink-0">
         <p className="text-[12.5px] text-[#4E5953]">
-          Don&apos;t have an account?{' '}
+          {authMode === 'register' ? 'Already have an account? ' : "Don't have an account? "}
           <button
             type="button"
-            onClick={() => finishAuth('Register')}
+            disabled={loading}
+            onClick={() => {
+              setErrorMessage('');
+              setStatusMessage('');
+              setAuthMode((prev) => (prev === 'signin' ? 'register' : 'signin'));
+            }}
             className="font-semibold text-[#0D4A2E] underline underline-offset-2"
           >
-            Register
+            {authMode === 'register' ? 'Sign In' : 'Register'}
           </button>
         </p>
       </footer>
