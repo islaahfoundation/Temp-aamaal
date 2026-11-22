@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { CountryFlag } from '../aamaal/WeeklySummary';
+import logoImg from '../../assets/backgrounds/logo.png';
 
 export default function ProfileSwitcher({
   profiles = [],
@@ -36,40 +37,20 @@ export default function ProfileSwitcher({
           title="Tap to switch family profile"
         >
           {/* Mosque Arch Logo */}
-          <svg className="w-11 h-11 shrink-0" viewBox="0 0 64 60" fill="none">
-            <path
-              d="M10 50V28C10 15 32 6 32 6C32 6 54 15 54 28V50"
-              stroke="#0D4A2E"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-            <path
-              d="M32 14C25 14 21 20 21 26V48H43V26C43 20 39 14 32 14Z"
-              fill="#0D4A2E"
-            />
-            <circle cx="32" cy="10" r="2" fill="#C99E4C" />
-            <path
-              d="M16 32V48M48 32V48"
-              stroke="#0D4A2E"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-            />
-            <path
-              d="M4 54C18 47 42 47 60 52"
-              stroke="#C99E4C"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-          </svg>
+          <img
+  src={logoImg}
+  alt="Aamaal"
+  className="w-11 h-11 object-contain shrink-0"
+/>
 
-          <div>
-            <div className="font-serif text-[27px] font-bold text-[#0D4A2E] leading-none tracking-tight">
-              Aamaal
-            </div>
-            <div className="text-[10px] font-medium tracking-[0.08em] text-[#1A3826] mt-0.5">
-              Live with Purpose
-            </div>
-          </div>
+<div>
+  <div className="font-serif text-[27px] font-bold text-[#0D4A2E] leading-none tracking-tight">
+    Aamaal
+  </div>
+  <div className="text-[10px] font-medium tracking-[0.08em] text-[#1A3826] mt-0.5">
+    Live with Purpose
+  </div>
+</div>
         </button>
 
         {/* Top-Right Circular Action Buttons (Alert Inbox Bell + Settings Gear) */}
